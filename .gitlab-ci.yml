@@ -1,0 +1,251 @@
+image: eicweb.phy.anl.gov:4567/containers/eic_container/eic:latest
+
+default:
+  artifacts:
+    expire_in: 10 mins
+    paths:
+      - results/
+      - datasets/
+      - sim_output/
+      - data
+        #    exclude:
+        #      - .git/
+        #      - datasets/.git/
+  before_script:
+    - git clone https://eicweb.phy.anl.gov/EIC/NPDet.git
+        #    - cd NPDet/build && cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j10 && make install
+        #    - cd ../.. 
+
+stages:
+  - data_init
+    #  - ci_gen
+  - simulate
+  - benchmarks
+  - deploy
+    #- others
+
+get_data:
+  stage: data_init
+  tags:
+    - sodium
+  script:
+    - git clone https://eicweb.phy.anl.gov/EIC/datasets.git datasets
+    - ln -s datasets/data
+    - mkdir -p results
+    - mkdir -p sim_output
+
+#generate_config:
+#  stage: ci_gen
+#  tags:
+#    - sodium
+#  script:
+#    - ./bin/gen_ci_config -p track_test_ -i trackers > results/trackers_config.yml
+#    - ./bin/gen_ci_config -p cal_test_   -i calorimeters > results/calorimeters_config.yml
+#    - ./bin/gen_ci_config -p pid_test_   -i pid > results/pid_config.yml
+
+cal_sim_1_dummy_test2:
+  stage: simulate
+  tags:
+    - sodium
+  needs: 
+    - ["get_data"]
+  script:
+    - echo "here we run simulation"
+
+cal_test_1_dummy_test2:
+  stage: benchmarks
+  needs: 
+    - ["cal_sim_1_dummy_test2"]
+  tags:
+    - sodium
+  script:
+    - bash calorimeters/dummy_test2.sh
+  allow_failure: true
+
+  #cal_test_2_dummy_test:
+  #  stage: benchmarks
+  #  tags:
+  #    - sodium
+  #  script:
+  #    - bash calorimeters/dummy_test.sh
+  #  allow_failure: true
+
+cal_test_3_zdc_neutrons_reader:
+  stage: benchmarks
+  tags:
+    - sodium
+  needs: 
+    - ["zdc_simulation"]
+  script:
+    - root -b -q calorimeters/zdc_neutrons_reader.cxx
+  allow_failure: true
+
+pid_test_1_dummy_test:
+  stage: benchmarks
+  tags:
+    - sodium
+  needs:
+    - ["cal_sim_1_dummy_test2"]
+  script:
+    - bash pid/dummy_test.sh
+  allow_failure: true
+
+track_test_1_dummy_test:
+  stage: benchmarks
+  needs:
+    - ["cal_sim_1_dummy_test2"]
+  tags:
+    - sodium
+  script:
+    - bash trackers/dummy_test.sh
+  allow_failure: true
+
+roman_pot_simu:
+  stage: simulate
+  needs: 
+    - ["get_data"]
+  tags:
+    - sodium
+  script:
+    - cp NPDet/src/GenericDetectors/trackers/compact/elements.xml ./.
+    - cp NPDet/src/GenericDetectors/trackers/compact/materials.xml ./.
+    - bash trackers/roman_pot_simu.sh
+
+roman_pot_nhits:
+  stage: benchmarks
+  needs:
+    - ["roman_pot_simu"]
+  tags:
+    - sodium
+  script:
+    - root -b -q trackers/simple_tracking.cxx+
+  allow_failure: true
+
+roman_pot_eta:
+  stage: benchmarks
+  tags:
+    - sodium
+  needs:
+    - ["roman_pot_simu"]
+  script:
+    - root -b -q trackers/roman_pot_hit_eta.cxx+
+  allow_failure: true
+
+zdc_simulation:
+  stage: simulate
+  needs: 
+    - ["get_data"]
+  tags:
+    - sodium
+  script:
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/elements.xml ./.
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/materials.xml ./.
+    - bash calorimeters/run_simulation_zdc.sh
+
+zdc_benchmark:
+  stage: benchmarks
+  tags:
+    - sodium
+  needs: 
+    - ["zdc_simulation"]
+  dependencies:
+    - zdc_simulation
+  script:
+    - ls -lrth sim_output
+    - root -b -q calorimeters/simple_checking.cxx+
+  allow_failure: true
+
+zdc_benchmark_info_histogram:
+  stage: benchmarks
+  needs: 
+    - ["zdc_simulation"]
+  tags:
+    - sodium
+  dependencies:
+    - zdc_simulation
+  script:
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/elements.xml calorimeters/
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/materials.xml calorimeters/
+    - root -b -q calorimeters/simple_info_plot_histograms.cxx+
+  allow_failure: true
+
+crystal_emcal_simulation:
+  stage: simulate
+  needs: 
+    - ["get_data"]
+  tags:
+    - sodium
+  script:
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/elements.xml ./.
+    - cp NPDet/src/GenericDetectors/calorimeters/compact/materials.xml ./.
+    - bash calorimeters/run_simulation_crystal.sh
+
+crystal_benchmark:
+  stage: benchmarks
+  tags:
+    - sodium
+  needs:
+    - ["crystal_emcal_simulation"]
+  script:
+    - ls -lrth sim_output
+    - root -b -q calorimeters/simple_checking_crystal.cxx+
+  allow_failure: true
+
+deploy_results:
+  stage: deploy
+  needs:
+    - ["zdc_benchmark","zdc_benchmark_info_histogram"]
+  tags:
+    - sodium
+  script:
+    - echo "deploy results!"
+
+      #  artifacts:
+      #    paths:
+      #      - datasets
+
+      #track_test1:
+      #  stage: detectors
+      #  tags:
+      #    - sodium
+      #  script:
+      #    - bash trackers/dummy_test.sh
+      #  allow_failure: true
+      #
+      #cal_test1:
+      #  stage: detectors
+      #  tags:
+      #    - sodium
+      #  script:
+      #    - bash calorimeters/dummy_test.sh
+      #  allow_failure: true
+      #
+      #cal_test2:
+      #  stage: detectors
+      #  tags:
+      #    - sodium
+      #  script:
+      #    - root -b -q calorimeters/zdc_neutrons_reader.cxx
+      #  allow_failure: true
+
+
+        #pid_test1:
+        #  stage: detectors
+        #  tags:
+        #    - sodium
+        #  script:
+        #    - bash pid/dummy_test.sh
+        #  allow_failure: true
+
+
+      #pages:
+      #  image: alpine
+      #  when: manual
+      #  stage: build
+      #  script:
+      #  - apk update && apk add doxygen  graphviz ttf-ubuntu-font-family
+      #  - cd doc && doxygen Doxyfile && mv doxygen_output/html/ ../public/
+      #  artifacts:
+      #    paths:
+      #    - public #  only:
+      #  - master

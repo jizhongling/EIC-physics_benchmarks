@@ -2,10 +2,6 @@ Physics Benchmarks for the EIC
 ==============================
 
 
-[![pipeline status](https://eicweb.phy.anl.gov/jihee.kim/benchmarks/badges/master/pipeline.svg)](https://eicweb.phy.anl.gov/jihee.kim/benchmarks/-/commits/master)
-
-
-
 ## Adding new benchmarks
 
 ### Pass/Fail tests
