@@ -44,4 +44,4 @@ child-pipeline:
   trigger:
     include:
       - artifact: config/dummy_config.yml
-        job: generate-config
+        job: generate_config
