@@ -19,6 +19,7 @@ default:
 stages:
   - build
   - data_init
+  - run
 
 get_data:
   stage: data_init
@@ -31,6 +32,7 @@ get_data:
     - mkdir -p sim_output
 
 generate_config:
+  stage: run
   needs: ["get_data"]
   tags:
     - sodium
@@ -39,6 +41,7 @@ generate_config:
     - mkdir -p config && ./bin/gen_ci_config --no-failure -p dis_ -i dis > config/dis_config.yml
 
 dummy-pipeline:
+  stage: run
   needs: ["generate_config"]
   trigger:
     include:
@@ -47,6 +50,7 @@ dummy-pipeline:
     strategy: depend
 
 dis-pipeline:
+  stage: run
   needs: ["generate_config"]
   trigger:
     include:
@@ -55,6 +59,7 @@ dis-pipeline:
     strategy: depend
 
 final_report:
+  stage: run
   tags:
     - sodium
   needs: ["dis-pipeline","dummy-pipeline"]
