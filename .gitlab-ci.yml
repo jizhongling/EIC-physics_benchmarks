@@ -18,10 +18,10 @@ default:
         #    - cd ../.. 
 
 stages:
+  - build
   - data_init
-  - ci_gen
   - run
-  - benchmarks
+    #  - benchmarks
 
 get_data:
   stage: data_init
@@ -34,11 +34,10 @@ get_data:
     - mkdir -p sim_output
 
 generate_config:
-  stage: ci_gen
+  stage: build
   tags:
     - sodium
-  script:
-    - ./bin/gen_ci_config -p test_ -i dummy > config/dummy_config.yml
+  script:  ./bin/gen_ci_config -p test_ -i dummy > config/dummy_config.yml
 
 child-pipeline:
   stage: run
