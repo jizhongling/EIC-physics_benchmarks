@@ -3,8 +3,8 @@ set -o nounset
 set -o errexit
 
 CI_TAG=sodium
-BENCHMARK_SCRIPT_DIR=.
-CI_JOB_PREFIX=cal_test_
+BENCHMARK_SCRIPT_DIR=./dummy
+CI_JOB_PREFIX=test_
 
 function print_the_help {
   echo "USAGE: $0 [-t <runner_tag>] "
