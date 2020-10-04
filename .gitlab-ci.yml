@@ -46,3 +46,4 @@ child-pipeline:
     include:
       - artifact: config/dummy_config.yml
         job: generate_config
+    strategy: depend
