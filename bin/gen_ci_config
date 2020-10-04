@@ -69,9 +69,6 @@ ${CI_JOB_PREFIX}${ifile}_${filename_noext}:
   stage: benchmarks
   script:
     - bash ${script_name}
-  artifact:
-    paths: 
-      - results/
   allow_failure: true
 
 EOF
@@ -87,9 +84,6 @@ ${CI_JOB_PREFIX}${ifile}_${filename_noext}:
   stage: benchmarks
   script:
     - root -b -q ${script_name}
-  artifact:
-    paths: 
-      - results/
   allow_failure: true
 
 EOF
