@@ -31,7 +31,7 @@ get_data:
     - mkdir -p sim_output
 
 generate_config:
-  dependencies: ["get_data"]
+  needs: ["get_data"]
   tags:
     - sodium
   script:
@@ -39,7 +39,7 @@ generate_config:
     - mkdir -p config && ./bin/gen_ci_config --no-failure -p dis_ -i dis > config/dis_config.yml
 
 dummy-pipeline:
-  dependencies: ["generate_config"]
+  needs: ["generate_config"]
   trigger:
     include:
       - artifact: config/dummy_config.yml
@@ -47,7 +47,7 @@ dummy-pipeline:
     strategy: depend
 
 dis-pipeline:
-  dependencies: ["generate_config"]
+  needs: ["generate_config"]
   trigger:
     include:
       - artifact: config/dis_config.yml
@@ -57,7 +57,7 @@ dis-pipeline:
 final_report:
   tags:
     - sodium
-  dependencies: ["dis-pipeline","dummy-pipeline"]
+  needs: ["dis-pipeline","dummy-pipeline"]
   script:
     - echo "It was a success!"
 
