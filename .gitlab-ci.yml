@@ -19,7 +19,6 @@ default:
 stages:
   - build
   - data_init
-  - run
 
 get_data:
   stage: data_init
@@ -27,12 +26,12 @@ get_data:
     - sodium
   script:
     - git clone https://eicweb.phy.anl.gov/EIC/datasets.git datasets
-    - ln -s datasets/data
+    - mkdir -p data
     - mkdir -p results
     - mkdir -p sim_output
 
 generate_config:
-  stage: build
+  dependencies: ["get_data"]
   tags:
     - sodium
   script:
@@ -40,7 +39,7 @@ generate_config:
     - mkdir -p config && ./bin/gen_ci_config --no-failure -p dis_ -i dis > config/dis_config.yml
 
 dummy-pipeline:
-  stage: run
+  dependencies: ["generate_config"]
   trigger:
     include:
       - artifact: config/dummy_config.yml
@@ -48,9 +47,17 @@ dummy-pipeline:
     strategy: depend
 
 dis-pipeline:
-  stage: run
+  dependencies: ["generate_config"]
   trigger:
     include:
       - artifact: config/dis_config.yml
         job: generate_config
     strategy: depend
+
+final_report:
+  tags:
+    - sodium
+  dependencies: ["dis-pipeline","dummy-pipeline"]
+  script:
+    - echo "It was a success!"
+
