@@ -20,6 +20,7 @@ default:
 stages:
   - data_init
   - ci_gen
+  - run
   - benchmarks
 
 get_data:
