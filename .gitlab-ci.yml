@@ -37,7 +37,8 @@ generate_config:
   stage: build
   tags:
     - sodium
-  script:  ./bin/gen_ci_config -p test_ -i dummy > config/dummy_config.yml
+  script:
+    - mkdir config && ./bin/gen_ci_config -p test_ -i dummy > config/dummy_config.yml
 
 child-pipeline:
   stage: run
