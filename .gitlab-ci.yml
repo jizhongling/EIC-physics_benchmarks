@@ -51,6 +51,6 @@ dis-pipeline:
   stage: run
   trigger:
     include:
-      - artifact: config/dummy_config.yml
+      - artifact: config/dis_config.yml
         job: generate_config
     strategy: depend
