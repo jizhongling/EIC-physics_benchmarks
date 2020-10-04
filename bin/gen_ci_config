@@ -2,9 +2,10 @@
 set -o nounset
 set -o errexit
 
-CI_TAG=sodium
 BENCHMARK_SCRIPT_DIR=./dummy
+CI_TAG=sodium
 CI_JOB_PREFIX=test_
+CI_FAILURE="true"
 
 function print_the_help {
   echo "USAGE: $0 [-t <runner_tag>] "
@@ -12,6 +13,7 @@ function print_the_help {
   echo "            -i,--input         Input scripts directory "
   echo "            -t,--tag           Gitlab Runner tag"
   echo "            -p,--prefix        job name prefix"
+  echo "            --no-failure       do not allow failures"
   exit 
 }
 
@@ -38,6 +40,10 @@ do
       CI_JOB_PREFIX="$2"
       shift # past argument
       shift # past value
+      ;;
+    --no-failure)
+      CI_FAILURE="false"
+      shift # past argument
       ;;
     *)    # unknown option
       #POSITIONAL+=("$1") # save it in an array for later
@@ -71,7 +77,7 @@ ${CI_JOB_PREFIX}${ifile}_${filename_noext}:
   stage: benchmarks
   script:
     - bash ${script_name}
-  allow_failure: true
+  allow_failure: ${CI_FAILURE}
 
 EOF
 done
@@ -88,7 +94,7 @@ ${CI_JOB_PREFIX}${ifile}_${filename_noext}:
   stage: benchmarks
   script:
     - root -b -q ${script_name}
-  allow_failure: true
+  allow_failure: ${CI_FAILURE}
 
 EOF
 done
