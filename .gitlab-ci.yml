@@ -19,7 +19,9 @@ default:
 stages:
   - build
   - data_init
+  - config
   - run
+  - finish
 
 get_data:
   stage: data_init
@@ -32,7 +34,7 @@ get_data:
     - mkdir -p sim_output
 
 generate_config:
-  stage: run
+  stage: config
   needs: ["get_data"]
   tags:
     - sodium
@@ -59,7 +61,7 @@ dis-pipeline:
     strategy: depend
 
 final_report:
-  stage: run
+  stage: finish
   tags:
     - sodium
   needs: ["dis-pipeline","dummy-pipeline"]
