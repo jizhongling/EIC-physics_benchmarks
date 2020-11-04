@@ -1,70 +1,37 @@
-image: eicweb.phy.anl.gov:4567/containers/eic_container/eic:latest
+image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:latest
 
 default:
+  tags:
+    - silicon
   artifacts:
-    expire_in: 10 mins
+    expire_in: 3 days
     paths:
-      - config/
+      - detector/
       - results/
-      - sim_output/
-      - data
-        #    exclude:
-        #      - .git/
-        #      - datasets/.git/
-        #before_script:
-        #  - git clone https://eicweb.phy.anl.gov/EIC/NPDet.git
-        #      #    - cd NPDet/build && cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j10 && make install
-        #      #    - cd ../.. 
 
 stages:
-  - build
-  - data_init
+  - init
   - config
-  - run
+  - generate
+  - process
+  - analyze
+  - collect
+  - cleanup
   - finish
 
-get_data:
-  stage: data_init
-  tags:
-    - sodium
+detector:
+  stage: init
   script:
-    - git clone https://eicweb.phy.anl.gov/EIC/datasets.git datasets
-    - mkdir -p data
-    - mkdir -p results
-    - mkdir -p sim_output
+    - mkdir -p detector
+    - bash init/build_detector.sh
 
-generate_config:
-  stage: config
-  needs: ["get_data"]
-  tags:
-    - sodium
-  script:
-    - mkdir -p config && ./bin/gen_ci_config -p test_ -i dummy > config/dummy_config.yml
-    - mkdir -p config && ./bin/gen_ci_config -p dis_ -i dis > config/dis_config.yml
+include:
+  - local: 'dis/config.yml'
+  - local: 'dummy/config.yml'
+  - local: 'dvmp/config.yml'
 
-dummy-pipeline:
-  stage: run
-  needs: ["generate_config"]
-  trigger:
-    include:
-      - artifact: config/dummy_config.yml
-        job: generate_config
-    strategy: depend
-
-dis-pipeline:
-  stage: run
-  needs: ["generate_config"]
-  trigger:
-    include:
-      - artifact: config/dis_config.yml
-        job: generate_config
-    strategy: depend
-
-final_report:
+summary:
   stage: finish
-  tags:
-    - sodium
-  needs: ["dis-pipeline","dummy-pipeline"]
+  needs: ["dis:results", "dummy:results", "dvmp:results"]
   script:
-    - echo "It was a success!"
-
+    - echo "All benchmarks passed"

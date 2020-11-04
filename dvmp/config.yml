@@ -1,0 +1,27 @@
+dvmp:dummy_test:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  script:
+    - dvmp/dummy_test.sh
+
+dvmp:dummy_test2:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  script:
+    - dvmp/dummy_test2.sh
+
+dvmp:dummy_fail_test:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  allow_failure: true
+  script:
+    - dvmp/dummy_fail_test.sh
+
+dvmp:results:
+  stage: collect
+  needs: ["dvmp:dummy_test", "dvmp:dummy_test2", "dvmp:dummy_fail_test"]
+  script:
+    - echo "All DIS benchmarks successful"

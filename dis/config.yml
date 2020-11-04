@@ -1,0 +1,27 @@
+dis:dummy_test:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  script:
+    - dis/dummy_test.sh
+
+dis:dummy_test2:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  script:
+    - dis/dummy_test2.sh
+
+dis:dummy_fail_test:
+  stage: analyze
+  needs: ["detector"]
+  timeout: 1 hours
+  allow_failure: true
+  script:
+    - dis/dummy_fail_test.sh
+
+dis:results:
+  stage: collect
+  needs: ["dis:dummy_test", "dis:dummy_test2", "dis:dummy_fail_test"]
+  script:
+    - echo "All DIS benchmarks successful"
