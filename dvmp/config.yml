@@ -1,27 +1,61 @@
-dvmp:dummy_test:
-  stage: analyze
-  needs: ["detector"]
+dvmp:jpsi_central:generate:
+  stage: generate
+  needs: []
   timeout: 1 hours
+  cache:
+    key:
+      files:
+        - dvmp/generator/jpsi_central.json
+      prefix: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - results/dvmp
+  script:
+    - echo "stub for generator"
+    - mkdir -p results/dvmp
+    - touch results/dvmp/event-stub
+
+dvmp:jpsi_central:process:
+  stage: process
+  needs: ["detector", "dvmp:jpsi_central:generate"]
+  dependencies:
+    - detector
+    - dvmp:jpsi_central:generate
+  timeout: 1 hour
+  script:
+    - echo "Running the detector simulation"
+    - touch results/dvmp/sim-stub
+    - echo "Running the reconstruction"
+    - touch results/dvmp/rec-stub
+
+dvmp:jpsi_central:dummy_test:
+  stage: analyze
+  needs: ["dvmp:jpsi_central:process"]
+  dependencies:
+    - dvmp:jpsi_central:process
   script:
     - dvmp/dummy_test.sh
 
-dvmp:dummy_test2:
+dvmp:jpsi_central:dummy_test2:
   stage: analyze
-  needs: ["detector"]
-  timeout: 1 hours
+  needs: ["dvmp:jpsi_central:process"]
+  dependencies:
+    - dvmp:jpsi_central:process
   script:
     - dvmp/dummy_test2.sh
 
-dvmp:dummy_fail_test:
+dvmp:jpsi_central:dummy_fail_test:
   stage: analyze
-  needs: ["detector"]
-  timeout: 1 hours
+  needs: ["dvmp:jpsi_central:process"]
+  dependencies:
+    - dvmp:jpsi_central:process
   allow_failure: true
   script:
     - dvmp/dummy_fail_test.sh
 
 dvmp:results:
   stage: collect
-  needs: ["dvmp:dummy_test", "dvmp:dummy_test2", "dvmp:dummy_fail_test"]
+  needs: ["dvmp:jpsi_central:dummy_test",
+          "dvmp:jpsi_central:dummy_test2",
+          "dvmp:jpsi_central:dummy_fail_test"]
   script:
-    - echo "All DIS benchmarks successful"
+    - echo "All DVMP benchmarks successful"

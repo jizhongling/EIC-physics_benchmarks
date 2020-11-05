@@ -11,12 +11,10 @@ default:
 
 stages:
   - init
-  - config
   - generate
   - process
   - analyze
   - collect
-  - cleanup
   - finish
 
 detector:
