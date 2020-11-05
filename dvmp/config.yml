@@ -9,6 +9,9 @@ dvmp:jpsi_central:generate:
       prefix: "$CI_COMMIT_REF_SLUG"
     paths:
       - results/dvmp
+  artifacts:
+    paths:
+      - results
   script:
     - echo "stub for generator"
     - mkdir -p results/dvmp
@@ -26,6 +29,9 @@ dvmp:jpsi_central:process:
     - touch results/dvmp/sim-stub
     - echo "Running the reconstruction"
     - touch results/dvmp/rec-stub
+  artifacts:
+    paths:
+      - results
 
 dvmp:jpsi_central:dummy_test:
   stage: analyze
