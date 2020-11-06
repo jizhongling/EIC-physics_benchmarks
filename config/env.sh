@@ -23,3 +23,6 @@ export DETECTOR_PREFIX=`realpath ${DETECTOR_PREFIX}`
 ## setup detector paths
 export LD_LIBRARY_PATH=${DETECTOR_PREFIX}/lib:$LD_LIBRARY_PATH
 export DETECTOR_SOURCE_PATH=${DETECTOR_PREFIX}/src
+
+## setup root results artifact path
+export RESULTS_PATH=`realpath results`

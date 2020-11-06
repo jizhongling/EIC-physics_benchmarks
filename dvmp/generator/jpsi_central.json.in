@@ -1,0 +1,90 @@
+{
+  "mc" : {
+    "type" : "eic",
+    "tag" : "@TAG@",
+    "events" : "10000",
+    "generator" : {
+      "type" : "ep-2gluon",
+      "vertex" : {"type" : "origin"},
+      "beam": {
+        "lepton" : {
+          "type" : "constant",
+          "particle_type" : "e-",
+          "dir" : [ "0", "0", "-1" ],
+          "energy" : "10.0"
+        },
+        "ion" : {
+          "type" : "constant",
+          "particle_type" : "proton",
+          "dir" : [ "0", "0", "1" ],
+          "energy" : "100"
+        }
+      },
+      "target": {"type": "primary"},
+      "photon" : {
+        "type" : "vphoton", 
+        "y_range" : [ "0.01", "1" ],
+        "Q2_range": [ "1.0", "1000"]
+      },
+      "process_0" : {
+        "type" : "brodsky_2vmX",
+        "vm_type" : "J/psi",
+        "recoil_type" : "proton",
+        "photo_b" : "4.50",
+        "photo_c2g" : "6.0e4",
+        "photo_c3g" : "0.0",
+        "R_vm_c" : "2.164",
+        "R_vm_n" : "2.131",
+        "dipole_n" : "2.575",
+        "note": "b from the H1 paper, c2g adjusted to fit HERA points"
+      }
+    },
+    "detector" : {
+      "type" : "composite",
+      "components" : {
+        "barrel" : {
+          "id" : "1",
+          "name" : "barrel",
+          "type" : "cone",
+          "acceptance" : {
+            "acceptance" : "1.0",
+            "p" : [ "1", "1000" ],
+            "theta" : [ "45", "135" ],
+            "pid" : [ "e+", "e-", "mu+", "mu-" ]
+          },
+          "smearing" : {"p" : "0.0", "theta" : "0.0", "phi" : "0.0"}
+        },
+        "endcap_fw" : {
+          "id" : "2",
+          "name" : "endcap_fw",
+          "type" : "cone",
+          "acceptance" : {
+            "acceptance" : "1.0",
+            "p" : [ "1", "1000" ],
+            "theta" : [ "10", "45" ],
+            "pid" : [ "e+", "e-", "mu+", "mu-" ]
+          },
+          "smearing" : {"p" : "0.0", "theta" : "0.0", "phi" : "0.0"}
+        },
+        "endcap_bw" : {
+          "id" : "3",
+          "name" : "endcap_bw",
+          "type" : "cone",
+          "acceptance" : {
+            "acceptance" : "1.0",
+            "p" : [ "1", "1000" ],
+            "theta" : [ "135", "170" ],
+            "pid" : [ "e+", "e-", "mu+", "mu-" ]
+          },
+          "smearing" : {"p" : "0.0", "theta" : "0.0", "phi" : "0.0"}
+        }
+      }
+    },
+    "reconstruction" : {"require_leading" : "true"},
+    "decay" : {
+      "vm_decay_lepton_type" : "@DECAY_LEPTON@",
+      "vm_branching_ratio" : "@BRANCHING@",
+      "do_radiative_decay_vm" : "true"
+    }
+  }
+}

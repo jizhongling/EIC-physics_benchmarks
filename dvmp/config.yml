@@ -1,4 +1,5 @@
 dvmp:jpsi_central:generate:
+  image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
   stage: generate
   needs: []
   timeout: 1 hours
@@ -6,6 +7,7 @@ dvmp:jpsi_central:generate:
     key:
       files:
         - dvmp/generator/jpsi_central.json
+        - dvmp/scripts/jpsi_central-generate.sh
       prefix: "$CI_COMMIT_REF_SLUG"
     paths:
       - results/dvmp
@@ -13,9 +15,7 @@ dvmp:jpsi_central:generate:
     paths:
       - results
   script:
-    - echo "stub for generator"
-    - mkdir -p results/dvmp
-    - touch results/dvmp/event-stub
+    - ./dvmp/scripts/jpsi_central-generate.sh
 
 dvmp:jpsi_central:process:
   stage: process
@@ -39,7 +39,7 @@ dvmp:jpsi_central:dummy_test:
   dependencies:
     - dvmp:jpsi_central:process
   script:
-    - dvmp/dummy_test.sh
+    - dvmp/scripts/dummy_test.sh
 
 dvmp:jpsi_central:dummy_test2:
   stage: analyze
@@ -47,7 +47,7 @@ dvmp:jpsi_central:dummy_test2:
   dependencies:
     - dvmp:jpsi_central:process
   script:
-    - dvmp/dummy_test2.sh
+    - dvmp/scripts/dummy_test2.sh
 
 dvmp:jpsi_central:dummy_fail_test:
   stage: analyze
@@ -56,7 +56,7 @@ dvmp:jpsi_central:dummy_fail_test:
     - dvmp:jpsi_central:process
   allow_failure: true
   script:
-    - dvmp/dummy_fail_test.sh
+    - dvmp/scripts/dummy_fail_test.sh
 
 dvmp:results:
   stage: collect
