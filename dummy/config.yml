@@ -1,20 +1,17 @@
 dummy:dummy_test:
   stage: analyze
-  needs: ["detector"]
   timeout: 1 hours
   script:
     - dummy/dummy_test.sh
 
 dummy:dummy_test2:
   stage: analyze
-  needs: ["detector"]
   timeout: 1 hours
   script:
     - dummy/dummy_test2.sh
 
 dummy:dummy_fail_test:
   stage: analyze
-  needs: ["detector"]
   timeout: 1 hours
   allow_failure: true
   script:

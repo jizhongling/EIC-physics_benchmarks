@@ -7,7 +7,6 @@ default:
     expire_in: 3 days
 
 stages:
-  - init
   - generate
   - process
   - analyze
