@@ -5,8 +5,8 @@ OS=`uname -s`
 if [ "${OS}" = "Linux" ]; then
   echo "Detected OS: Linux"
   if [ ! -f juggler_latest.sif ]; then
-    echo "Need to create singularity image"
-    singularity pull docker://docker.io/sly2j/juggler:latest
+    echo "Need to fetch singularity image"
+    wget https://eicweb.phy.anl.gov/eic/juggler/-/jobs/artifacts/master/raw/build/juggler.sif?job=docker:singularity -O juggler_latest.sif
   fi
   echo "Launching dev shell (through singularity)..."
   singularity exec juggler_latest.sif eic-shell
