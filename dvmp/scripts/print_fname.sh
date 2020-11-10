@@ -31,7 +31,7 @@ while [ $# -gt 0 ]; do
       shift
       shift
       ;;
-    --stage)
+    --type)
       TYPE="$2"
       shift
       shift

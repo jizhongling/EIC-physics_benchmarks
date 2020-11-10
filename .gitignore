@@ -40,3 +40,6 @@ __pycache__/
 calorimeters/test/
 *.d
 *.pcm
+
+# output files
+results/*

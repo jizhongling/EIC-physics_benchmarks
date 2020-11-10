@@ -15,7 +15,7 @@ dvmp:jpsi_central:generate:
     paths:
       - results
   script:
-    - ./dvmp/scripts/jpsi_central-generate.sh
+    - ./dvmp/scripts/generate.sh --ebeam 10 --pbeam 100 --config jpsi_central --decay muon --decay electron
 
 dvmp:jpsi_central:process:
   stage: process

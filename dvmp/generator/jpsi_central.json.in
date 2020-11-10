@@ -3,6 +3,7 @@
     "type" : "eic",
     "tag" : "@TAG@",
     "events" : "10000",
+    "output_hepmc": true,
     "generator" : {
       "type" : "ep-2gluon",
       "vertex" : {"type" : "origin"},
@@ -11,13 +12,13 @@
           "type" : "constant",
           "particle_type" : "e-",
           "dir" : [ "0", "0", "-1" ],
-          "energy" : "10.0"
+          "energy" : "@EBEAM@"
         },
         "ion" : {
           "type" : "constant",
           "particle_type" : "proton",
           "dir" : [ "0", "0", "1" ],
-          "energy" : "100"
+          "energy" : "@PBEAM@"
         }
       },
       "target": {"type": "primary"},
