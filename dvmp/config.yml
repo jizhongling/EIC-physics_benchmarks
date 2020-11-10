@@ -24,10 +24,12 @@ dvmp:jpsi_central:process:
     - dvmp:generate
   timeout: 1 hour
   script:
+    - mkdir -p results/data/dvmp
+    - mkdir -p results/plots/dvmp
     - echo "Running the detector simulation"
-    - touch results/dvmp/sim-stub
+    - touch results/data/dvmp/sim-stub
     - echo "Running the reconstruction"
-    - touch results/dvmp/rec-stub
+    - touch results/data/dvmp/rec-stub
   artifacts:
     paths:
       - results
