@@ -1,4 +1,4 @@
-dvmp:jpsi_central:generate:
+dvmp:generate:
   image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
   stage: generate
   needs: []
@@ -19,10 +19,9 @@ dvmp:jpsi_central:generate:
 
 dvmp:jpsi_central:process:
   stage: process
-  needs: ["detector", "dvmp:jpsi_central:generate"]
+  needs: ["dvmp:generate"]
   dependencies:
-    - detector
-    - dvmp:jpsi_central:generate
+    - dvmp:generate
   timeout: 1 hour
   script:
     - echo "Running the detector simulation"
