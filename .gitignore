@@ -43,3 +43,5 @@ calorimeters/test/
 
 # output files
 results/*
+
+*.sif
