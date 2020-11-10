@@ -13,15 +13,6 @@ stages:
   - collect
   - finish
 
-detector:
-  stage: init
-  script:
-    - mkdir -p detector
-    - bash init/build_detector.sh
-  artifacts:
-    paths:
-      - detector
-
 include:
   - local: 'dis/config.yml'
   - local: 'dummy/config.yml'
