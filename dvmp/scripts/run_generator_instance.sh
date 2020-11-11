@@ -15,7 +15,7 @@ fi
 export RNG_SEED=1
 
 ## Setup local environment
-export DATA_PATH=$RESULTS_PATH/data/dvmp
+export DATA_PATH=results/dvmp
 
 
 EBEAM=
@@ -110,9 +110,13 @@ sed "s/@TAG@/${FNAME}/" $CONFIG_IN | \
 echo "Running the generator"
 lager -r ${RNG_SEED} -c ${FNAME}.json -e ${NEVENTS} -o .
 
+ls -lrth 
+popd
+
+
 ## Finally, move relevant output into the artifacts directory
 echo "Moving generator output into ${DATA_PATH}"
 mkdir -p ${DATA_PATH}
-for ext in hepmc json log root; do
-  mv *.${FNAME}.*.${ext} ${DATA_PATH}/${FNAME}.${ext}
+for ext in hepmc json log root ; do
+  mv dvmp/*.${FNAME}.*.${ext} ${DATA_PATH}/${FNAME}.${ext}
 done

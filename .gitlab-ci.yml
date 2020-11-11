@@ -15,11 +15,10 @@ stages:
 
 include:
   - local: 'dis/config.yml'
-  - local: 'dummy/config.yml'
   - local: 'dvmp/config.yml'
 
 summary:
   stage: finish
-  needs: ["dis:results", "dummy:results", "dvmp:results"]
+  needs: ["dis:results", "dvmp:results"]
   script:
     - echo "All benchmarks passed"

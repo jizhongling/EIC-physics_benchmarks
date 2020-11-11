@@ -12,17 +12,18 @@ if [[ ! -n  "${JUGGLER_INSTALL_PREFIX}" ]] ; then
   export JUGGLER_INSTALL_PREFIX="/usr/local"
 fi
 
+# not sure this is needed
 if [[ ! -n "${DETECTOR_PREFIX}" ]]; then
-  export DETECTOR_PREFIX=detector
+  # reuse the custom juggler install prefix for detector
+  export DETECTOR_INSTALL_PREFIX=${JUGGLER_INSTALL_PREFIX}
 fi
 
 ## ensure absolute paths
+# not sure this is needed either 
 export JUGGLER_INSTALL_PREFIX=`realpath ${JUGGLER_INSTALL_PREFIX}`
-export DETECTOR_PREFIX=`realpath ${DETECTOR_PREFIX}`
-
-## setup detector paths
-export LD_LIBRARY_PATH=${DETECTOR_PREFIX}/lib:$LD_LIBRARY_PATH
-export DETECTOR_SOURCE_PATH=${DETECTOR_PREFIX}/src
+export DETECTOR_INSTALL_PREFIX=`realpath ${DETECTOR_INSTALL_PREFIX}`
 
 ## setup root results artifact path
-export RESULTS_PATH=`realpath results`
+# this should be in the CI File instead
+# https://docs.gitlab.com/ee/ci/yaml/README.html#variables
+# export RESULTS_PATH=`realpath results`

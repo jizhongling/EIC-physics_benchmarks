@@ -8,19 +8,23 @@ if [[ ! -n  "${JUGGLER_N_EVENTS}" ]] ; then
   export JUGGLER_N_EVENTS=100
 fi
 
+# only used when running locally (not in CI)
 if [[ ! -n  "${JUGGLER_INSTALL_PREFIX}" ]] ; then 
   export JUGGLER_INSTALL_PREFIX="/usr/local"
 fi
 
-export JUGGLER_FILE_NAME_TAG="dis"
-export JUGGLER_GEN_FILE="${JUGGLER_FILE_NAME_TAG}.hepmc"
+# these variables might not need exported.
+export JUGGLER_FILE_NAME_TAG="dvmp"
+# Generator file
+export JUGGLER_GEN_FILE="results/dvmp/jpsi_central_electron-10on100-gen.hepmc"
+#export JUGGLER_GEN_FILE="${JUGGLER_FILE_NAME_TAG}.hepmc"
 
 export JUGGLER_SIM_FILE="sim_${JUGGLER_FILE_NAME_TAG}.root"
 export JUGGLER_REC_FILE="rec_${JUGGLER_FILE_NAME_TAG}.root"
 
-echo "JUGGLER_N_EVENTS = ${JUGGLER_N_EVENTS}"
-echo "JUGGLER_DETECTOR = ${JUGGLER_DETECTOR}"
-
+echo "JUGGLER_N_EVENTS      = ${JUGGLER_N_EVENTS}"
+echo "JUGGLER_DETECTOR      = ${JUGGLER_DETECTOR}"
+echo "JUGGLER_FILE_NAME_TAG = ${JUGGLER_FILE_NAME_TAG}"
 
 ### Build the detector constructors.
 git clone https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
@@ -33,15 +37,6 @@ pushd ${JUGGLER_DETECTOR}/build
 cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j30 install
 popd
 
-# generate the input events
-# temporary standin until hepmc output from pythia is generated.
-root -b -q "dis/scripts/gen_central_electrons.cxx(${JUGGLER_N_EVENTS}, \"${JUGGLER_FILE_NAME_TAG}.hepmc\")"
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running script"
-  exit 1
-fi
-
-#
 pushd ${JUGGLER_DETECTOR}
 
 ## run geant4 simulations
@@ -50,7 +45,7 @@ npsim --runType batch \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${JUGGLER_DETECTOR}.xml \
-      --inputFiles ../${JUGGLER_FILE_NAME_TAG}.hepmc \
+      --inputFiles ../${JUGGLER_GEN_FILE} \
       --outputFile  ${JUGGLER_SIM_FILE}
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running script"
@@ -70,13 +65,14 @@ popd
 pwd
 mkdir -p results/dis
 
-root -b -q "dis/scripts/rec_dis_electrons.cxx(\"${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE}\")"
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running root script"
-  exit 1
-fi
+echo "STAND-IN FOR ANALYSIS SCRIPT"
+#root -b -q "dis/scripts/rec_dis_electrons.cxx(\"${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE}\")"
+#if [[ "$?" -ne "0" ]] ; then
+#  echo "ERROR running root script"
+#  exit 1
+#fi
 
 if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 
-cp ${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE} results/dis/.
+cp ${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE} results/dvmp/.
 fi
 

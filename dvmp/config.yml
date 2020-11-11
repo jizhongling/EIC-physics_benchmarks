@@ -20,49 +20,22 @@ dvmp:generate:
 dvmp:jpsi_central:process:
   stage: process
   needs: ["dvmp:generate"]
-  dependencies:
-    - dvmp:generate
   timeout: 1 hour
   script:
-    - mkdir -p results/data/dvmp
-    - mkdir -p results/plots/dvmp
-    - echo "Running the detector simulation"
-    - touch results/data/dvmp/sim-stub
-    - echo "Running the reconstruction"
-    - touch results/data/dvmp/rec-stub
+    - bash dvmp/dvmp.sh
   artifacts:
     paths:
       - results
 
-dvmp:jpsi_central:dummy_test:
+dvmp:jpsi_central:test_analysis:
   stage: analyze
   needs: ["dvmp:jpsi_central:process"]
-  dependencies:
-    - dvmp:jpsi_central:process
   script:
-    - dvmp/scripts/dummy_test.sh
+    - echo "THIS IS A PLACE HOLDER"
 
-dvmp:jpsi_central:dummy_test2:
-  stage: analyze
-  needs: ["dvmp:jpsi_central:process"]
-  dependencies:
-    - dvmp:jpsi_central:process
-  script:
-    - dvmp/scripts/dummy_test2.sh
-
-dvmp:jpsi_central:dummy_fail_test:
-  stage: analyze
-  needs: ["dvmp:jpsi_central:process"]
-  dependencies:
-    - dvmp:jpsi_central:process
-  allow_failure: true
-  script:
-    - dvmp/scripts/dummy_fail_test.sh
 
 dvmp:results:
   stage: collect
-  needs: ["dvmp:jpsi_central:dummy_test",
-          "dvmp:jpsi_central:dummy_test2",
-          "dvmp:jpsi_central:dummy_fail_test"]
+  needs: ["dvmp:jpsi_central:test_analysis"]
   script:
     - echo "All DVMP benchmarks successful"
