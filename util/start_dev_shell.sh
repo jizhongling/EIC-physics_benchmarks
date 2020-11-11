@@ -15,7 +15,7 @@ elif [ "${OS}" = "Darwin" ]; then
   echo "Syncing docker container"
   docker pull sly2j/juggler:latest
   echo "Launching dev shell (through docker)..."
-  docker run -i -t --rm sly2j/juggler:latest eic-shell
+  docker run -v /Users:/Users -w=$PWD -i -t --rm sly2j/juggler:latest eic-shell
 else
   echo "ERROR: dev shell not available for this OS (${OS})"
 fi
