@@ -1,0 +1,21 @@
+dvcs:process:
+  stage: process
+  timeout: 1 hour
+  script:
+    - bash dvcs/dvcs.sh
+  artifacts:
+    paths:
+      - results
+
+dvcs:analysis:
+  stage: analyze
+  needs: ["dvcs:process"]
+  script:
+    - echo "THIS IS A PLACE HOLDER"
+
+
+dvcs:results:
+  stage: collect
+  needs: ["dvcs:analysis"]
+  script:
+    - echo "All DVCS benchmarks successful"
