@@ -17,7 +17,7 @@ dvmp:generate:
   script:
     - ./dvmp/scripts/generate.sh --ebeam 10 --pbeam 100 --config jpsi_central --decay muon --decay electron
 
-dvmp:jpsi_central:process:
+dvmp:process:
   stage: process
   needs: ["dvmp:generate"]
   timeout: 1 hour
@@ -27,15 +27,8 @@ dvmp:jpsi_central:process:
     paths:
       - results
 
-dvmp:jpsi_central:test_analysis:
-  stage: analyze
-  needs: ["dvmp:jpsi_central:process"]
-  script:
-    - echo "THIS IS A PLACE HOLDER"
-
-
 dvmp:results:
   stage: collect
-  needs: ["dvmp:jpsi_central:test_analysis"]
+  needs: ["dvmp:process"]
   script:
     - echo "All DVMP benchmarks successful"

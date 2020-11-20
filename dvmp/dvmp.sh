@@ -1,78 +1,104 @@
 #!/bin/bash
 
-if [[ ! -n  "${JUGGLER_DETECTOR}" ]] ; then 
-  export JUGGLER_DETECTOR="topside"
-fi
+## =============================================================================
+## Run the DVMP benchmarks in 5 steps:
+## 1. Build/install detector package
+## 2. Detector simulation through npsim
+## 3. Digitization and reconstruction through Juggler
+## 4. Root-based Physics analyses
+## 5. Finalize
+## =============================================================================
 
-if [[ ! -n  "${JUGGLER_N_EVENTS}" ]] ; then 
-  export JUGGLER_N_EVENTS=100
-fi
+echo "Running the DVMP benchmarks"
 
-# only used when running locally (not in CI)
-if [[ ! -n  "${JUGGLER_INSTALL_PREFIX}" ]] ; then 
-  export JUGGLER_INSTALL_PREFIX="/usr/local"
-fi
+## make sure we launch this script from the project root directory
+PROJECT_ROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/..
+pushd ${PROJECT_ROOT}
 
-# these variables might not need exported.
-export JUGGLER_FILE_NAME_TAG="dvmp"
-# Generator file
-export JUGGLER_GEN_FILE="results/dvmp/jpsi_central_electron-10on100-gen.hepmc"
-#export JUGGLER_GEN_FILE="${JUGGLER_FILE_NAME_TAG}.hepmc"
+## =============================================================================
+## Load the environment variables. To build the detector we need the following
+## variables:
+##
+## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
+## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
+## - DETECTOR_PATH:          full path to the detector definitions
+##
+## You can ready config/env.sh for more in-depth explanations of the variables
+## and how they can be controlled.
+source config/env.sh
 
+## Extra environment variables for DVMP:
+## file tag for these tests
+JUGGLER_FILE_NAME_TAG="dvmp"
+# Generator file, hardcoded for now FIXME
+JUGGLER_GEN_FILE="results/dvmp/jpsi_central_electron-10on100-gen.hepmc"
+# FIXME use the input file name, as we will be generating a lot of these
+# in the future...
+## note: these variables need to be exported to be accessible from
+##       the juggler options.py. We should really work on a dedicated
+##       juggler launcher to get rid of these "magic" variables. FIXME
 export JUGGLER_SIM_FILE="sim_${JUGGLER_FILE_NAME_TAG}.root"
 export JUGGLER_REC_FILE="rec_${JUGGLER_FILE_NAME_TAG}.root"
 
-echo "JUGGLER_N_EVENTS      = ${JUGGLER_N_EVENTS}"
-echo "JUGGLER_DETECTOR      = ${JUGGLER_DETECTOR}"
-echo "JUGGLER_FILE_NAME_TAG = ${JUGGLER_FILE_NAME_TAG}"
 
-### Build the detector constructors.
-git clone https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
-git clone https://eicweb.phy.anl.gov/EIC/detectors/accelerator.git
-pushd ${JUGGLER_DETECTOR}
-ln -s ../accelerator/eic
-popd
-mkdir ${JUGGLER_DETECTOR}/build
-pushd ${JUGGLER_DETECTOR}/build
-cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j30 install
-popd
+## =============================================================================
+## Step 1: Build/install the desired detector package
+bash util/build_detector.sh
 
-pushd ${JUGGLER_DETECTOR}
-
-## run geant4 simulations
+## =============================================================================
+## Step 2: Run the simulation
+echo "Running Geant4 simulation"
 npsim --runType batch \
       --part.minimalKineticEnergy 1000*GeV  \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${JUGGLER_DETECTOR}.xml \
-      --inputFiles ../${JUGGLER_GEN_FILE} \
-      --outputFile  ${JUGGLER_SIM_FILE}
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running script"
+      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+      --inputFiles ${JUGGLER_GEN_FILE} \
+      --outputFile ${JUGGLER_SIM_FILE}
+if [ "$?" -ne "0" ] ; then
+  echo "ERROR running npsim"
   exit 1
 fi
 
-# Need to figure out how to pass file name to juggler from the commandline
+## =============================================================================
+## Step 3: Run digitization & reconstruction
+echo "Running the digitization and reconstruction"
+# FIXME Need to figure out how to pass file name to juggler from the commandline
 xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py ../options/tracker_reconstruction.py
-if [[ "$?" -ne "0" ]] ; then
+  gaudirun.py options/tracker_reconstruction.py
+if [ "$?" -ne "0" ] ; then
   echo "ERROR running juggler"
   exit 1
 fi
 ls -l
-popd
 
-pwd
-mkdir -p results/dis
+## =============================================================================
+## Step 4: Analysis
+root -b -q "dvmp/analysis/vm_mass.cxx(\
+ \"${JUGGLER_REC_FILE}\", \
+ \"jpsi\", \
+ \"electron\", \
+ \"${JUGGLER_DETECTOR}\", \
+ \"results/dvmp/plot\")"
 
-echo "STAND-IN FOR ANALYSIS SCRIPT"
-#root -b -q "dis/scripts/rec_dis_electrons.cxx(\"${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE}\")"
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running root script"
-#  exit 1
-#fi
-
-if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 
-cp ${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE} results/dvmp/.
+if [ "$?" -ne "0" ] ; then
+  echo "ERROR running root script"
+  exit 1
 fi
 
+## =============================================================================
+## Step 5: finalize
+echo "Finalizing ${JUGGLER_FILE_NAME_TAG} benchmark"
+
+## Copy over reconsturction artifacts as long as we don't have
+## too many events
+if [ "${JUGGLER_N_EVENTS}" -lt "500" ] ; then 
+  cp ${JUGGLER_REC_FILE} results/dvmp/.
+fi
+
+## cleanup output files
+rm ${JUGGLER_REC_FILE} ${JUGGLER_SIM_FILE}
+
+## =============================================================================
+## All done!
+echo "${JUGGLER_FILE_NAME_TAG} benchmarks complete"

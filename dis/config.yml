@@ -1,5 +1,5 @@
 dis:run_test:
-  stage: analyze
+  stage: process
   timeout: 1 hours
   script:
     - bash dis/dis.sh

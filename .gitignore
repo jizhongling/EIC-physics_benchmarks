@@ -44,4 +44,8 @@ calorimeters/test/
 # output files
 results/*
 
-*.sif
+# ROOT files
+*.root
+
+# local runtime files
+.local

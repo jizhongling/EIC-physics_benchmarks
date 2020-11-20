@@ -9,7 +9,6 @@ default:
 stages:
   - generate
   - process
-  - analyze
   - collect
   - finish
 
