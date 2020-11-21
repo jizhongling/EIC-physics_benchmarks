@@ -12,7 +12,10 @@ if "JUGGLER_DETECTOR" in os.environ :
 input_sim_file  = str(os.environ["JUGGLER_SIM_FILE"])
 output_rec_file = str(os.environ["JUGGLER_REC_FILE"])
 n_events = str(os.environ["JUGGLER_N_EVENTS"])
-detector_path = str(os.environ["JUGGLER_DETECTOR_PATH"])
+
+detector_path = detector_name
+if "DETECTOR_PATH" in os.environ :
+    detector_path = str(os.environ["DETECTOR_PATH"])
 
 geo_service  = GeoSvc("GeoSvc",
         detectors=["{}/{}.xml".format(detector_path, detector_name)])
@@ -204,4 +207,5 @@ ApplicationMgr(
     ExtSvc = [podioevent,geo_service],
     OutputLevel=DEBUG
  )
+
 

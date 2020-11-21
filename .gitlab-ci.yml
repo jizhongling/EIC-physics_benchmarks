@@ -42,3 +42,6 @@ summary:
   needs: ["dis:results", "dvcs:results", "dvmp:results"]
   script:
     - echo "All benchmarks passed"
+  artifacts:
+    reports:
+      junit: ["results/dvcs/report2.xml"]

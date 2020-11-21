@@ -3,7 +3,7 @@ dvcs:process:
   timeout: 1 hour
   needs: ["detector"]
   script:
-    - echo "dvcd benchmark"
+    - bash dvcs/dvcs.sh
   artifacts:
     paths:
       - results
@@ -13,3 +13,9 @@ dvcs:results:
   needs: ["dvcs:process"]
   script:
     - echo "All DVCS benchmarks successful"
+  artifacts:
+    paths:
+      - results
+    reports:
+      junit: ["results/dvcs/report.xml"]
+
