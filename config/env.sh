@@ -36,7 +36,7 @@ echo "JUGGLER_DETECTOR:       ${JUGGLER_DETECTOR}"
 
 ## Number of events that will be processed by the reconstruction
 if [ ! -n  "${JUGGLER_N_EVENTS}" ] ; then 
-  export JUGGLER_N_EVENTS=10
+  export JUGGLER_N_EVENTS=100
 fi
 echo "JUGGLER_N_EVENTS:       ${JUGGLER_N_EVENTS}"
 
