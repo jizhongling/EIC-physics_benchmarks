@@ -7,10 +7,30 @@ default:
     expire_in: 3 days
 
 stages:
-  - generate
+  - initialize
   - process
   - collect
   - finish
+
+detector:
+  stage: initialize
+  needs: []
+  timeout: 1 hours
+  cache:
+    key:
+      files:
+        - config/env.sh
+        - util/build_detector.sh
+      prefix: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .local/detector
+      - .local/lib
+  artifacts:
+    paths:
+      - .local/detector
+      - .local/lib
+  script:
+    - ./util/build_detector.sh
 
 include:
   - local: 'dis/config.yml'

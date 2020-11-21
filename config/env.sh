@@ -8,6 +8,8 @@
 ##  - JUGGLER_DETECTOR:       detector package to be used for the benchmark
 ##  - JUGGLER_N_EVENTS:       #events processed by simulation/reconstruction
 ##  - JUGGLER_INSTALL_PREFIX: location where Juggler (digi/recon) is installed
+##  - JUGGLER_N_THREADS:      Number of threads/processes to spawn in parallel
+##  - JUGGLER_RNG_SEED:       Random seed for the RNG
 ##
 ## It also defines the following additional variables for internal usage
 ##  - LOCAL_PREFIX:           prefix for packages installed during the benchmark
@@ -37,6 +39,22 @@ if [ ! -n  "${JUGGLER_N_EVENTS}" ] ; then
   export JUGGLER_N_EVENTS=100
 fi
 echo "JUGGLER_N_EVENTS:       ${JUGGLER_N_EVENTS}"
+
+## Maximum number of threads or processes a single pipeline should use
+## (this is not enforced, but the different pipeline scripts should use
+##  this to guide the number of parallel processes or threads they 
+##  spawn).
+if [ ! -n "${JUGGLER_N_THREADS}" ]; then
+  export JUGGLER_N_THREADS=10
+fi
+echo "JUGGLER_N_THREADS:      ${JUGGLER_N_THREADS}"
+
+## Random seed for event generation, should typically not be changed for
+## reproductability.
+if [ ! -n "${JUGGLER_RNG_SEED}" ]; then
+  export JUGGLER_RNG_SEED=1
+fi
+echo "JUGGLER_RNG_SEED:       ${JUGGLER_RNG_SEED}"
 
 ## Install prefix for juggler, needed to locate the Juggler xenv files.
 ## Also used by the CI as install prefix for other packages where needed.

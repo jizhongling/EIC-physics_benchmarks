@@ -1,11 +1,25 @@
-dis:run_test:
-  stage: process
+dis:generate:
+  stage: initialize
+  needs: []
   timeout: 1 hours
+  artifacts:
+    paths:
+      - results
   script:
-    - bash dis/dis.sh
+    - bash dis/gen.sh
+
+dis:process:
+  stage: process
+  needs: ["detector", "dis:generate"]
+  timeout: 1 hour
+  artifacts:
+    paths:
+      - results
+  script:
+    - echo "DIS benchmarks"
 
 dis:results:
   stage: collect
-  needs: ["dis:run_test"]
+  needs: ["dis:process"]
   script:
     - echo "All DIS benchmarks successful"

@@ -1,6 +1,6 @@
 dvmp:generate:
   image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
-  stage: generate
+  stage: initialize
   needs: []
   timeout: 1 hours
   cache:
@@ -15,14 +15,14 @@ dvmp:generate:
     paths:
       - results
   script:
-    - ./dvmp/scripts/generate.sh --ebeam 10 --pbeam 100 --config jpsi_central --decay muon --decay electron
+    - ./util/run_many.py ./dvmp/gen.sh --energy 10x100 --config jpsi_central --decay muon --decay electron
 
 dvmp:process:
   stage: process
-  needs: ["dvmp:generate"]
+  needs: ["detector", "dvmp:generate"]
   timeout: 1 hour
   script:
-    - bash dvmp/dvmp.sh
+    - ./util/run_many.py dvmp/dvmp.sh --energy 10x100 --config jpsi_central --decay muon --decay electron --leading jpsi
   artifacts:
     paths:
       - results

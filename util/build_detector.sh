@@ -18,7 +18,7 @@ pushd ${PROJECT_ROOT}
 ## - DETECTOR_PATH:    full path for the detector definitions
 ##                     this is the same as ${DETECTOR_PREFIX}/${JUGGLER_DETECTOR}
 ##
-## You can ready config/env.sh for more in-depth explanations of the variables
+## You can read config/env.sh for more in-depth explanations of the variables
 ## and how they can be controlled.
 source config/env.sh
 

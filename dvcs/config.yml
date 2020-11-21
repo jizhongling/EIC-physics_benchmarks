@@ -1,8 +1,9 @@
 dvcs:process:
   stage: process
   timeout: 1 hour
+  needs: ["detector"]
   script:
-    - bash dvcs/dvcs.sh
+    - echo "dvcd benchmark"
   artifacts:
     paths:
       - results
