@@ -26,6 +26,8 @@ if [[ "$?" -ne "0" ]] ; then
   exit 1
 fi
 
+export JUGGLER_N_EVENTS=10
+
 ## run geant4 simulations
 npsim --runType batch \
       --part.minimalKineticEnergy 1000*GeV  \
@@ -48,12 +50,12 @@ if [[ "$?" -ne "0" ]] ; then
 fi
 
 mkdir -p results/dvcs
-echo "STAND-IN FOR ANALYSIS SCRIPT"
-#root -b -q "dis/scripts/rec_dis_electrons.cxx(\"${JUGGLER_DETECTOR}/${JUGGLER_REC_FILE}\")"
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running root script"
-#  exit 1
-#fi
+
+root -b -q "dvcs/scripts/dvcs_tests.cxx(\"${JUGGLER_REC_FILE}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running root script"
+  exit 1
+fi
 
 # copy data if it is not too big
 if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 
@@ -61,8 +63,8 @@ cp ${JUGGLER_REC_FILE} results/dvcs/.
 fi
 
 # Collect the results
-cp dvcs/report.xml results/dvcs/.
-cp dvcs/report2.xml results/dvcs/.
+#cp dvcs/report.xml results/dvcs/.
+#cp dvcs/report2.xml results/dvcs/.
 
 
 

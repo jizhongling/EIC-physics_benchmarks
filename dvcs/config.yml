@@ -12,10 +12,11 @@ dvcs:results:
   stage: collect
   needs: ["dvcs:process"]
   script:
-    - echo "All DVCS benchmarks successful"
+    - pip install junitparser
+    - python dvcs/scripts/merge_results.py
   artifacts:
     paths:
       - results
     reports:
-      junit: ["results/dvcs/report.xml"]
+      junit: ["results/dvcs/dvcs_report.xml"]
 
