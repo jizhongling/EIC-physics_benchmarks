@@ -1,13 +1,12 @@
 #!/bin/bash
 
 ## =============================================================================
-## Run the DVMP benchmarks in 7 steps:
+## Run the DVMP benchmarks in 5 steps:
 ## 1. Parse the command line and setup environment
-## 2. Build/install detector package
-## 3. Detector simulation through npsim
-## 4. Digitization and reconstruction through Juggler
-## 5. Root-based Physics analyses
-## 6. Finalize
+## 2. Detector simulation through npsim
+## 3. Digitization and reconstruction through Juggler
+## 4. Root-based Physics analyses
+## 5. Finalize
 ## =============================================================================
 
 ## make sure we launch this script from the project root directory
@@ -43,41 +42,18 @@ source config/env.sh
 ## We also need the following benchmark-specific variables:
 ##
 ## - BENCHMARK_TAG: Unique identified for this benchmark process.
-## - DATA_PATH:     Place to store our persistent output artifacts.
+## - INPUT_PATH:    Path for generator-level input to the benchmarks
+## - TMP_PATH:      Path for temporary data (not exported as artifacts)
+## - RESULTS_PATH:  Path for benchmark output figures and files
 ##
 ## You can read dvmp/env.sh for more in-depth explanations of the variables.
 source dvmp/env.sh
 
 ## Get a unique file names based on the configuration options
-GEN_FILE=${DATA_PATH}/`util/print_fname.sh \
-                  --ebeam $EBEAM \
-                  --pbeam $PBEAM \
-                  --decay $DECAY \
-                  --config $CONFIG \
-                  --type gen`.hepmc
-SIM_FILE=${LOCAL_PREFIX}/`util/print_fname.sh \
-                  --ebeam $EBEAM \
-                  --pbeam $PBEAM \
-                  --decay $DECAY \
-                  --config $CONFIG \
-                  --type sim`.root
-REC_FILE=${LOCAL_PREFIX}/`util/print_fname.sh \
-                  --ebeam $EBEAM \
-                  --pbeam $PBEAM \
-                  --decay $DECAY \
-                  --config $CONFIG \
-                  --type rec`.root
-PLOT_PREFIX=${DATA_PATH}/`util/print_fname.sh \
-                  --ebeam $EBEAM \
-                  --pbeam $PBEAM \
-                  --decay $DECAY \
-                  --config $CONFIG \
-                  --type rec`
-
-## =============================================================================
-## Step 1: Build/install the desired detector package
-# moved to different CI step TODO remove
-#bash util/build_detector.sh
+GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}.hepmc
+SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.root
+REC_FILE=${TMP_PATH}/rec-${CONFIG}_${DECAY}.root
+PLOT_PREFIX=${CONFIG}_${DECAY}
 
 ## =============================================================================
 ## Step 2: Run the simulation
@@ -123,7 +99,7 @@ root -b -q "dvmp/analysis/vm_mass.cxx(\
  \"${LEADING}\", \
  \"${DECAY}\", \
  \"${JUGGLER_DETECTOR}\", \
- \"${PLOT_PREFIX}\")"
+ \"${RESULTS_PATH}/${PLOT_PREFIX}\")"
 
 
 if [ "$?" -ne "0" ] ; then
@@ -138,11 +114,11 @@ echo "Finalizing DVMP benchmark"
 ## Copy over reconsturction artifacts as long as we don't have
 ## too many events
 if [ "${JUGGLER_N_EVENTS}" -lt "500" ] ; then 
-  cp ${REC_FILE} ${DATA_PATH}
+  cp ${REC_FILE} ${RESULTS_PATH}
 fi
 
 ## cleanup output files
-rm ${REC_FILE} ${SIM_FILE}
+rm -f ${REC_FILE} ${SIM_FILE}
 
 ## =============================================================================
 ## All done!

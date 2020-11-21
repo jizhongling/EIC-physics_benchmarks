@@ -10,10 +10,10 @@ dvmp:generate:
         - dvmp/scripts/jpsi_central-generate.sh
       prefix: "$CI_COMMIT_REF_SLUG"
     paths:
-      - results/dvmp
+      - input/dvmp
   artifacts:
     paths:
-      - results
+      - input
   script:
     - ./util/run_many.py ./dvmp/gen.sh --energy 10x100 --config jpsi_central --decay muon --decay electron
 

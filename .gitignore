@@ -41,8 +41,9 @@ calorimeters/test/
 *.d
 *.pcm
 
-# output files
-results/*
+# input/output files
+input
+results
 
 # ROOT files
 *.root
