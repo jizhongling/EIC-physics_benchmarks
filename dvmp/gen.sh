@@ -46,16 +46,16 @@ source config/env.sh
 source dvmp/env.sh
 
 ## Get a unique file name prefix based on the configuration options
-GEN_PREFIX=gen-${CONFIG}_${DECAY}
+GEN_TAG=gen-${CONFIG}_${DECAY}        ## Generic file prefix
 
 ## =============================================================================
 ## Step 2: Check if we really need to run, or can use the cache.
-if [ -f "${INPUT_PATH}/${GEN_PREFIX}.hepmc" ]; then
-  echo "Found cached generator output for $GEN_PREFIX, no need to rerun"
+if [ -f "${INPUT_PATH}/${GEN_TAG}.hepmc" ]; then
+  echo "Found cached generator output for $GEN_TAG, no need to rerun"
   exit 0
 fi
 
-echo "Generator output for $GEN_PREFIX not found in cache, need to run generator"
+echo "Generator output for $GEN_TAG not found in cache, need to run generator"
 
 ## =============================================================================
 ## Step 3: Create generator configuration file
@@ -73,22 +73,22 @@ fi
 
 ## generate the config file for this generator setup
 CONFIG_IN="${BENCHMARK_TAG}/generator/${CONFIG}.json.in"
-echo "Creating generator configuration file ${GEN_PREFIX}.json"
+echo "Creating generator configuration file ${GEN_TAG}.json"
 if [ ! -f ${CONFIG_IN} ]; then
   echo "ERROR: cannot find master config file ${CONFIG_IN}"
   exit 1
 fi
-sed "s/@TAG@/${GEN_PREFIX}/" $CONFIG_IN | \
+sed "s/@TAG@/${GEN_TAG}/" $CONFIG_IN | \
   sed "s/@EBEAM@/${EBEAM}/" | \
   sed "s/@PBEAM@/${PBEAM}/" | \
   sed "s/@DECAY_LEPTON@/${DECAY_PID}/" | \
-  sed "s/@BRANCHING@/${BRANCHING}/" > ${TMP_PATH}/${GEN_PREFIX}.json
+  sed "s/@BRANCHING@/${BRANCHING}/" > ${TMP_PATH}/${GEN_TAG}.json
 
 ## =============================================================================
 ## Step 4: Run the event generator
 echo "Running the generator"
 lager -r ${JUGGLER_RNG_SEED} \
-      -c ${TMP_PATH}/${GEN_PREFIX}.json \
+      -c ${TMP_PATH}/${GEN_TAG}.json \
       -e ${JUGGLER_N_EVENTS} \
       -o ${TMP_PATH}
 if [ "$?" -ne "0" ] ; then
@@ -100,10 +100,10 @@ fi
 ## Step 5: Finally, move relevant output into the artifacts directory and clean up
 echo "Moving generator output into ${INPUT_PATH}"
 for ext in hepmc json log root ; do
-  mv ${TMP_PATH}/*.${GEN_PREFIX}.*.${ext} ${INPUT_PATH}/${GEN_PREFIX}.${ext}
+  mv ${TMP_PATH}/*.${GEN_TAG}.*.${ext} ${INPUT_PATH}/${GEN_TAG}.${ext}
 done
 ## this step only matters for local execution
 echo "Cleaning up"
-rm ${TMP_PATH}/${GEN_PREFIX}.json
+rm ${TMP_PATH}/${GEN_TAG}.json
 
 ## All done!

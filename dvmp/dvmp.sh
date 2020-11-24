@@ -51,9 +51,14 @@ source dvmp/env.sh
 
 ## Get a unique file names based on the configuration options
 GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}.hepmc
+
 SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.root
+SIM_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log
+
 REC_FILE=${TMP_PATH}/rec-${CONFIG}_${DECAY}.root
-PLOT_PREFIX=${CONFIG}_${DECAY}
+REC_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log
+
+PLOT_TAG=${CONFIG}_${DECAY}
 
 ## =============================================================================
 ## Step 2: Run the simulation
@@ -64,7 +69,8 @@ npsim --runType batch \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --inputFiles ${GEN_FILE} \
-      --outputFile ${SIM_FILE}
+      --outputFile ${SIM_FILE} \
+  2>&1 > ${SIM_LOG}
 if [ "$?" -ne "0" ] ; then
   echo "ERROR running npsim"
   exit 1
@@ -85,10 +91,19 @@ export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 export JUGGLER_DETECTOR_PATH=${DETECTOR_PATH}
 xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/tracker_reconstruction.py
+  gaudirun.py options/tracker_reconstruction.py \
+  2>&1 > ${REC_LOG}
+## on-error, first retry running juggler again as there is still a random
+## crash we need to address FIXME
 if [ "$?" -ne "0" ] ; then
-  echo "ERROR running juggler"
-  exit 1
+  echo "Juggler crashed, retrying..."
+  xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
+    gaudirun.py options/tracker_reconstruction.py \
+    2>&1 > ${REC_LOG}
+  if [ "$?" -ne "0" ] ; then
+    echo "ERROR running juggler, both attempts failed"
+    exit 1
+  fi
 fi
 ls -l
 
@@ -99,8 +114,7 @@ root -b -q "dvmp/analysis/vm_mass.cxx(\
  \"${LEADING}\", \
  \"${DECAY}\", \
  \"${JUGGLER_DETECTOR}\", \
- \"${RESULTS_PATH}/${PLOT_PREFIX}\")"
-
+ \"${RESULTS_PATH}/${PLOT_TAG}\")"
 
 if [ "$?" -ne "0" ] ; then
   echo "ERROR running root script"
@@ -116,6 +130,9 @@ echo "Finalizing DVMP benchmark"
 if [ "${JUGGLER_N_EVENTS}" -lt "500" ] ; then 
   cp ${REC_FILE} ${RESULTS_PATH}
 fi
+
+## Always move over log files to the results path
+mv ${SIM_LOG} ${REC_LOG} ${RESULTS_PATH}
 
 ## cleanup output files
 rm -f ${REC_FILE} ${SIM_FILE}

@@ -15,14 +15,23 @@ dvmp:generate:
     paths:
       - input
   script:
-    - ./util/run_many.py ./dvmp/gen.sh --energy 10x100 --config jpsi_central --decay muon --decay electron
+    - ./util/run_many.py ./dvmp/gen.sh 
+          -c jpsi_barrel 
+          -e 5x41 -e 10x100 -e 18x275
+          --decay muon --decay electron
+          --nproc 5
 
 dvmp:process:
   stage: process
   needs: ["detector", "dvmp:generate"]
   timeout: 1 hour
   script:
-    - ./util/run_many.py dvmp/dvmp.sh --energy 10x100 --config jpsi_central --decay muon --decay electron --leading jpsi
+    - ./util/run_many.py ./dvmp/dvmp.sh 
+          -c jpsi_barrel 
+          -e 5x41 -e 10x100 -e 18x275
+          --decay muon --decay electron
+          --leading jpsi
+          --nproc 5
   artifacts:
     paths:
       - results

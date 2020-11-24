@@ -61,12 +61,13 @@ momenta_from_tracking(const std::vector<eic::TrackParametersData>& tracks,
                  [mass](const auto& track) {
                    // make sure we don't divide by zero
                    if (fabs(track.qOverP) < 1e-9) {
-                     return ROOT::Math::PtEtaPhiMVector{};
+                     return ROOT::Math::PxPyPzMVector{};
                    }
-                   const double pt = 1. / track.qOverP * sin(track.theta);
-                   const double eta = -log(tan(track.theta / 2));
-                   const double phi = track.phi;
-                   return ROOT::Math::PtEtaPhiMVector{pt, eta, phi, mass};
+                   const double p = fabs(1. / track.qOverP);
+                   const double px = p * cos(track.phi) * sin(track.theta);
+                   const double py = p * sin(track.phi) * sin(track.theta);
+                   const double pz = p * cos(track.theta);
+                   return ROOT::Math::PxPyPzMVector{px, py, pz, mass};
                  });
   return momenta;
 }

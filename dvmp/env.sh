@@ -29,7 +29,7 @@ echo "INPUT_PATH:             ${INPUT_PATH}"
 
 
 ## Data path for temporary data (not exported as artifacts)
-TMP_PATH=${LOCAL_PREFIX}
+TMP_PATH=${LOCAL_PREFIX}/tmp/${EBEAM}on${PBEAM}
 mkdir -p ${TMP_PATH}
 export TMP_PATH=`realpath ${TMP_PATH}`
 echo "TMP_PATH:               ${TMP_PATH}"

@@ -19,13 +19,13 @@ parser.add_argument(
         'command',
         help="Script to be launched in parallel")
 parser.add_argument(
-        '--energy',
+        '--energy', '-e',
         dest='energies',
         action='append',
         help='One or more beam energy pairs (e.g. 10x100)',
         required=True)
 parser.add_argument(
-        '--config',
+        '--config', '-c',
         dest='configs',
         action='append',
         help='One or more configurations',
@@ -55,7 +55,7 @@ def worker(command):
     ## use a temporary file to capture the terminal output, and then
     ## print the terminal output once the command finishes
     with NamedTemporaryFile() as f:
-        cmd = [command, '2>1 >', f.name]
+        cmd = [command, ' 2>&1 >', f.name]
         cmd = ' '.join(cmd)
         print("Executing '{}'".format(cmd))
         os.system(cmd)
