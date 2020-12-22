@@ -98,17 +98,17 @@ private:
   }
 };
 
-void write_test(const std::vector<test>& data, const std::string& fname) {
+void write_test(const std::vector<Test>& data, const std::string& fname) {
   nlohmann::json test;
   for (auto& entry : data) {
-    test["test"].push_back(entry.json);
+    test["tests"].push_back(entry.json);
   }
   std::cout << fmt::format("Writing test data to {}\n", fname);
   std::ofstream output_file(fname);
   output_file << std::setw(4) << test << "\n";
 }
-void write_test(const test& data, const std::string& fname) {
-  std::vector<test> vtd{data};
+void write_test(const Test& data, const std::string& fname) {
+  std::vector<Test> vtd{data};
   write_test(vtd, fname);
 }
 
