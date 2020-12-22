@@ -1,0 +1,6 @@
+{
+  "name": "DVMP",
+  "title": "DVMP Benchmark",
+  "description": "Benchmark for exclusive J/psi and Upsilon physics",
+  "target": "0.8"
+}
