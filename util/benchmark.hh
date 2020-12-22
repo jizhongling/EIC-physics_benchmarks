@@ -69,16 +69,19 @@ struct test_definition_error : exception {
 //  - result: pass/fail/error
 struct test {
   test(nlohmann::json definition) : json{std::move(definition)} {
-    json["weight"] = 1.0;
     // initialize with error (as we don't have a value yet)
     error();
     // Check that all required fields are present
     for (const auto& field : {"name", "title", "description", "quantity",
-                              "target", "value", "weight", "result"}) {
+                              "target", "value", "result"}) {
       if (json.find(field) == json.end()) {
         throw test_definition_error{
             fmt::format("Error in test definition: field '{}' missing", field)};
       }
+    }
+    // Default "weight" to 1 if not set
+    if (json.find("weight") == json.end()) {
+      json["weight"] = 1.0;
     }
   }
   // Set this test to pass/fail/error
