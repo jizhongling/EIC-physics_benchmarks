@@ -49,9 +49,9 @@
 // library
 namespace eic::util {
 
-struct TestDefinitionError : exception {
+struct TestDefinitionError : Exception {
   TestDefinitionError(std::string_view msg)
-      : exception(msg, "test_definition_error") {}
+      : Exception(msg, "test_definition_error") {}
 };
 
 // Wrapper for our test data json, with three methods to set the status
@@ -68,7 +68,7 @@ struct TestDefinitionError : exception {
 //  - weight: Weight for this test (this is defaulted to 1.0 if not specified)
 //  - result: pass/fail/error
 struct Test {
-  test(nlohmann::json definition) : json{std::move(definition)} {
+  Test(nlohmann::json definition) : json{std::move(definition)} {
     // initialize with error (as we don't have a value yet)
     error();
     // Check that all required fields are present
@@ -101,7 +101,7 @@ private:
 void write_test(const std::vector<test>& data, const std::string& fname) {
   nlohmann::json test;
   for (auto& entry : data) {
-    test.push_back(entry.json);
+    test["test"].push_back(entry.json);
   }
   std::cout << fmt::format("Writing test data to {}\n", fname);
   std::ofstream output_file(fname);
