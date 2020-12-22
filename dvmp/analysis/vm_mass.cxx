@@ -1,3 +1,4 @@
+#include "benchmark.hh"
 #include "mt.h"
 #include "plot.h"
 #include "util.h"
@@ -6,7 +7,9 @@
 #include <cmath>
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -16,15 +19,37 @@
 // file prefix), and labeled with our detector name.
 // TODO: I think it would be better to pass small json configuration file to
 //       the test, instead of this ever-expanding list of function arguments.
-int vm_mass(std::string_view rec_file, std::string_view vm_name,
-            std::string_view decay_name, std::string_view detector,
-            std::string output_prefix) {
+int vm_mass(const std::string& config_name) {
+  // read our configuration
+  std::ifstream config_file{config_name};
+  nlohmann::json config;
+  config_file >> config;
+
+  const std::string rec_file = config["rec_file"];
+  const std::string vm_name = config["vm_name"];
+  const std::string decay_name = config["decay"];
+  const std::string detector = config["detector"];
+  std::string output_prefix = config["output_prefix"];
+  const std::string test_tag = config["test_tag"];
+
   fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
              "Running VM invariant mass analysis...\n");
   fmt::print(" - Vector meson: {}\n", vm_name);
   fmt::print(" - Decay particle: {}\n", decay_name);
   fmt::print(" - Detector package: {}\n", detector);
   fmt::print(" - output prefix: {}\n", output_prefix);
+
+  // create our test definition
+  // test_tag
+  juggler_util::test vm_mass_resolution_test{
+      {{"name",
+        fmt::format("{}_{}_{}_mass_resolution", test_tag, vm_name, decay_name)},
+       {"title",
+        fmt::format("{} -> {} Invariant Mass Resolution", vm_name, decay_name)},
+       {"description", "Invariant Mass Resolution calculated from raw "
+                       "tracking data using a Gaussian fit."},
+       {"quantity", "resolution"},
+       {"target", ".1"}}};
 
   // Run this in multi-threaded mode if desired
   ROOT::EnableImplicitMT(kNumThreads);
@@ -42,7 +67,8 @@ int vm_mass(std::string_view rec_file, std::string_view vm_name,
   // Open our input file file as a dataframe
   ROOT::RDataFrame d{"events", rec_file};
 
-  // utility lambda functions to bind the vector meson and decay particle types
+  // utility lambda functions to bind the vector meson and decay particle
+  // types
   auto momenta_from_tracking =
       [decay_mass](const std::vector<eic::TrackParametersData>& tracks) {
         return util::momenta_from_tracking(tracks, decay_mass);
@@ -103,6 +129,15 @@ int vm_mass(std::string_view rec_file, std::string_view vm_name,
     // Print canvas to output file
     c.Print(fmt::format("{}vm_mass.png", output_prefix).c_str());
   }
+
+  // TODO we're not actually doing an IM fit yet, so for now just return an
+  // error for the test result
+  vm_mass_resolution_test.error(-1);
+
+  // write out our test data
+  juggler_util::write_test(vm_mass_resolution_test,
+                           fmt::format("{}vm_mass.json", output_prefix));
+
   // That's all!
   return 0;
 }

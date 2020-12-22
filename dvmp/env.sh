@@ -5,6 +5,7 @@
 ## It defines the following additional variables: 
 ##
 ##  - BENCHMARK_TAG:          Tag to identify this particular benchmark
+##  - BEAM_TAG                Tag to identify the beam configuration
 ##  - INPUT_PATH:             Path for generator-level input to the benchmarks
 ##  - TMP_PATH:               Path for temporary data (not exported as artifacts)
 ##  - RESULTS_PATH:           Path for benchmark output figures and files
@@ -21,22 +22,25 @@
 export BENCHMARK_TAG="dvmp"
 echo "Setting up the local environment for the ${BENCHMARK_TAG^^} benchmarks"
 
+## Extra beam tag to identify the desired beam configuration
+export BEAM_TAG="${EBEAM}on${PBEAM}"
+
 ## Data path for input data (generator-level hepmc file)
-INPUT_PATH="input/${BENCHMARK_TAG}/${EBEAM}on${PBEAM}"
+INPUT_PATH="input/${BENCHMARK_TAG}/${BEAM_TAG}"
 mkdir -p ${INPUT_PATH}
 export INPUT_PATH=`realpath ${INPUT_PATH}`
 echo "INPUT_PATH:             ${INPUT_PATH}"
 
 
 ## Data path for temporary data (not exported as artifacts)
-TMP_PATH=${LOCAL_PREFIX}/tmp/${EBEAM}on${PBEAM}
+TMP_PATH=${LOCAL_PREFIX}/tmp/${BEAM_TAG}
 mkdir -p ${TMP_PATH}
 export TMP_PATH=`realpath ${TMP_PATH}`
 echo "TMP_PATH:               ${TMP_PATH}"
 
 ## Data path for benchmark output (plots and reconstructed files
 ## if not too big).
-RESULTS_PATH="results/${BENCHMARK_TAG}/${EBEAM}on${PBEAM}"
+RESULTS_PATH="results/${BENCHMARK_TAG}/${BEAM_TAG}"
 mkdir -p ${RESULTS_PATH}
 export RESULTS_PATH=`realpath ${RESULTS_PATH}`
 echo "RESULTS_PATH:           ${RESULTS_PATH}"

@@ -42,6 +42,7 @@ source config/env.sh
 ## We also need the following benchmark-specific variables:
 ##
 ## - BENCHMARK_TAG: Unique identified for this benchmark process.
+## - BEAM_TAG:      Identifier for the chosen beam configuration
 ## - INPUT_PATH:    Path for generator-level input to the benchmarks
 ## - TMP_PATH:      Path for temporary data (not exported as artifacts)
 ## - RESULTS_PATH:  Path for benchmark output figures and files
@@ -105,16 +106,27 @@ if [ "$?" -ne "0" ] ; then
     exit 1
   fi
 fi
-ls -l
+#ls -l
 
 ## =============================================================================
 ## Step 4: Analysis
-root -b -q "dvmp/analysis/vm_mass.cxx(\
- \"${REC_FILE}\", \
- \"${LEADING}\", \
- \"${DECAY}\", \
- \"${JUGGLER_DETECTOR}\", \
- \"${RESULTS_PATH}/${PLOT_TAG}\")"
+
+## write a temporary configuration file for the analysis script
+CONFIG="${TMP_PATH}/${PLOT_TAG}.json"
+cat << EOF > ${CONFIG}
+{
+  "rec_file": "${REC_FILE}",
+  "vm_name": "${LEADING}",
+  "decay": "${DECAY}",
+  "detector": "${JUGGLER_DETECTOR}",
+  "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
+  "test_tag": "${LEADING}_${DECAY}_${BEAM_TAG}"
+}
+EOF
+#cat ${CONFIG}
+
+## run the analysis script with this configuration
+root -b -q "dvmp/analysis/vm_mass.cxx(\"${CONFIG}\")"
 
 if [ "$?" -ne "0" ] ; then
   echo "ERROR running root script"

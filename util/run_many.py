@@ -58,9 +58,10 @@ def worker(command):
         cmd = [command, ' 2>&1 >', f.name]
         cmd = ' '.join(cmd)
         print("Executing '{}'".format(cmd))
-        os.system(cmd)
+        ret = os.system(cmd)
         with open(f.name) as log:
             print(log.read())
+        return ret
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -112,6 +113,9 @@ if __name__ == '__main__':
     ## a context where subprocesses are created using the new "spawn" process
     ## which avoids deadlocks that sometimes happen in the default dispatch
     with get_context('spawn').Pool(processes=args.nproc) as pool:
-        pool.map(worker, cmds)
+        return_values = pool.map(worker, cmds)
+        ## check if we all exited nicely, else exit with status 1
+        if not all(ret == 0 for ret in return_values):
+            exit(1)
 
     ## That's all!
