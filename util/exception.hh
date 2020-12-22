@@ -4,7 +4,7 @@
 #include <exception>
 #include <string>
 
-namespace juggler_util {
+namespace eic::util {
 class exception : public std::exception {
 public:
   exception(std::string_view msg, std::string_view type = "exception")
@@ -18,6 +18,6 @@ private:
   std::string msg_;
   std::string type_;
 };
-} // namespace juggler_util
+} // namespace eic::util
 
 #endif

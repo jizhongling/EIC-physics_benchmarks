@@ -14,7 +14,7 @@
 // Usage Example 1 (single test):
 // ==============================
 // 1. define our test
-//      juggler_util::test test1{
+//      eic::util::test test1{
 //        {{"name", "example_test"},
 //        {"title", "Example Test"},
 //        {"description", "This is an example of a test definition"},
@@ -23,18 +23,18 @@
 // 2. set pass/fail/error status and return value (in this case .99)
 //      test1.pass(0.99)
 // 3. write our test data to a json file
-//      juggler_util::write_test(test1, "test1.json");
+//      eic::util::write_test(test1, "test1.json");
 //
 // Usage Example 2 (multiple tests):
 // =================================
 // 1. define our tests
-//      juggler_util::test test1{
+//      eic::util::test test1{
 //        {{"name", "example_test"},
 //        {"title", "Example Test"},
 //        {"description", "This is an example of a test definition"},
 //        {"quantity", "efficiency"},
 //        {"target", "1"}}};
-//      juggler_util::test test2{
+//      eic::util::test test2{
 //        {{"name", "another_test"},
 //        {"title", "Another example Test"},
 //        {"description", "This is a second example of a test definition"},
@@ -43,11 +43,11 @@
 // 2. set pass/fail/error status and return value (in this case .99)
 //      test1.fail(10)
 // 3. write our test data to a json file
-//      juggler_util::write_test({test1, test2}, "test.json");
+//      eic::util::write_test({test1, test2}, "test.json");
 
 // Namespace for utility scripts, FIXME this should be part of an independent
 // library
-namespace juggler_util {
+namespace eic::util {
 
 struct test_definition_error : exception {
   test_definition_error(std::string_view msg)
@@ -109,6 +109,6 @@ void write_test(const test& data, const std::string& fname) {
   write_test(vtd, fname);
 }
 
-} // namespace juggler_util
+} // namespace eic::util
 
 #endif

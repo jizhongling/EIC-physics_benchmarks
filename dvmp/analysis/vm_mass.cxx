@@ -41,7 +41,7 @@ int vm_mass(const std::string& config_name) {
 
   // create our test definition
   // test_tag
-  juggler_util::test vm_mass_resolution_test{
+  eic::util::test vm_mass_resolution_test{
       {{"name",
         fmt::format("{}_{}_{}_mass_resolution", test_tag, vm_name, decay_name)},
        {"title",
@@ -135,8 +135,8 @@ int vm_mass(const std::string& config_name) {
   vm_mass_resolution_test.error(-1);
 
   // write out our test data
-  juggler_util::write_test(vm_mass_resolution_test,
-                           fmt::format("{}vm_mass.json", output_prefix));
+  eic::util::write_test(vm_mass_resolution_test,
+                        fmt::format("{}vm_mass.json", output_prefix));
 
   // That's all!
   return 0;
