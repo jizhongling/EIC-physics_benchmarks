@@ -41,7 +41,7 @@ int vm_mass(const std::string& config_name) {
 
   // create our test definition
   // test_tag
-  eic::util::test vm_mass_resolution_test{
+  eic::util::Test vm_mass_resolution_test{
       {{"name",
         fmt::format("{}_{}_{}_mass_resolution", test_tag, vm_name, decay_name)},
        {"title",

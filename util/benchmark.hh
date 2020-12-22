@@ -14,7 +14,7 @@
 // Usage Example 1 (single test):
 // ==============================
 // 1. define our test
-//      eic::util::test test1{
+//      eic::util::Test test1{
 //        {{"name", "example_test"},
 //        {"title", "Example Test"},
 //        {"description", "This is an example of a test definition"},
@@ -28,13 +28,13 @@
 // Usage Example 2 (multiple tests):
 // =================================
 // 1. define our tests
-//      eic::util::test test1{
+//      eic::util::Test test1{
 //        {{"name", "example_test"},
 //        {"title", "Example Test"},
 //        {"description", "This is an example of a test definition"},
 //        {"quantity", "efficiency"},
 //        {"target", "1"}}};
-//      eic::util::test test2{
+//      eic::util::Test test2{
 //        {{"name", "another_test"},
 //        {"title", "Another example Test"},
 //        {"description", "This is a second example of a test definition"},
@@ -49,8 +49,8 @@
 // library
 namespace eic::util {
 
-struct test_definition_error : exception {
-  test_definition_error(std::string_view msg)
+struct TestDefinitionError : exception {
+  TestDefinitionError(std::string_view msg)
       : exception(msg, "test_definition_error") {}
 };
 
@@ -67,7 +67,7 @@ struct test_definition_error : exception {
 //  - value: Actual value of <quantity>
 //  - weight: Weight for this test (this is defaulted to 1.0 if not specified)
 //  - result: pass/fail/error
-struct test {
+struct Test {
   test(nlohmann::json definition) : json{std::move(definition)} {
     // initialize with error (as we don't have a value yet)
     error();
@@ -75,7 +75,7 @@ struct test {
     for (const auto& field : {"name", "title", "description", "quantity",
                               "target", "value", "result"}) {
       if (json.find(field) == json.end()) {
-        throw test_definition_error{
+        throw TestDefinitionError{
             fmt::format("Error in test definition: field '{}' missing", field)};
       }
     }

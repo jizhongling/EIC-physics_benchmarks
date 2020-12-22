@@ -5,14 +5,14 @@
 #include <string>
 
 namespace eic::util {
-class exception : public std::exception {
+class Exception : public std::exception {
 public:
-  exception(std::string_view msg, std::string_view type = "exception")
+  Exception(std::string_view msg, std::string_view type = "exception")
       : msg_{msg}, type_{type} {}
 
   virtual const char* what() const throw() { return msg_.c_str(); }
   virtual const char* type() const throw() { return type_.c_str(); }
-  virtual ~exception() throw() {}
+  virtual ~Exception() throw() {}
 
 private:
   std::string msg_;
