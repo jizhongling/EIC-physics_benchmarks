@@ -17,7 +17,7 @@ dvmp:generate:
   script:
     - ./util/run_many.py ./dvmp/gen.sh 
           -c jpsi_barrel 
-          -e 5x41 -e 10x100 -e 18x275
+          -e 10x100 
           --decay muon --decay electron
           --nproc 5
 
@@ -28,7 +28,7 @@ dvmp:process:
   script:
     - ./util/run_many.py ./dvmp/dvmp.sh 
           -c jpsi_barrel 
-          -e 5x41 -e 10x100 -e 18x275
+          -e 10x100 
           --decay muon --decay electron
           --leading jpsi
           --nproc 5
@@ -40,4 +40,8 @@ dvmp:results:
   stage: collect
   needs: ["dvmp:process"]
   script:
-    - echo "All DVMP benchmarks successful"
+    - ./util/collect_tests.py dvmp
+  artifacts:
+    paths:
+      - results/dvmp.json
+      - results/dvmp

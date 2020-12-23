@@ -1,0 +1,5 @@
+{
+  "name": "physics",
+  "title": "Physics benchmarks",
+  "description": "Benchmarks to validate the detector configuration versus various key physics observables."
+}

@@ -41,7 +41,7 @@ summary:
   stage: finish
   needs: ["dis:results", "dvcs:results", "dvmp:results"]
   script:
-    - echo "All benchmarks passed"
+    - ./util/collect_benchmarks.py
   artifacts:
     reports:
       junit: ["results/dvcs/report2.xml"]
