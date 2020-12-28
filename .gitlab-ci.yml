@@ -44,6 +44,6 @@ summary:
     - ./util/collect_benchmarks.py
   artifacts:
     paths:
-      - results/summary.json
+      - results/*
     reports:
       junit: ["results/dvcs/report2.xml"]
