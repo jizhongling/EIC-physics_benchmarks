@@ -86,48 +86,164 @@ int vm_mass(const std::string& config_name) {
           .Define("decay_pair_rec", find_decay_pair, {"p_rec"})
           .Define("decay_pair_sim", find_decay_pair, {"p_sim"})
           .Define("mass_rec", util::get_im, {"decay_pair_rec"})
-          .Define("mass_sim", util::get_im, {"decay_pair_sim"});
+          .Define("mass_sim", util::get_im, {"decay_pair_sim"})
+          .Define("pt_rec", util::get_pt, {"decay_pair_rec"})
+          .Define("pt_sim", util::get_pt, {"decay_pair_sim"})
+          .Define("phi_rec" , util::get_phi, {"decay_pair_rec"})
+          .Define("phi_sim" , util::get_phi, {"decay_pair_sim"})
+          .Define("rapidity_rec" , util::get_y, {"decay_pair_rec"})
+          .Define("rapidity_sim" , util::get_y, {"decay_pair_sim"});
 
   // Define output histograms
   auto h_im_rec = d_im.Histo1D(
-      {"h_im_rec", ";m_{ll'} (GeV);#", 100, -1.1, vm_mass + 5}, "mass_rec");
+      {"h_im_rec", ";m_{ll'} (GeV/c^{2});#", 100, -1.1, vm_mass + 5}, "mass_rec");
   auto h_im_sim = d_im.Histo1D(
-      {"h_im_sim", ";m_{ll'} (GeV);#", 100, -1.1, vm_mass + 5}, "mass_sim");
+      {"h_im_sim", ";m_{ll'} (GeV/c^{2});#", 100, -1.1, vm_mass + 5}, "mass_sim");
+      
+  auto h_pt_rec = d_im.Histo1D(
+      {"h_pt_rec", ";p_{T} (GeV/c);#", 400, 0., 40.}, "pt_rec");
+  auto h_pt_sim = d_im.Histo1D(
+      {"h_pt_sim", ";p_{T} (GeV/c);#", 400, 0., 40.}, "pt_sim"); 
+      
+  auto h_phi_rec = d_im.Histo1D(
+      {"h_phi_rec", ";#phi_{ll'};#", 90, -M_PI, M_PI}, "phi_rec");
+  auto h_phi_sim = d_im.Histo1D(
+      {"h_phi_sim", ";#phi_{ll'};#", 90, -M_PI, M_PI}, "phi_sim");
+      
+  auto h_y_rec = d_im.Histo1D(
+      {"h_y_rec", ";y_{ll'};#", 1000, -5., 5.}, "rapidity_rec");
+  auto h_y_sim = d_im.Histo1D(
+      {"h_y_sim", ";y_{ll'};#", 1000, -5., 5.}, "rapidity_sim");
+
 
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
   {
-    TCanvas c{"canvas", "canvas", 800, 800};
-    gPad->SetLogx(false);
-    gPad->SetLogy(false);
-    auto& h0 = *h_im_sim;
-    auto& h1 = *h_im_rec;
+    TCanvas c{"canvas", "canvas", 1200, 1200};
+    c.Divide(2, 2, 0.0001, 0.0001);
+    //pad 1 mass
+    c.cd(1);
+    //gPad->SetLogx(false);
+    //gPad->SetLogy(false);
+    auto& h11 = *h_im_sim;
+    auto& h12 = *h_im_rec;
     // histogram style
-    h0.SetLineColor(plot::kMpBlue);
-    h0.SetLineWidth(2);
-    h1.SetLineColor(plot::kMpOrange);
-    h1.SetLineWidth(2);
+    h11.SetLineColor(plot::kMpBlue);
+    h11.SetLineWidth(2);
+    h12.SetLineColor(plot::kMpOrange);
+    h12.SetLineWidth(2);
     // axes
-    h0.GetXaxis()->CenterTitle();
-    h0.GetYaxis()->CenterTitle();
+    h11.GetXaxis()->CenterTitle();
+    h11.GetYaxis()->CenterTitle();
     // draw everything
-    h0.DrawClone("hist");
-    h1.DrawClone("hist same");
+    h11.DrawClone("hist");
+    h12.DrawClone("hist same");
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector, vm_name, "Invariant mass");
-    TText* tptr;
-    auto t = new TPaveText(.6, .8417, .9, .925, "NB NDC");
-    t->SetFillColorAlpha(kWhite, 0);
-    t->SetTextFont(43);
-    t->SetTextSize(25);
-    tptr = t->AddText("simulated");
-    tptr->SetTextColor(plot::kMpBlue);
-    tptr = t->AddText("reconstructed");
-    tptr->SetTextColor(plot::kMpOrange);
-    t->Draw();
+    TText* tptr1;
+    auto t1 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t1->SetFillColorAlpha(kWhite, 0);
+    t1->SetTextFont(43);
+    t1->SetTextSize(25);
+    tptr1 = t1->AddText("simulated");
+    tptr1->SetTextColor(plot::kMpBlue);
+    tptr1 = t1->AddText("reconstructed");
+    tptr1->SetTextColor(plot::kMpOrange);
+    t1->Draw();
+    
+    //pad 2 pt
+    c.cd(2);
+    //gPad->SetLogx(false);
+    //gPad->SetLogy(false);
+    auto& h21 = *h_pt_sim;
+    auto& h22 = *h_pt_rec;
+    // histogram style
+    h21.SetLineColor(plot::kMpBlue);
+    h21.SetLineWidth(2);
+    h22.SetLineColor(plot::kMpOrange);
+    h22.SetLineWidth(2);
+    // axes
+    h21.GetXaxis()->CenterTitle();
+    h21.GetYaxis()->CenterTitle();
+    // draw everything
+    h21.DrawClone("hist");
+    h22.DrawClone("hist same");
+    // FIXME hardcoded beam configuration
+    plot::draw_label(10, 100, detector, vm_name, "Transverse Momentum");
+    TText* tptr2;
+    auto t2 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t2->SetFillColorAlpha(kWhite, 0);
+    t2->SetTextFont(43);
+    t2->SetTextSize(25);
+    tptr2 = t2->AddText("simulated");
+    tptr2->SetTextColor(plot::kMpBlue);
+    tptr2 = t2->AddText("reconstructed");
+    tptr2->SetTextColor(plot::kMpOrange);
+    t2->Draw();
+    
+    //pad 3 phi
+    c.cd(3);
+    //gPad->SetLogx(false);
+    //gPad->SetLogy(false);
+    auto& h31 = *h_phi_sim;
+    auto& h32 = *h_phi_rec;
+    // histogram style
+    h31.SetLineColor(plot::kMpBlue);
+    h31.SetLineWidth(2);
+    h32.SetLineColor(plot::kMpOrange);
+    h32.SetLineWidth(2);
+    // axes
+    h31.GetXaxis()->CenterTitle();
+    h31.GetYaxis()->CenterTitle();
+    // draw everything
+    h31.DrawClone("hist");
+    h32.DrawClone("hist same");
+    // FIXME hardcoded beam configuration
+    plot::draw_label(10, 100, detector, vm_name, "#phi");
+    TText* tptr3;
+    auto t3 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t3->SetFillColorAlpha(kWhite, 0);
+    t3->SetTextFont(43);
+    t3->SetTextSize(25);
+    tptr3 = t3->AddText("simulated");
+    tptr3->SetTextColor(plot::kMpBlue);
+    tptr3 = t3->AddText("reconstructed");
+    tptr3->SetTextColor(plot::kMpOrange);
+    t3->Draw();
+    
+    //pad 4 rapidity
+    c.cd(4);
+    //gPad->SetLogx(false);
+    //gPad->SetLogy(false);
+    auto& h41 = *h_y_sim;
+    auto& h42 = *h_y_rec;
+    // histogram style
+    h41.SetLineColor(plot::kMpBlue);
+    h41.SetLineWidth(2);
+    h42.SetLineColor(plot::kMpOrange);
+    h42.SetLineWidth(2);
+    // axes
+    h41.GetXaxis()->CenterTitle();
+    h41.GetYaxis()->CenterTitle();
+    // draw everything
+    h41.DrawClone("hist");
+    h42.DrawClone("hist same");
+    // FIXME hardcoded beam configuration
+    plot::draw_label(10, 100, detector, vm_name, "Rapidity");
+    TText* tptr4;
+    auto t4 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t4->SetFillColorAlpha(kWhite, 0);
+    t4->SetTextFont(43);
+    t4->SetTextSize(25);
+    tptr4 = t4->AddText("simulated");
+    tptr4->SetTextColor(plot::kMpBlue);
+    tptr4 = t4->AddText("reconstructed");
+    tptr4->SetTextColor(plot::kMpOrange);
+    t4->Draw();
+    
     // Print canvas to output file
-    c.Print(fmt::format("{}vm_mass.png", output_prefix).c_str());
+    c.Print(fmt::format("{}vm_mass_pt_phi_rapidity.png", output_prefix).c_str());
   }
 
   // TODO we're not actually doing an IM fit yet, so for now just return an
@@ -136,7 +252,7 @@ int vm_mass(const std::string& config_name) {
 
   // write out our test data
   eic::util::write_test(vm_mass_resolution_test,
-                        fmt::format("{}vm_mass.json", output_prefix));
+                           fmt::format("{}vm_mass.json", output_prefix));
 
   // That's all!
   return 0;

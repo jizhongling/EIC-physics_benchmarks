@@ -116,11 +116,44 @@ find_decay_pair(const std::vector<ROOT::Math::PxPyPzMVector>& parts,
   }
   return {parts[first], parts[second]};
 }
+
 // Calculate the invariant mass of a given pair of particles
 inline double
 get_im(const std::pair<ROOT::Math::PxPyPzMVector, ROOT::Math::PxPyPzMVector>&
            particle_pair) {
   return (particle_pair.first + particle_pair.second).mass();
+}
+
+// Calculate the transverse momentum of a given pair of particles
+inline double
+get_pt(const std::pair<ROOT::Math::PxPyPzMVector, ROOT::Math::PxPyPzMVector>&
+           particle_pair) {
+  double px_pair = (particle_pair.first + particle_pair.second).px();
+  double py_pair = (particle_pair.first + particle_pair.second).py();  
+  return sqrt(px_pair*px_pair + py_pair*py_pair);
+}
+
+// Calculate the azimuthal angle of a given pair of particles
+inline double
+get_phi(const std::pair<ROOT::Math::PxPyPzMVector, ROOT::Math::PxPyPzMVector>&
+           particle_pair) {
+  double px_pair = (particle_pair.first + particle_pair.second).px();
+  double py_pair = (particle_pair.first + particle_pair.second).py();
+  double phi_pair = std::atan2(py_pair,px_pair);
+  //if(py_pair <= 0.) phi_pair = - phi_pair;
+  return phi_pair;
+}
+
+// Calculate the rapidity of a given pair of particles
+inline double
+get_y(const std::pair<ROOT::Math::PxPyPzMVector, ROOT::Math::PxPyPzMVector>&
+           particle_pair) {
+  double px_pair = (particle_pair.first + particle_pair.second).px();
+  double py_pair = (particle_pair.first + particle_pair.second).py();
+  double pz_pair = (particle_pair.first + particle_pair.second).pz();
+  double mass_pair = (particle_pair.first + particle_pair.second).mass();
+  double energy_pair = sqrt(mass_pair*mass_pair + px_pair*px_pair + py_pair*py_pair + pz_pair*pz_pair);
+  return 0.5*log((energy_pair + pz_pair)/(energy_pair - pz_pair));
 }
 
 } // namespace util
