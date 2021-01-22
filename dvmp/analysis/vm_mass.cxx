@@ -19,6 +19,7 @@
 // file prefix), and labeled with our detector name.
 // TODO: I think it would be better to pass small json configuration file to
 //       the test, instead of this ever-expanding list of function arguments.
+// FIXME: MC does not trace back into particle history. Need to fix that
 int vm_mass(const std::string& config_name) {
   // read our configuration
   std::ifstream config_file{config_name};
@@ -77,7 +78,9 @@ int vm_mass(const std::string& config_name) {
       [vm_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
         return util::find_decay_pair(parts, vm_mass);
       };
-
+  
+      
+    //util::PrintGeant4(mcparticles2);
   // Define analysis flow
   auto d_im =
       d.Define("p_rec", momenta_from_tracking, {"outputTrackParameters"})
@@ -93,6 +96,7 @@ int vm_mass(const std::string& config_name) {
           .Define("phi_sim" , util::get_phi, {"decay_pair_sim"})
           .Define("rapidity_rec" , util::get_y, {"decay_pair_rec"})
           .Define("rapidity_sim" , util::get_y, {"decay_pair_sim"});
+          
 
   // Define output histograms
   auto h_im_rec = d_im.Histo1D(
@@ -114,6 +118,7 @@ int vm_mass(const std::string& config_name) {
       {"h_y_rec", ";y_{ll'};#", 1000, -5., 5.}, "rapidity_rec");
   auto h_y_sim = d_im.Histo1D(
       {"h_y_sim", ";y_{ll'};#", 1000, -5., 5.}, "rapidity_sim");
+
 
 
   // Plot our histograms.
@@ -241,9 +246,9 @@ int vm_mass(const std::string& config_name) {
     tptr4 = t4->AddText("reconstructed");
     tptr4->SetTextColor(plot::kMpOrange);
     t4->Draw();
-    
-    // Print canvas to output file
+
     c.Print(fmt::format("{}vm_mass_pt_phi_rapidity.png", output_prefix).c_str());
+
   }
 
   // TODO we're not actually doing an IM fit yet, so for now just return an

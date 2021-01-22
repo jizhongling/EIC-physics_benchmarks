@@ -56,6 +56,7 @@ GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}.hepmc
 SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.root
 SIM_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log
 
+
 REC_FILE=${TMP_PATH}/rec-${CONFIG}_${DECAY}.root
 REC_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log
 
@@ -65,7 +66,7 @@ PLOT_TAG=${CONFIG}_${DECAY}
 ## Step 2: Run the simulation
 echo "Running Geant4 simulation"
 npsim --runType batch \
-      --part.minimalKineticEnergy 1000*GeV  \
+      --part.minimalKineticEnergy 100*GeV  \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
@@ -127,7 +128,7 @@ EOF
 
 ## run the analysis script with this configuration
 root -b -q "dvmp/analysis/vm_mass.cxx(\"${CONFIG}\")"
-
+root -b -q "dvmp/analysis/vm_invar.cxx(\"${CONFIG}\")"
 if [ "$?" -ne "0" ] ; then
   echo "ERROR running root script"
   exit 1
@@ -145,6 +146,7 @@ fi
 
 ## Always move over log files to the results path
 mv ${SIM_LOG} ${REC_LOG} ${RESULTS_PATH}
+
 
 ## cleanup output files
 rm -f ${REC_FILE} ${SIM_FILE}
