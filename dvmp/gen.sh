@@ -46,7 +46,7 @@ source config/env.sh
 source dvmp/env.sh
 
 ## Get a unique file name prefix based on the configuration options
-GEN_TAG=gen-${CONFIG}_${DECAY}        ## Generic file prefix
+GEN_TAG=gen-${CONFIG}_${DECAY}_${JUGGLER_N_EVENTS} ## Generic file prefix
 
 ## =============================================================================
 ## Step 2: Check if we really need to run, or can use the cache.

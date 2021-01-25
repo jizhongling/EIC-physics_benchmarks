@@ -51,7 +51,7 @@ source config/env.sh
 source dvmp/env.sh
 
 ## Get a unique file names based on the configuration options
-GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}.hepmc
+GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}_${JUGGLER_N_EVENTS}.hepmc
 
 SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.root
 SIM_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log

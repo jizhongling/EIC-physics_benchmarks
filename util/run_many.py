@@ -117,7 +117,7 @@ if __name__ == '__main__':
         ## check if we all exited nicely, else exit with status 1
         if not all(ret == 0 for ret in return_values):
             n_fail = sum([1 for ret in return_values if ret != 0])
-            print('ERROR, {} of {} jobs failed'.format(n_fail))
+            print('ERROR, {} of {} jobs failed'.format(n_fail, len(cmds)))
             print('Return values:', [ret for ret in return_values if ret != 0])
             exit(1)
 
