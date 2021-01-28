@@ -35,16 +35,30 @@ JUGGLER_FILE_NAME_TAG="dis"
 ## =============================================================================
 ## Step 1: Dummy event generator
 ## TODO better file name that encodes the actual configuration we're running
-root -b -q "dis/generator/gen_central_electrons.cxx(${JUGGLER_N_EVENTS}, \".local/${JUGGLER_FILE_NAME_TAG}.hepmc\")"
+echo "Compiling   dis/src/pythia_dis.cc ..."
+g++ dis/src/pythia_dis.cc -o pythia_dis  \
+   -I/usr/local/include  -Iinclude \
+   -O2 -std=c++11 -pedantic -W -Wall -Wshadow -fPIC  \
+   -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lpythia8 -ldl \
+   -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lHepMC3
 if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running script"
+  echo "ERROR compiling pythia"
+  exit 1
+fi
+echo "done"
+pwd
+ls -lrth
+
+./pythia_dis dis.hepmc
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running pythia"
   exit 1
 fi
 
 ## =============================================================================
 ## Step 2: finalize
 echo "Moving event generator output into ${DATA_PATH}"
-mv .local/${JUGGLER_FILE_NAME_TAG}.hepmc ${DATA_PATH}/${JUGGLER_FILE_NAME_TAG}.hepmc
+#mv .local/${JUGGLER_FILE_NAME_TAG}.hepmc ${DATA_PATH}/${JUGGLER_FILE_NAME_TAG}.hepmc
 
 ## =============================================================================
 ## All done!

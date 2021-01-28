@@ -46,6 +46,7 @@ export JUGGLER_REC_FILE="rec_${JUGGLER_FILE_NAME_TAG}.root"
 ## TODO remove this
 #bash util/build_detector.sh
 
+
 ## =============================================================================
 ## Step 2: Run the simulation
 echo "Running Geant4 simulation"

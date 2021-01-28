@@ -1,5 +1,6 @@
 dis:generate:
   stage: initialize
+  image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:latest
   needs: []
   timeout: 1 hours
   artifacts:
