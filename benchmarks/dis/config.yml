@@ -1,0 +1,50 @@
+dis:generate:
+  stage: initialize
+  needs: []
+  timeout: 1 hours
+  cache:
+    key:
+      files:
+        - benchmarks/dis/generator/pythia_dis.cxx
+      prefix: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - input/dis
+  artifacts:
+    paths:
+      - input
+  script:
+    - bash benchmarks/dis/gen.sh --config barrel --ebeam 18 --pbeam 275
+
+dis:process:
+  stage: process
+  needs: ["detector", "dis:generate"]
+  timeout: 1 hour
+  script:
+    - source options/env.sh
+    - ./util/compile_analyses.py dis
+    - ./benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
+  artifacts:
+    paths:
+      - results
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+  cache:
+    key:
+      files:
+        - .rootlogon.C
+        - util/compile_analyses.py
+      prefix: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - .local/root_build
+
+dis:results:
+  stage: collect
+  needs: ["dis:process"]
+  script:
+    - ./util/collect_tests.py dis
+  artifacts:
+    paths:
+      - results/dis.json
+      - results/dis

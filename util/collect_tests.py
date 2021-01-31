@@ -15,7 +15,7 @@ files to identify them as benchmark components.
 """
 
 ## Our benchmark definition file, stored in the benchmark root directory
-BENCHMARK_FILE=r'{}/benchmark.json'
+BENCHMARK_FILE=r'benchmarks/{}/benchmark.json'
 
 ## Our benchmark results directory
 RESULTS_PATH=r'results/{}'

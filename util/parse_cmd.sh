@@ -11,9 +11,11 @@
 ##   - REQUIRE_DECAY:     require the --decay flag to be set
 ## =============================================================================
 
+## Commented out because this should be taken care of by the 
+## calling script to not enforce a fixed directory structure.
 ## make sure we launch this script from the project root directory
-PROJECT_ROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/..
-pushd ${PROJECT_ROOT}
+#PROJECT_ROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"/..
+#pushd ${PROJECT_ROOT}
 
 ## =============================================================================
 ## Step 1: Process the command line arguments

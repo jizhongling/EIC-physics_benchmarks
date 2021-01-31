@@ -1,10 +1,16 @@
 {
   // Ensure fmt is loaded
   R__LOAD_LIBRARY(libfmt);
+  //
+  // top-level include-dir
+  gROOT->ProcessLine(".include include");
 
   // setup a local build directory so we don't polute our source code with
-  // ROOT dictionaries etc.
-  gSystem->SetBuildDir("/tmp/root_build");
+  // ROOT dictionaries etc. if desired
+  const char* build_dir = gSystem->Getenv("ROOT_BUILD_DIR");
+  if (build_dir) {
+    gSystem->SetBuildDir(build_dir);
+  }
 
   // style definition based off the ATLAS style
   TStyle* s = gStyle;
@@ -37,7 +43,7 @@
 
   // use large fonts
   // Int_t font=72; // Helvetica italics
-  Int_t font = 43; // Helvetica
+  Int_t    font  = 43; // Helvetica
   Double_t tsize = 26;
   s->SetTextFont(font);
 

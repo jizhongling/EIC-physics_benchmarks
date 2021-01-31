@@ -1,0 +1,6 @@
+{
+  "name": "DIS/SIDIS",
+  "title": "DIS/SIDIS Benchmarks",
+  "description": "Benchmark for (Semi-inclusive) DIS",
+  "target": "0.8"
+}

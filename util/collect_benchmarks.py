@@ -9,7 +9,7 @@ directory.
 """
 
 ## Our master definition file, the benchmark project directory
-MASTER_FILE=r'benchmarks.json'
+MASTER_FILE=r'benchmarks/benchmarks.json'
 
 ## Our results directory
 RESULTS_PATH=r'results'
