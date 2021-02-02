@@ -45,7 +45,7 @@ int vm_invar(const std::string& config_name)
   // create our test definition
   // test_tag
   eic::util::Test Q2_resolution_test{
-      {{"name", fmt::format("{}_{}_{}_Q2_resolution", test_tag, vm_name, decay_name)},
+      {{"name", fmt::format("{}_Q2_resolution", test_tag)},
        {"title",
         fmt::format("Q^2 Resolution for {} -> {} events with {}", vm_name, decay_name, detector)},
        {"description", "Invariant Mass Resolution calculated from raw "
@@ -186,7 +186,7 @@ int vm_invar(const std::string& config_name)
   Q2_resolution_test.error(-1);
 
   // write out our test data
-  eic::util::write_test(Q2_resolution_test, fmt::format("{}vm_invar.json", output_prefix));
+  eic::util::write_test(Q2_resolution_test, fmt::format("{}invar.json", output_prefix));
 
   // That's all!
   return 0;

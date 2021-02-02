@@ -47,7 +47,7 @@ int vm_mass(const std::string& config_name)
   // create our test definition
   // test_tag
   eic::util::Test mass_resolution_test{
-      {{"name", fmt::format("{}_{}_{}_mass_resolution", test_tag, vm_name, decay_name)},
+      {{"name", fmt::format("{}_mass_resolution", test_tag, vm_name, decay_name)},
        {"title", fmt::format("{} Invariant Mass Resolution for {} -> {} with {}", vm_name, vm_name,
                              decay_name, detector)},
        {"description", "Invariant Mass Resolution calculated from raw "
@@ -247,7 +247,7 @@ int vm_mass(const std::string& config_name)
   mass_resolution_test.error(-1);
 
   // write out our test data
-  eic::util::write_test(mass_resolution_test, fmt::format("{}_mass.json", output_prefix));
+  eic::util::write_test(mass_resolution_test, fmt::format("{}mass.json", output_prefix));
 
   // That's all!
   return 0;
