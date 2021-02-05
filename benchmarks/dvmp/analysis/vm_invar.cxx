@@ -74,6 +74,10 @@ int vm_invar(const std::string& config_name)
     return util::momenta_from_tracking(tracks, decay_mass);
   };
 
+  auto calc_inv_quant_rec = [vm_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
+    return util::calc_inv_quant_rec(parts, vm_mass);
+  };
+
   //====================================================================
 
   // Define analysis flow
@@ -81,10 +85,16 @@ int vm_invar(const std::string& config_name)
                   .Define("N", "p_rec.size()")
                   .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
                   //================================================================
-                  .Define("invariant_quantities", util::calc_inv_quant_simu, {"p_sim"})
-                  .Define("nu_sim", util::get_nu_simu, {"invariant_quantities"})
-                  .Define("Q2_sim", util::get_Q2_simu, {"invariant_quantities"})
-                  .Define("x_sim", util::get_x_simu, {"invariant_quantities"});
+                  .Define("invariant_quantities_rec", calc_inv_quant_rec, {"p_rec"})
+                  .Define("invariant_quantities_sim", util::calc_inv_quant_sim, {"p_sim"})
+                  .Define("nu_rec", util::get_nu, {"invariant_quantities_rec"})
+                  .Define("Q2_rec", util::get_Q2, {"invariant_quantities_rec"})
+                  .Define("x_rec", util::get_x, {"invariant_quantities_rec"})
+                  .Define("t_rec", util::get_t, {"invariant_quantities_rec"})
+                  .Define("nu_sim", util::get_nu, {"invariant_quantities_sim"})
+                  .Define("Q2_sim", util::get_Q2, {"invariant_quantities_sim"})
+                  .Define("x_sim", util::get_x, {"invariant_quantities_sim"})
+                  .Define("t_sim", util::get_t, {"invariant_quantities_sim"});
   //================================================================
 
   // Define output histograms
@@ -92,6 +102,12 @@ int vm_invar(const std::string& config_name)
   auto h_nu_sim = d_im.Histo1D({"h_nu_sim", ";#nu/1000;#", 100, 0., 2.}, "nu_sim");
   auto h_Q2_sim = d_im.Histo1D({"h_Q2_sim", ";Q^{2};#", 100, 0., 15.}, "Q2_sim");
   auto h_x_sim  = d_im.Histo1D({"h_x_sim", ";x;#", 100, 0., 0.1}, "x_sim");
+  auto h_t_sim  = d_im.Histo1D({"h_t_sim", ";t;#", 100, -1., 0.}, "t_sim");
+  
+  auto h_nu_rec = d_im.Histo1D({"h_nu_rec", ";#nu/1000;#", 100, 0., 2.}, "nu_rec");
+  auto h_Q2_rec = d_im.Histo1D({"h_Q2_rec", ";Q^{2};#", 100, 0., 15.}, "Q2_rec");
+  auto h_x_rec  = d_im.Histo1D({"h_x_rec", ";x;#", 100, 0., 0.1}, "x_rec");
+  auto h_t_rec  = d_im.Histo1D({"h_t_rec", ";t;#", 100, -1., 0.}, "t_rec");
 
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
@@ -100,85 +116,119 @@ int vm_invar(const std::string& config_name)
 
     // Print canvas to output file
 
-    TCanvas c{"canvas2", "canvas2", 1800, 600};
-    c.Divide(3, 1, 0.0001, 0.0001);
+    TCanvas c{"canvas2", "canvas2", 1200, 900};
+    c.Divide(2, 2, 0.0001, 0.0001);
     // pad 1 nu
     c.cd(1);
-    // gPad->SetLogx(false);
-    // gPad->SetLogy(false);
-    auto& hnu = *h_nu_sim;
+    auto& hnu_rec = *h_nu_rec;
+    auto& hnu_sim = *h_nu_sim;
     // histogram style
-    hnu.SetLineColor(plot::kMpBlue);
-    hnu.SetLineWidth(2);
+    hnu_rec.SetLineColor(plot::kMpOrange);
+    hnu_rec.SetLineWidth(2);
+    hnu_sim.SetLineColor(plot::kMpBlue);
+    hnu_sim.SetLineWidth(2);
     // axes
-    hnu.GetXaxis()->CenterTitle();
-    // hnu.GetXaxis()->SetTitle("#times1000");
+    hnu_sim.GetXaxis()->CenterTitle();
     // draw everything
-    hnu.DrawClone("hist");
+    hnu_sim.DrawClone("hist");
+    hnu_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
-    TText* tptr21;
-    auto   t21 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
-    t21->SetFillColorAlpha(kWhite, 0);
-    t21->SetTextFont(43);
-    t21->SetTextSize(25);
-    tptr21 = t21->AddText("simulated");
-    tptr21->SetTextColor(plot::kMpBlue);
-    // tptr1 = t1->AddText("reconstructed");
-    // tptr1->SetTextColor(plot::kMpOrange);
-    t21->Draw();
+    TText* tptr1;
+    auto   t1 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t1->SetFillColorAlpha(kWhite, 0);
+    t1->SetTextFont(43);
+    t1->SetTextSize(25);
+    tptr1 = t1->AddText("simulated");
+    tptr1->SetTextColor(plot::kMpBlue);
+    tptr1 = t1->AddText("rec(PlaceHolder)");
+    tptr1->SetTextColor(plot::kMpOrange);
+    t1->Draw();
 
     // pad 2 Q2
     c.cd(2);
-    // gPad->SetLogx(false);
-    // gPad->SetLogy(false);
-    auto& hQ2 = *h_Q2_sim;
+    auto& hQ2_rec = *h_Q2_rec;
+    auto& hQ2_sim = *h_Q2_sim;
     // histogram style
-    hQ2.SetLineColor(plot::kMpBlue);
-    hQ2.SetLineWidth(2);
+    hQ2_rec.SetLineColor(plot::kMpOrange);
+    hQ2_rec.SetLineWidth(2);
+    hQ2_sim.SetLineColor(plot::kMpBlue);
+    hQ2_sim.SetLineWidth(2);
     // axes
-    hQ2.GetXaxis()->CenterTitle();
+    hQ2_sim.GetXaxis()->CenterTitle();
     // draw everything
-    hQ2.DrawClone("hist");
+    hQ2_sim.DrawClone("hist");
+    hQ2_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
-    TText* tptr22;
-    auto   t22 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
-    t22->SetFillColorAlpha(kWhite, 0);
-    t22->SetTextFont(43);
-    t22->SetTextSize(25);
-    tptr22 = t22->AddText("simulated");
-    tptr22->SetTextColor(plot::kMpBlue);
-    // tptr1 = t1->AddText("reconstructed");
-    // tptr1->SetTextColor(plot::kMpOrange);
-    t22->Draw();
-
-    // pad 1 nu
+    TText* tptr2;
+    auto   t2 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t2->SetFillColorAlpha(kWhite, 0);
+    t2->SetTextFont(43);
+    t2->SetTextSize(25);
+    tptr2 = t2->AddText("simulated");
+    tptr2->SetTextColor(plot::kMpBlue);
+    tptr2 = t2->AddText("rec(PlaceHolder)");
+    tptr2->SetTextColor(plot::kMpOrange);
+    t2->Draw();
+    
+    // pad 3 x
     c.cd(3);
-    // gPad->SetLogx(false);
-    // gPad->SetLogy(false);
-    auto& hx = *h_x_sim;
+    auto& hx_rec = *h_x_rec;
+    auto& hx_sim = *h_x_sim;
     // histogram style
-    hx.SetLineColor(plot::kMpBlue);
-    hx.SetLineWidth(2);
+    hx_rec.SetLineColor(plot::kMpOrange);
+    hx_rec.SetLineWidth(2);
+    hx_sim.SetLineColor(plot::kMpBlue);
+    hx_sim.SetLineWidth(2);
     // axes
-    hx.GetXaxis()->CenterTitle();
+    hx_sim.GetXaxis()->CenterTitle();
     // draw everything
-    hx.DrawClone("hist");
+    hx_sim.DrawClone("hist");
+    hx_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
-    TText* tptr23;
-    auto   t23 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
-    t23->SetFillColorAlpha(kWhite, 0);
-    t23->SetTextFont(43);
-    t23->SetTextSize(25);
-    tptr23 = t23->AddText("simulated");
-    tptr23->SetTextColor(plot::kMpBlue);
-    // tptr1 = t1->AddText("reconstructed");
-    // tptr1->SetTextColor(plot::kMpOrange);
-    t23->Draw();
-
+    TText* tptr3;
+    auto   t3 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t3->SetFillColorAlpha(kWhite, 0);
+    t3->SetTextFont(43);
+    t3->SetTextSize(25);
+    tptr3 = t3->AddText("simulated");
+    tptr3->SetTextColor(plot::kMpBlue);
+    tptr3 = t3->AddText("rec(PlaceHolder)");
+    tptr3->SetTextColor(plot::kMpOrange);
+    t3->Draw();
+    
+    // pad 3 x
+    c.cd(4);
+    auto& ht_rec = *h_t_rec;
+    auto& ht_sim = *h_t_sim;
+    // histogram style
+    ht_rec.SetLineColor(plot::kMpOrange);
+    ht_rec.SetLineWidth(2);
+    ht_sim.SetLineColor(plot::kMpBlue);
+    ht_sim.SetLineWidth(2);
+    // axes
+    ht_sim.GetXaxis()->CenterTitle();
+    // draw everything
+    ht_sim.DrawClone("hist");
+    ht_rec.DrawClone("hist same");
+    // FIXME hardcoded beam configuration
+    plot::draw_label(10, 100, detector);
+    TText* tptr4;
+    auto   t4 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
+    t4->SetFillColorAlpha(kWhite, 0);
+    t4->SetTextFont(43);
+    t4->SetTextSize(25);
+    tptr4 = t4->AddText("simulated");
+    tptr4->SetTextColor(plot::kMpBlue);
+    tptr4 = t4->AddText("rec(PlaceHolder)");
+    tptr4->SetTextColor(plot::kMpOrange);
+    t4->Draw();
+    
     c.Print(fmt::format("{}InvariantQuantities.png", output_prefix).c_str());
+    
+    
   }
 
   // TODO we're not actually getting the resolutions yet

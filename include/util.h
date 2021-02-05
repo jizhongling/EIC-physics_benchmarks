@@ -48,6 +48,8 @@ namespace util {
       return 3.0969;
     } else if (part == "upsilon") {
       return 9.49630;
+    } else if (part == "proton"){
+      return 0.938272;
     } else {
       throw unknown_particle_error{part};
     }
