@@ -33,7 +33,9 @@ from Configurables import Jug__Digi__EMCalorimeterDigi as EMCalorimeterDigi
 from Configurables import Jug__Reco__TrackerHitReconstruction as TrackerHitReconstruction
 
 from Configurables import Jug__Reco__TrackerSourceLinker as TrackerSourceLinker
-from Configurables import Jug__Reco__TrackingHitsSourceLinker as TrackingHitsSourceLinker
+from Configurables import Jug__Reco__Tracker2SourceLinker as Tracker2SourceLinker
+#from Configurables import Jug__Reco__TrackerSourcesLinker as TrackerSourcesLinker
+#from Configurables import Jug__Reco__TrackingHitsSourceLinker as TrackingHitsSourceLinker
 from Configurables import Jug__Reco__TrackParamTruthInit as TrackParamTruthInit
 from Configurables import Jug__Reco__TrackParamClusterInit as TrackParamClusterInit
 from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVertexClusterInit
@@ -47,7 +49,8 @@ from Configurables import Jug__Reco__SimpleClustering as SimpleClustering
 
 
 podioinput = PodioInput("PodioReader", 
-                        collections=["mcparticles","SiTrackerBarrelHits","SiVertexBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
+                        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
+#"SiVertexBarrelHits",
 
 ## copiers to get around input --> output copy bug. Note the "2" appended to the output collection.
 copier = MCCopier("MCCopier", 
@@ -65,11 +68,15 @@ ufsd_digi = UFSDTrackerDigi("ufsd_digi",
         inputHitCollection="SiTrackerBarrelHits",
         outputHitCollection="SiTrackerBarrelRawHits",
         timeResolution=8)
-
-vtx_digi = UFSDTrackerDigi("vtx_digi", 
-        inputHitCollection="SiVertexBarrelHits",
-        outputHitCollection="SiVertexBarrelRawHits",
+ufsd_digi2 = UFSDTrackerDigi("ufsd_digi2", 
+        inputHitCollection="SiTrackerEndcapHits",
+        outputHitCollection="SiTrackerEndcapRawHits",
         timeResolution=8)
+
+#vtx_digi = UFSDTrackerDigi("vtx_digi", 
+#        inputHitCollection="SiVertexBarrelHits",
+#        outputHitCollection="SiVertexBarrelRawHits",
+#        timeResolution=8)
 
 
 ecal_reco = EMCalReconstruction("ecal_reco", 
@@ -89,9 +96,13 @@ trk_barrel_reco = TrackerHitReconstruction("trk_barrel_reco",
         inputHitCollection="SiTrackerBarrelRawHits",
         outputHitCollection="TrackerBarrelRecHits")
 
-vtx_barrel_reco = TrackerHitReconstruction("vtx_barrel_reco",
-        inputHitCollection = vtx_digi.outputHitCollection,
-        outputHitCollection="VertexBarrelRecHits")
+trk_endcap_reco = TrackerHitReconstruction("trk_endcap_reco",
+        inputHitCollection="SiTrackerEndcapRawHits",
+        outputHitCollection="TrackerEndcapRecHits")
+
+#vtx_barrel_reco = TrackerHitReconstruction("vtx_barrel_reco",
+#        inputHitCollection = vtx_digi.outputHitCollection,
+#        outputHitCollection="VertexBarrelRecHits")
 
 # Source linker 
 sourcelinker = TrackerSourceLinker("trk_srclinker",
@@ -99,9 +110,12 @@ sourcelinker = TrackerSourceLinker("trk_srclinker",
         outputSourceLinks="BarrelTrackSourceLinks",
         OutputLevel=DEBUG)
 
-trk_hits_srclnkr = TrackingHitsSourceLinker("trk_hits_srclnkr",
-        inputTrackerCollections=["TrackerBarrelRecHits","VertexBarrelRecHits"],
-        outputSourceLinks="BarrelSourceLinks",
+trk_hits_srclnkr = Tracker2SourceLinker("trk_hits_srclnkr",
+        TrackerBarrelHits="TrackerBarrelRecHits",
+        TrackerEndcapHits="TrackerEndcapRecHits",
+        outputMeasurements="lnker2Measurements",
+        outputSourceLinks="lnker2Links",
+        allTrackerHits="linker2AllHits",
         OutputLevel=DEBUG)
 
 ## Track param init
@@ -115,16 +129,17 @@ clust_trk_init = TrackParamClusterInit("clust_trk_init",
         outputInitialTrackParameters="InitTrackParamsFromClusters",
         OutputLevel=DEBUG)
 
-vtxcluster_trk_init = TrackParamVertexClusterInit("vtxcluster_trk_init",
-        inputVertexHits="VertexBarrelRecHits",
-        inputClusters="SimpleClusters",
-        outputInitialTrackParameters="InitTrackParamsFromVtxClusters",
-        maxHitRadius=40.0*units.mm,
-        OutputLevel=DEBUG)
+#vtxcluster_trk_init = TrackParamVertexClusterInit("vtxcluster_trk_init",
+#        inputVertexHits="VertexBarrelRecHits",
+#        inputClusters="SimpleClusters",
+#        outputInitialTrackParameters="InitTrackParamsFromVtxClusters",
+#        maxHitRadius=40.0*units.mm,
+#        OutputLevel=DEBUG)
 
 # Tracking algorithms
 trk_find_alg = TrackFindingAlgorithm("trk_find_alg",
-        inputSourceLinks="BarrelSourceLinks",
+        inputSourceLinks = sourcelinker.outputSourceLinks,
+        inputMeasurements = sourcelinker.outputMeasurements,
         inputInitialTrackParameters= "InitTrackParams",#"InitTrackParamsFromClusters", 
         outputTrajectories="trajectories",
         OutputLevel=DEBUG)
@@ -135,7 +150,8 @@ parts_from_fit = ParticlesFromTrackFit("parts_from_fit",
         OutputLevel=DEBUG)
 
 trk_find_alg1 = TrackFindingAlgorithm("trk_find_alg1",
-        inputSourceLinks="BarrelSourceLinks",
+        inputSourceLinks = trk_hits_srclnkr.outputSourceLinks,
+        inputMeasurements = trk_hits_srclnkr.outputMeasurements,
         inputInitialTrackParameters= "InitTrackParamsFromClusters", 
         outputTrajectories="trajectories1",
         OutputLevel=DEBUG)
@@ -146,8 +162,10 @@ parts_from_fit1 = ParticlesFromTrackFit("parts_from_fit1",
         OutputLevel=DEBUG)
 
 trk_find_alg2 = TrackFindingAlgorithm("trk_find_alg2",
-        inputSourceLinks="BarrelSourceLinks",
-        inputInitialTrackParameters= "InitTrackParamsFromVtxClusters", 
+        inputSourceLinks = trk_hits_srclnkr.outputSourceLinks,
+        inputMeasurements = trk_hits_srclnkr.outputMeasurements,
+        inputInitialTrackParameters= "InitTrackParams",#"InitTrackParamsFromClusters", 
+        #inputInitialTrackParameters= "InitTrackParamsFromVtxClusters", 
         outputTrajectories="trajectories2",
         OutputLevel=DEBUG)
 parts_from_fit2 = ParticlesFromTrackFit("parts_from_fit2",
@@ -188,15 +206,16 @@ out.outputCommands = ["keep *",
 ApplicationMgr(
     TopAlg = [podioinput, 
               copier, trkcopier,
-              ecal_digi, ufsd_digi, vtx_digi, 
+              ecal_digi, ufsd_digi2,ufsd_digi, #vtx_digi, 
               ecal_reco, 
               simple_cluster,
               trk_barrel_reco, 
-              vtx_barrel_reco, 
+              trk_endcap_reco, 
+              #vtx_barrel_reco, 
               sourcelinker, trk_hits_srclnkr,
               clust_trk_init, 
               truth_trk_init, 
-              vtxcluster_trk_init, 
+              #vtxcluster_trk_init, 
               trk_find_alg, parts_from_fit,
               trk_find_alg1, parts_from_fit1,
               trk_find_alg2, parts_from_fit2,

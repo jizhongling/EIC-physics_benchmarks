@@ -87,8 +87,7 @@ export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 export JUGGLER_DETECTOR_PATH=${DETECTOR_PATH}
 xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/tracker_reconstruction.py \
-  2>&1 > ${REC_LOG}
+  gaudirun.py options/tracker_reconstruction.py 
 ## on-error, first retry running juggler again as there is still a random
 ## crash we need to address FIXME
 if [ "$?" -ne "0" ] ; then
