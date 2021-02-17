@@ -30,6 +30,8 @@ from Configurables import Jug__Digi__ExampleCaloDigi as ExampleCaloDigi
 from Configurables import Jug__Digi__UFSDTrackerDigi as UFSDTrackerDigi
 from Configurables import Jug__Digi__EMCalorimeterDigi as EMCalorimeterDigi
 
+from Configurables import Jug__Base__MC2DummyParticle as MC2DummyParticle
+
 from Configurables import Jug__Reco__TrackerHitReconstruction as TrackerHitReconstruction
 
 from Configurables import Jug__Reco__TrackerSourceLinker as TrackerSourceLinker
@@ -51,6 +53,10 @@ from Configurables import Jug__Reco__SimpleClustering as SimpleClustering
 podioinput = PodioInput("PodioReader", 
                         collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
 #"SiVertexBarrelHits",
+
+dummy = MC2DummyParticle("MC2Dummy",
+        inputCollection="mcparticles",
+        outputCollection="DummyReconstructedParticles")
 
 ## copiers to get around input --> output copy bug. Note the "2" appended to the output collection.
 copier = MCCopier("MCCopier", 
@@ -205,6 +211,7 @@ out.outputCommands = ["keep *",
 
 ApplicationMgr(
     TopAlg = [podioinput, 
+              dummy,
               copier, trkcopier,
               ecal_digi, ufsd_digi2,ufsd_digi, #vtx_digi, 
               ecal_reco, 
