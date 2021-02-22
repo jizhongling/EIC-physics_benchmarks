@@ -61,7 +61,7 @@ echo "Generator output for $GEN_TAG not found in cache, need to run generator"
 ##         TODO: need to configurability to the generator exe 
 
 echo "Compiling   benchmarks/dis/generator/pythia_dis.cxx ..."
-g++ benchmarks/dis/generator/pythia_dis.cxx -o pythia_dis  \
+g++ benchmarks/dis/generator/pythia_dis.cxx -o ${TMP_PATH}/pythia_dis  \
    -I/usr/local/include  -Iinclude \
    -O2 -std=c++11 -pedantic -W -Wall -Wshadow -fPIC  \
    -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lpythia8 -ldl \
@@ -75,7 +75,7 @@ echo "done"
 ## =============================================================================
 ## Step 4: Run the event generator
 echo "Running the generator"
-./pythia_dis ${TMP_PATH}/${GEN_TAG}.hepmc
+${TMP_PATH}/pythia_dis ${TMP_PATH}/${GEN_TAG}.hepmc
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running pythia"
   exit 1
