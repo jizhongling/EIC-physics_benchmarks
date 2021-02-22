@@ -62,8 +62,7 @@ case ${OS} in
     if [ ! -f $PREFIX/juggler_latest.sif ] || [ ! -z ${FORCE_UPDATE} ]; then
       echo "  - Fetching singularity image"
       mkdir -p $PREFIX
-      wget https://eicweb.phy.anl.gov/eic/juggler/-/jobs/artifacts/master/raw/build/juggler.sif?job=docker:singularity
-      -O $PREFIX/juggler_latest.sif
+      wget https://eicweb.phy.anl.gov/eic/juggler/-/jobs/artifacts/master/raw/build/juggler.sif?job=singularity:latest -O $PREFIX/juggler_latest.sif
     fi
     echo "  - Using singularity to launch shell..."
     singularity exec $PREFIX/juggler_latest.sif eic-shell
