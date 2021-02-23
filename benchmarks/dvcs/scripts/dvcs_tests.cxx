@@ -12,6 +12,8 @@ using json = nlohmann::json;
 #include "eicd/TrackParametersCollection.h"
 #include "eicd/ClusterCollection.h"
 #include "eicd/ClusterData.h"
+#include "eicd/ReconstructedParticleCollection.h"
+#include "eicd/ReconstructedParticleData.h"
 
 using ROOT::RDataFrame;
 using namespace ROOT::VecOps;
@@ -56,6 +58,15 @@ auto fourvec = [](ROOT::VecOps::RVec<dd4pod::Geant4ParticleData> const& in) {
   }
   return result;
 };
+auto dumfourvec = [](ROOT::VecOps::RVec<eic::ReconstructedParticleData> const& in) {
+  std::vector<ROOT::Math::PxPyPzMVector> result;
+  ROOT::Math::PxPyPzMVector lv;
+  for (size_t i = 0; i < in.size(); ++i) {
+    lv.SetCoordinates(in[i].p.x, in[i].p.y, in[i].p.z, in[i].mass);
+    result.push_back(lv);
+  }
+  return result;
+};
 
 auto delta_p = [](const std::vector<double>& tracks, const std::vector<double>& thrown) {
   std::vector<double> res;
@@ -95,6 +106,8 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   auto df0 = df.Define("isThrown", "mcparticles2.genStatus == 1")
                  .Define("thrownParticles", "mcparticles2[isThrown]")
                  .Define("thrownP", fourvec, {"thrownParticles"})
+                 .Define("dumRec", dumfourvec, {"DummyReconstructedParticles"})
+                 .Define("dumNPart", "dumRec.size()")
                  .Define("p_thrown", momentum, {"thrownP"})
                  .Define("nTracks", "outputTrackParameters.size()")
                  .Define("p_track", p_track, {"outputTrackParameters"})
@@ -107,6 +120,7 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
                  .Define("q",  q_vec, {"eprime"})
                  .Define("Q2", "-1.0*(q.Dot(q))");
 
+  auto h_n_dummy = df0.Histo1D({"h_n_dummy", "; h_n_dummy n", 10, 0, 10}, "dumNPart");
   auto h_Q2 = df0.Histo1D({"h_Q2", "; Q^{2} [GeV^{2}/c^{2}]", 100, 0, 30}, "Q2");
   auto n_Q2 = df0.Filter("Q2>1").Count();
 
@@ -115,6 +129,12 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   c->SaveAs("results/dvcs/Q2.png");
   c->SaveAs("results/dvcs/Q2.pdf");
   fmt::print("{} DVCS events\n",*n_Q2);
+
+  c = new TCanvas();
+  h_n_dummy->DrawCopy();
+  c->SaveAs("results/dvcs/n_dummy.png");
+  //c->SaveAs("results/dvcs/n_dummy.pdf");
+
 
   // write output results to json file
   json j;
