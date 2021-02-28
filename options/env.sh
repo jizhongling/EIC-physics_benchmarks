@@ -34,6 +34,11 @@ if [ ! -n  "${JUGGLER_DETECTOR}" ] ; then
 fi
 echo "JUGGLER_DETECTOR:       ${JUGGLER_DETECTOR}"
 
+if [ ! -n  "${JUGGLER_DETECTOR_VERSION}" ] ; then 
+  export JUGGLER_DETECTOR_VERSION="v0.0.1"
+fi
+echo "JUGGLER_DETECTOR_VERSION:       ${JUGGLER_DETECTOR_VERSION}"
+
 ## Number of events that will be processed by the reconstruction
 if [ ! -n  "${JUGGLER_N_EVENTS}" ] ; then 
   export JUGGLER_N_EVENTS=100

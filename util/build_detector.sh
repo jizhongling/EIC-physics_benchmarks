@@ -29,7 +29,7 @@ pushd ${DETECTOR_PREFIX}
 ## We need an up-to-date copy of the detector
 if [ ! -d ${JUGGLER_DETECTOR} ]; then
   echo "Fetching ${JUGGLER_DETECTOR}"
-  git clone https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
+  git clone -b ${JUGGLER_DETECTOR_VERSION} https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
 else
   echo "Updating ${JUGGLER_DETECTOR}"
   pushd ${JUGGLER_DETECTOR}
