@@ -32,18 +32,16 @@ echo "Setting up the Physics Benchmarks environment"
 if [ ! -n  "${JUGGLER_DETECTOR}" ] ; then 
   export JUGGLER_DETECTOR="topside"
 fi
-echo "JUGGLER_DETECTOR:       ${JUGGLER_DETECTOR}"
 
 if [ ! -n  "${JUGGLER_DETECTOR_VERSION}" ] ; then 
   export JUGGLER_DETECTOR_VERSION="v0.0.1"
 fi
-echo "JUGGLER_DETECTOR_VERSION:       ${JUGGLER_DETECTOR_VERSION}"
+
 
 ## Number of events that will be processed by the reconstruction
 if [ ! -n  "${JUGGLER_N_EVENTS}" ] ; then 
   export JUGGLER_N_EVENTS=100
 fi
-echo "JUGGLER_N_EVENTS:       ${JUGGLER_N_EVENTS}"
 
 ## Maximum number of threads or processes a single pipeline should use
 ## (this is not enforced, but the different pipeline scripts should use
@@ -52,14 +50,12 @@ echo "JUGGLER_N_EVENTS:       ${JUGGLER_N_EVENTS}"
 if [ ! -n "${JUGGLER_N_THREADS}" ]; then
   export JUGGLER_N_THREADS=10
 fi
-echo "JUGGLER_N_THREADS:      ${JUGGLER_N_THREADS}"
 
 ## Random seed for event generation, should typically not be changed for
 ## reproductability.
 if [ ! -n "${JUGGLER_RNG_SEED}" ]; then
   export JUGGLER_RNG_SEED=1
 fi
-echo "JUGGLER_RNG_SEED:       ${JUGGLER_RNG_SEED}"
 
 ## Install prefix for juggler, needed to locate the Juggler xenv files.
 ## Also used by the CI as install prefix for other packages where needed.
@@ -70,7 +66,7 @@ if [ ! -n  "${JUGGLER_INSTALL_PREFIX}" ] ; then
 fi
 ## Ensure the juggler prefix is an absolute path
 export JUGGLER_INSTALL_PREFIX=`realpath ${JUGGLER_INSTALL_PREFIX}`
-echo "JUGGLER_INSTALL_PREFIX: ${JUGGLER_INSTALL_PREFIX}"
+
 
 ## =============================================================================
 ## Other utility variables that govern how some of the dependent packages
@@ -81,20 +77,27 @@ echo "JUGGLER_INSTALL_PREFIX: ${JUGGLER_INSTALL_PREFIX}"
 LOCAL_PREFIX=".local"
 mkdir -p ${LOCAL_PREFIX}
 export LOCAL_PREFIX=`realpath ${LOCAL_PREFIX}`
-echo "LOCAL_PREFIX:           ${LOCAL_PREFIX}"
 
 ## detector prefix: prefix for the detector definitions
 export DETECTOR_PREFIX="${LOCAL_PREFIX}/detector"
 mkdir -p ${DETECTOR_PREFIX}
-echo "DETECTOR_PREFIX:        ${DETECTOR_PREFIX}"
 
 ## detector path: actual detector definition path
 export DETECTOR_PATH="${DETECTOR_PREFIX}/${JUGGLER_DETECTOR}"
-echo "DETECTOR_PATH:          ${DETECTOR_PATH}"
 
 ## build dir for ROOT to put its binaries etc.
 export ROOT_BUILD_DIR=$LOCAL_PREFIX/root_build
-echo "ROOT_BUILD_DIR:         ${ROOT_BUILD_DIR}"
+
+echo "JUGGLER_DETECTOR:           ${JUGGLER_DETECTOR}"
+echo "JUGGLER_DETECTOR_VERSION:   ${JUGGLER_DETECTOR_VERSION}"
+echo "JUGGLER_N_EVENTS:           ${JUGGLER_N_EVENTS}"
+echo "JUGGLER_N_THREADS:          ${JUGGLER_N_THREADS}"
+echo "JUGGLER_RNG_SEED:           ${JUGGLER_RNG_SEED}"
+echo "JUGGLER_INSTALL_PREFIX:     ${JUGGLER_INSTALL_PREFIX}"
+echo "LOCAL_PREFIX:               ${LOCAL_PREFIX}"
+echo "DETECTOR_PREFIX:            ${DETECTOR_PREFIX}"
+echo "DETECTOR_PATH:              ${DETECTOR_PATH}"
+echo "ROOT_BUILD_DIR:             ${ROOT_BUILD_DIR}"
 
 ## =============================================================================
 ## Setup PATH and LD_LIBRARY_PATH to include our prefixes

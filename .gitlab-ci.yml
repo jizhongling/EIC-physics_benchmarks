@@ -30,6 +30,7 @@ detector:
       - .local/detector
       - .local/lib
   script:
+    - ./util/print_env.sh
     - ./util/build_detector.sh
 
 include:
