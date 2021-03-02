@@ -10,11 +10,14 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include "TF1.h"
 
 #include <Math/Vector4D.h>
 
 #include "dd4pod/Geant4ParticleCollection.h"
 #include "eicd/TrackParametersCollection.h"
+#include "eicd/ReconstructedParticleCollection.h"
+#include "eicd/ReconstructedParticleData.h"
 
 namespace util {
 
@@ -56,7 +59,7 @@ namespace util {
   }
 
   // Get a vector of 4-momenta from raw tracking info, using an externally
-  // provided particle mass assumption.
+  // provided particle mass assumption. //outputTrackParameters
   inline auto momenta_from_tracking(const std::vector<eic::TrackParametersData>& tracks,
                                     const double                                 mass)
   {
@@ -75,7 +78,17 @@ namespace util {
     });
     return momenta;
   }
-
+  //=====================================================================================
+  inline auto momenta_RC(const std::vector<eic::ReconstructedParticleData>& parts)
+  {
+    std::vector<ROOT::Math::PxPyPzMVector> momenta{parts.size()};
+    // transform our raw tracker info into proper 4-momenta
+    std::transform(parts.begin(), parts.end(), momenta.begin(), [](const auto& part) {
+      return ROOT::Math::PxPyPzMVector{part.p.x, part.p.y, part.p.z, part.mass};
+    });
+    return momenta;
+  }
+  //=====================================================================================
   // Get a vector of 4-momenta from the simulation data.
   // TODO: Add PID selector (maybe using ranges?)
   inline auto momenta_from_simulation(const std::vector<dd4pod::Geant4ParticleData>& parts)
@@ -91,7 +104,7 @@ namespace util {
   // Find the decay pair candidates from a vector of particles (parts),
   // with invariant mass closest to a desired value (pdg_mass)
   inline std::pair<ROOT::Math::PxPyPzMVector, ROOT::Math::PxPyPzMVector>
-  find_decay_pair(const std::vector<ROOT::Math::PxPyPzMVector>& parts, const double pdg_mass)
+  find_decay_pair(const std::vector<ROOT::Math::PxPyPzMVector>& parts, const double pdg_mass, const double daughter_mass)
   {
     int    first     = -1;
     int    second    = -1;
@@ -101,7 +114,9 @@ namespace util {
     // for each combination, and remember which combination is the closest
     // to the desired pdg_mass
     for (size_t i = 0; i < parts.size(); ++i) {
+      if( fabs(parts[i].mass() - daughter_mass)/daughter_mass > 0.01) continue;
       for (size_t j = i + 1; j < parts.size(); ++j) {
+        if( fabs(parts[j].mass() - daughter_mass)/daughter_mass > 0.01) continue;
         const double new_mass{(parts[i] + parts[j]).mass()};
         if (fabs(new_mass - pdg_mass) < fabs(best_mass - pdg_mass)) {
           first     = i;

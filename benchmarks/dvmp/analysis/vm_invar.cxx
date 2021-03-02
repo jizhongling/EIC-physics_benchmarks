@@ -70,18 +70,15 @@ int vm_invar(const std::string& config_name)
 
   // utility lambda functions to bind the vector meson and decay particle
   // types
-  auto momenta_from_tracking = [decay_mass](const std::vector<eic::TrackParametersData>& tracks) {
-    return util::momenta_from_tracking(tracks, decay_mass);
-  };
-
-  auto calc_inv_quant_rec = [vm_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
-    return util::calc_inv_quant_rec(parts, vm_mass);
+  
+  auto calc_inv_quant_rec = [vm_mass, decay_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
+    return util::calc_inv_quant_rec(parts, vm_mass, decay_mass);
   };
 
   //====================================================================
 
   // Define analysis flow
-  auto d_im = d.Define("p_rec", momenta_from_tracking, {"outputTrackParameters"})
+  auto d_im = d.Define("p_rec", util::momenta_RC, {"DummyReconstructedParticles"})
                   .Define("N", "p_rec.size()")
                   .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
                   //================================================================
@@ -124,7 +121,7 @@ int vm_invar(const std::string& config_name)
     auto& hnu_sim = *h_nu_sim;
     // histogram style
     hnu_rec.SetLineColor(plot::kMpOrange);
-    hnu_rec.SetLineWidth(2);
+    hnu_rec.SetLineWidth(1);
     hnu_sim.SetLineColor(plot::kMpBlue);
     hnu_sim.SetLineWidth(2);
     // axes
@@ -151,7 +148,7 @@ int vm_invar(const std::string& config_name)
     auto& hQ2_sim = *h_Q2_sim;
     // histogram style
     hQ2_rec.SetLineColor(plot::kMpOrange);
-    hQ2_rec.SetLineWidth(2);
+    hQ2_rec.SetLineWidth(1);
     hQ2_sim.SetLineColor(plot::kMpBlue);
     hQ2_sim.SetLineWidth(2);
     // axes
@@ -178,7 +175,7 @@ int vm_invar(const std::string& config_name)
     auto& hx_sim = *h_x_sim;
     // histogram style
     hx_rec.SetLineColor(plot::kMpOrange);
-    hx_rec.SetLineWidth(2);
+    hx_rec.SetLineWidth(1);
     hx_sim.SetLineColor(plot::kMpBlue);
     hx_sim.SetLineWidth(2);
     // axes
@@ -205,7 +202,7 @@ int vm_invar(const std::string& config_name)
     auto& ht_sim = *h_t_sim;
     // histogram style
     ht_rec.SetLineColor(plot::kMpOrange);
-    ht_rec.SetLineWidth(2);
+    ht_rec.SetLineWidth(1);
     ht_sim.SetLineColor(plot::kMpBlue);
     ht_sim.SetLineWidth(2);
     // axes

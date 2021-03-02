@@ -14,6 +14,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
+#include "eicd/ReconstructedParticleCollection.h"
+#include "eicd/ReconstructedParticleData.h"
 
 // Run VM invariant-mass-based benchmarks on an input reconstruction file for
 // a desired vector meson (e.g. jpsi) and a desired decay particle (e.g. muon)
@@ -22,6 +24,19 @@
 // TODO: I think it would be better to pass small json configuration file to
 //       the test, instead of this ever-expanding list of function arguments.
 // FIXME: MC does not trace back into particle history. Need to fix that
+
+//double RBW(double*x, double*par){
+//    double mean = par[0];
+//    double GAMMA = par[1];
+//    double N = par[2];
+//    double gamma = mean*TMath::Sqrt(mean*mean + GAMMA*GAMMA);
+//    double k = 2.*mean*GAMMA*gamma/TMath::Pi()*TMath::Sqrt(2./(mean*mean + gamma));
+//    double eval = N*k/((x[0]*x[0]-mean*mean)*(x[0]*x[0]-mean*mean) + mean*mean*GAMMA*GAMMA);
+//    return(eval);
+//}
+//double fFlat(double*x, double*par){
+//    return(par[0]);
+//}
 int vm_mass(const std::string& config_name)
 {
   // read our configuration
@@ -72,23 +87,20 @@ int vm_mass(const std::string& config_name)
 
   // utility lambda functions to bind the vector meson and decay particle
   // types
-  auto momenta_from_tracking = [decay_mass](const std::vector<eic::TrackParametersData>& tracks) {
-    return util::momenta_from_tracking(tracks, decay_mass);
-  };
-  auto find_decay_pair = [vm_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
-    return util::find_decay_pair(parts, vm_mass);
+  
+  auto find_decay_pair = [vm_mass, decay_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
+    return util::find_decay_pair(parts, vm_mass, decay_mass);
   };
 
   // util::PrintGeant4(mcparticles2);
   // Define analysis flow
-  auto d_im = d.Define("p_rec", momenta_from_tracking, {"outputTrackParameters"})
+  auto d_im = d.Define("p_rec", util::momenta_RC, {"DummyReconstructedParticles"})       //using dummy rc
                   .Define("N", "p_rec.size()")
                   .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
                   .Define("decay_pair_rec", find_decay_pair, {"p_rec"})
                   .Define("decay_pair_sim", find_decay_pair, {"p_sim"})
                   .Define("p_vm_rec", "decay_pair_rec.first + decay_pair_rec.second")
                   .Define("p_vm_sim", "decay_pair_sim.first + decay_pair_sim.second")
-                  //.Define("p_vm_sim", util::get_sum, {"decay_pair_sim"})
                   .Define("mass_rec", "p_vm_rec.M()")
                   .Define("mass_sim", "p_vm_sim.M()")
                   .Define("pt_rec", "p_vm_rec.pt()")
@@ -99,19 +111,18 @@ int vm_mass(const std::string& config_name)
                   .Define("eta_sim", "p_vm_sim.eta()");
 
   // Define output histograms
-  auto h_im_rec =
-      d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", 100, -1.1, vm_mass + 5}, "mass_rec");
-  auto h_im_sim =
-      d_im.Histo1D({"h_im_sim", ";m_{ll'} (GeV/c^{2});#", 100, -1.1, vm_mass + 5}, "mass_sim");
+  //auto h_im_rec = d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", (int)(vm_mass+0.5)*2*100, 0., 2.*(int)(vm_mass+0.5)}, "mass_rec"); //real rec 
+  auto h_im_rec = d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", 50, 1., 5.}, "mass_rec");//for dummy_rec
+  auto h_im_sim = d_im.Histo1D({"h_im_sim", ";m_{ll'} (GeV/c^{2});#", 50, 1., 5.}, "mass_sim");
 
-  auto h_pt_rec = d_im.Histo1D({"h_pt_rec", ";p_{T} (GeV/c);#", 400, 0., 40.}, "pt_rec");
-  auto h_pt_sim = d_im.Histo1D({"h_pt_sim", ";p_{T} (GeV/c);#", 400, 0., 40.}, "pt_sim");
+  auto h_pt_rec = d_im.Histo1D({"h_pt_rec", ";p_{T} (GeV/c);#", 50, 0., 10.}, "pt_rec");
+  auto h_pt_sim = d_im.Histo1D({"h_pt_sim", ";p_{T} (GeV/c);#", 50, 0., 10.}, "pt_sim");
 
-  auto h_phi_rec = d_im.Histo1D({"h_phi_rec", ";#phi_{ll'};#", 90, -M_PI, M_PI}, "phi_rec");
-  auto h_phi_sim = d_im.Histo1D({"h_phi_sim", ";#phi_{ll'};#", 90, -M_PI, M_PI}, "phi_sim");
+  auto h_phi_rec = d_im.Histo1D({"h_phi_rec", ";#phi_{ll'};#", 45, -M_PI, M_PI}, "phi_rec");
+  auto h_phi_sim = d_im.Histo1D({"h_phi_sim", ";#phi_{ll'};#", 45, -M_PI, M_PI}, "phi_sim");
 
-  auto h_eta_rec = d_im.Histo1D({"h_eta_rec", ";#eta_{ll'};#", 1000, -5., 5.}, "eta_rec");
-  auto h_eta_sim = d_im.Histo1D({"h_eta_sim", ";#eta_{ll'};#", 1000, -5., 5.}, "eta_sim");
+  auto h_eta_rec = d_im.Histo1D({"h_eta_rec", ";#eta_{ll'};#", 50, -2., 2.}, "eta_rec");
+  auto h_eta_sim = d_im.Histo1D({"h_eta_sim", ";#eta_{ll'};#", 50, -2., 2.}, "eta_sim");
 
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
@@ -129,7 +140,7 @@ int vm_mass(const std::string& config_name)
     h11.SetLineColor(plot::kMpBlue);
     h11.SetLineWidth(2);
     h12.SetLineColor(plot::kMpOrange);
-    h12.SetLineWidth(2);
+    h12.SetLineWidth(1);
     // axes
     h11.GetXaxis()->CenterTitle();
     h11.GetYaxis()->CenterTitle();
@@ -159,13 +170,24 @@ int vm_mass(const std::string& config_name)
     h21.SetLineColor(plot::kMpBlue);
     h21.SetLineWidth(2);
     h22.SetLineColor(plot::kMpOrange);
-    h22.SetLineWidth(2);
+    h22.SetLineWidth(1);
     // axes
     h21.GetXaxis()->CenterTitle();
     h21.GetYaxis()->CenterTitle();
     // draw everything
+    TF1* mfPt = new TF1("mfPt", "[0]*exp(-[1]*x)", 1.2, 10.);
+    mfPt->SetParameters(5., 1.);
+    mfPt->SetParLimits(0, 0., 1000000.);
+    mfPt->SetParLimits(1, 0., 1000000.);
+    mfPt->SetNpx(1000);
+    mfPt->SetLineColor(2);
+    mfPt->SetLineStyle(7);
+    h21.Fit(mfPt, "", "", 1.2, 10.);
     h21.DrawClone("hist");
     h22.DrawClone("hist same");
+    mfPt->Draw("same");
+    
+    
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
     TText* tptr2;
@@ -189,7 +211,7 @@ int vm_mass(const std::string& config_name)
     h31.SetLineColor(plot::kMpBlue);
     h31.SetLineWidth(2);
     h32.SetLineColor(plot::kMpOrange);
-    h32.SetLineWidth(2);
+    h32.SetLineWidth(1);
     // axes
     h31.GetXaxis()->CenterTitle();
     h31.GetYaxis()->CenterTitle();
@@ -219,7 +241,7 @@ int vm_mass(const std::string& config_name)
     h41.SetLineColor(plot::kMpBlue);
     h41.SetLineWidth(2);
     h42.SetLineColor(plot::kMpOrange);
-    h42.SetLineWidth(2);
+    h42.SetLineWidth(1);
     // axes
     h41.GetXaxis()->CenterTitle();
     h41.GetYaxis()->CenterTitle();
