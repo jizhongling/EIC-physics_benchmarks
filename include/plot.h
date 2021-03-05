@@ -10,6 +10,7 @@
 #include <vector>
 
 namespace plot {
+  const int kArgonneBlue   = TColor::GetColor(0x1f, 0x77, 0xb4); // not really
 
   const int kMpBlue   = TColor::GetColor(0x1f, 0x77, 0xb4);
   const int kMpOrange = TColor::GetColor(0xff, 0x7f, 0x0e);
