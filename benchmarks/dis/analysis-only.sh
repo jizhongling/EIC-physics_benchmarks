@@ -60,21 +60,21 @@ PLOT_TAG=${CONFIG}
 ## =============================================================================
 ## Step 2: Run the simulation
 echo "Running Geant4 simulation"
-npsim --runType batch \
-      --part.minimalKineticEnergy 1000*GeV  \
-      -v WARNING \
-      --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
-      --inputFiles ${GEN_FILE} \
-      --outputFile ${SIM_FILE}
-if [ "$?" -ne "0" ] ; then
-  echo "ERROR running npsim"
-  exit 1
-fi
+#npsim --runType batch \
+#      --part.minimalKineticEnergy 1000*GeV  \
+#      -v WARNING \
+#      --numberOfEvents ${JUGGLER_N_EVENTS} \
+#      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+#      --inputFiles ${GEN_FILE} \
+#      --outputFile ${SIM_FILE}
+#if [ "$?" -ne "0" ] ; then
+#  echo "ERROR running npsim"
+#  exit 1
+#fi
 
 ## =============================================================================
 ## Step 3: Run digitization & reconstruction
-echo "Running the digitization and reconstruction"
+#echo "Running the digitization and reconstruction"
 ## FIXME Need to figure out how to pass file name to juggler from the commandline
 ## the tracker_reconstruction.py options file uses the following environment
 ## variables:
@@ -83,23 +83,23 @@ echo "Running the digitization and reconstruction"
 ## - JUGGLER_DETECTOR_PATH: Location of the detector geometry
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
 ## - JUGGLER_DETECTOR:    detector package (part of global environment)
-export JUGGLER_SIM_FILE=${SIM_FILE}
-export JUGGLER_REC_FILE=${REC_FILE}
-export JUGGLER_DETECTOR_PATH=${DETECTOR_PATH}
-xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/tracker_reconstruction.py 
+#export JUGGLER_SIM_FILE=${SIM_FILE}
+#export JUGGLER_REC_FILE=${REC_FILE}
+#export JUGGLER_DETECTOR_PATH=${DETECTOR_PATH}
+#xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
+#  gaudirun.py options/tracker_reconstruction.py 
 ## on-error, first retry running juggler again as there is still a random
 ## crash we need to address FIXME
-if [ "$?" -ne "0" ] ; then
-  echo "Juggler crashed, retrying..."
-  xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-    gaudirun.py options/tracker_reconstruction.py \
-    2>&1 > ${REC_LOG}
-  if [ "$?" -ne "0" ] ; then
-    echo "ERROR running juggler, both attempts failed"
-    exit 1
-  fi
-fi
+#if [ "$?" -ne "0" ] ; then
+#  echo "Juggler crashed, retrying..."
+#  xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
+#    gaudirun.py options/tracker_reconstruction.py \
+#    2>&1 > ${REC_LOG}
+#  if [ "$?" -ne "0" ] ; then
+#    echo "ERROR running juggler, both attempts failed"
+#    exit 1
+#  fi
+#fi
 
 ## =============================================================================
 ## Step 4: Analysis
@@ -111,8 +111,6 @@ cat << EOF > ${CONFIG}
   "rec_file": "${REC_FILE}",
   "detector": "${JUGGLER_DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
-  "ebeam": ${EBEAM},
-  "pbeam": ${PBEAM},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -126,16 +124,16 @@ fi
 
 ## =============================================================================
 ## Step 5: finalize
-echo "Finalizing DIS benchmark"
+#echo "Finalizing DIS benchmark"
 
 ## Move over reconsturction artifacts as long as we don't have
 ## too many events
-if [ "${JUGGLER_N_EVENTS}" -lt "500" ] ; then 
-  cp ${REC_FILE} ${RESULTS_PATH}
-fi
+#if [ "${JUGGLER_N_EVENTS}" -lt "500" ] ; then 
+#  cp ${REC_FILE} ${RESULTS_PATH}
+#fi
 
 ## Always move over log files to the results path
-cp ${REC_LOG} ${RESULTS_PATH}
+#cp ${REC_LOG} ${RESULTS_PATH}
 
 ## =============================================================================
 ## All done!
