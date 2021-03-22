@@ -175,17 +175,17 @@ int vm_mass(const std::string& config_name)
     h21.GetXaxis()->CenterTitle();
     h21.GetYaxis()->CenterTitle();
     // draw everything
-    TF1* mfPt = new TF1("mfPt", "[0]*exp(-[1]*x)", 1.2, 10.);
-    mfPt->SetParameters(5., 1.);
-    mfPt->SetParLimits(0, 0., 1000000.);
-    mfPt->SetParLimits(1, 0., 1000000.);
-    mfPt->SetNpx(1000);
-    mfPt->SetLineColor(2);
-    mfPt->SetLineStyle(7);
-    h21.Fit(mfPt, "", "", 1.2, 10.);
+    //TF1* mfPt = new TF1("mfPt", "[0]*exp(-[1]*x)", 1.2, 10.);
+    //mfPt->SetParameters(5., 1.);
+    //mfPt->SetParLimits(0, 0., 1000000.);
+    //mfPt->SetParLimits(1, 0., 1000000.);
+    //mfPt->SetNpx(1000);
+    //mfPt->SetLineColor(2);
+    //mfPt->SetLineStyle(7);
+    //h21.Fit(mfPt, "", "", 1.2, 10.);
     h21.DrawClone("hist");
     h22.DrawClone("hist same");
-    mfPt->Draw("same");
+    //mfPt->Draw("same");
     
     
     // FIXME hardcoded beam configuration

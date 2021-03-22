@@ -71,41 +71,46 @@ int vm_invar(const std::string& config_name)
   // utility lambda functions to bind the vector meson and decay particle
   // types
   
-  auto calc_inv_quant_rec = [vm_mass, decay_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
-    return util::calc_inv_quant_rec(parts, vm_mass, decay_mass);
+  auto momenta_sort_sim = [vm_name, decay_name](const std::vector<dd4pod::Geant4ParticleData>& parts){
+    return util::momenta_sort_sim(parts, vm_name, decay_name);
   };
-
+  auto momenta_sort_rec = [vm_name, decay_name](const std::vector<eic::ReconstructedParticleData>& parts){
+    return util::momenta_sort_rec(parts, vm_name, decay_name);
+  };
   //====================================================================
 
   // Define analysis flow
-  auto d_im = d.Define("p_rec", util::momenta_RC, {"DummyReconstructedParticles"})
-                  .Define("N", "p_rec.size()")
-                  .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
-                  //================================================================
-                  .Define("invariant_quantities_rec", calc_inv_quant_rec, {"p_rec"})
-                  .Define("invariant_quantities_sim", util::calc_inv_quant_sim, {"p_sim"})
-                  .Define("nu_rec", util::get_nu, {"invariant_quantities_rec"})
+  auto d_im = d.Define("p_rec_sorted", momenta_sort_rec, {"DummyReconstructedParticles"})
+                  .Define("p_sim_sorted", momenta_sort_sim, {"mcparticles2"})
+                  .Define("N", "p_rec_sorted.size()")
+                  .Define("invariant_quantities_rec", util::calc_inv_quant, {"p_rec_sorted"})
+                  .Define("invariant_quantities_sim", util::calc_inv_quant, {"p_sim_sorted"})
+                  .Define("y_rec", util::get_y, {"invariant_quantities_rec"})
                   .Define("Q2_rec", util::get_Q2, {"invariant_quantities_rec"})
                   .Define("x_rec", util::get_x, {"invariant_quantities_rec"})
                   .Define("t_rec", util::get_t, {"invariant_quantities_rec"})
-                  .Define("nu_sim", util::get_nu, {"invariant_quantities_sim"})
+                  .Define("y_sim", util::get_y, {"invariant_quantities_sim"})
                   .Define("Q2_sim", util::get_Q2, {"invariant_quantities_sim"})
                   .Define("x_sim", util::get_x, {"invariant_quantities_sim"})
                   .Define("t_sim", util::get_t, {"invariant_quantities_sim"});
+                  
   //================================================================
 
   // Define output histograms
 
-  auto h_nu_sim = d_im.Histo1D({"h_nu_sim", ";#nu/1000;#", 100, 0., 2.}, "nu_sim");
-  auto h_Q2_sim = d_im.Histo1D({"h_Q2_sim", ";Q^{2};#", 100, 0., 15.}, "Q2_sim");
-  auto h_x_sim  = d_im.Histo1D({"h_x_sim", ";x;#", 100, 0., 0.1}, "x_sim");
-  auto h_t_sim  = d_im.Histo1D({"h_t_sim", ";t;#", 100, -1., 0.}, "t_sim");
+  //auto h_nu_sim = d_im.Histo1D({"h_nu_sim", ";#nu/1000;#", 100, 0., 2.}, "nu_sim");
+  auto h_Q2_sim = d_im.Histo1D({"h_Q2_sim", ";Q^{2};#", 50, 0., 15.}, "Q2_sim");
+  auto h_x_sim  = d_im.Histo1D({"h_x_sim", ";x;#", 50, 0., 0.1}, "x_sim");
+  auto h_y_sim  = d_im.Histo1D({"h_y_sim", ";y;#", 50, 0., 1.}, "y_sim");
+  auto h_t_sim  = d_im.Histo1D({"h_t_sim", ";t;#", 50, -1., 0.}, "t_sim");
   
-  auto h_nu_rec = d_im.Histo1D({"h_nu_rec", ";#nu/1000;#", 100, 0., 2.}, "nu_rec");
-  auto h_Q2_rec = d_im.Histo1D({"h_Q2_rec", ";Q^{2};#", 100, 0., 15.}, "Q2_rec");
-  auto h_x_rec  = d_im.Histo1D({"h_x_rec", ";x;#", 100, 0., 0.1}, "x_rec");
-  auto h_t_rec  = d_im.Histo1D({"h_t_rec", ";t;#", 100, -1., 0.}, "t_rec");
-
+  
+  //auto h_nu_rec = d_im.Histo1D({"h_nu_rec", ";#nu/1000;#", 100, 0., 2.}, "nu_rec");
+  auto h_Q2_rec = d_im.Histo1D({"h_Q2_rec", ";Q^{2};#", 50, 0., 15.}, "Q2_rec");
+  auto h_x_rec  = d_im.Histo1D({"h_x_rec", ";x;#", 50, 0., 0.1}, "x_rec");
+  auto h_y_rec  = d_im.Histo1D({"h_y_rec", ";y;#", 50, 0., 1.}, "y_rec");
+  auto h_t_rec  = d_im.Histo1D({"h_t_rec", ";t;#", 50, -1., 0.}, "t_rec");
+  
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
@@ -117,18 +122,18 @@ int vm_invar(const std::string& config_name)
     c.Divide(2, 2, 0.0001, 0.0001);
     // pad 1 nu
     c.cd(1);
-    auto& hnu_rec = *h_nu_rec;
-    auto& hnu_sim = *h_nu_sim;
+    auto& hy_rec = *h_y_rec;
+    auto& hy_sim = *h_y_sim;
     // histogram style
-    hnu_rec.SetLineColor(plot::kMpOrange);
-    hnu_rec.SetLineWidth(1);
-    hnu_sim.SetLineColor(plot::kMpBlue);
-    hnu_sim.SetLineWidth(2);
+    hy_rec.SetLineColor(plot::kMpOrange);
+    hy_rec.SetLineWidth(1);
+    hy_sim.SetLineColor(plot::kMpBlue);
+    hy_sim.SetLineWidth(2);
     // axes
-    hnu_sim.GetXaxis()->CenterTitle();
+    hy_sim.GetXaxis()->CenterTitle();
     // draw everything
-    hnu_sim.DrawClone("hist");
-    hnu_rec.DrawClone("hist same");
+    hy_sim.DrawClone("hist");
+    hy_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
     TText* tptr1;
@@ -196,7 +201,7 @@ int vm_invar(const std::string& config_name)
     tptr3->SetTextColor(plot::kMpOrange);
     t3->Draw();
     
-    // pad 3 x
+    // pad 4 t
     c.cd(4);
     auto& ht_rec = *h_t_rec;
     auto& ht_sim = *h_t_sim;
