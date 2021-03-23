@@ -57,7 +57,7 @@ podioinput = PodioInput("PodioReader",
 dummy = MC2DummyParticle("MC2Dummy",
         inputCollection="mcparticles",
         outputCollection="DummyReconstructedParticles",
-        smearing = 0.0)
+        smearing = 0.1)
 
 ## copiers to get around input --> output copy bug. Note the "2" appended to the output collection.
 copier = MCCopier("MCCopier", 

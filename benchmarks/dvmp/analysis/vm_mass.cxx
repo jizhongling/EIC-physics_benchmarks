@@ -68,8 +68,8 @@ int vm_mass(const std::string& config_name)
        {"description", "Invariant Mass Resolution calculated from raw "
                        "tracking data using a Gaussian fit."},
        {"quantity", "resolution"},
-       {"target", ".1"}}};
-
+       {"target", ".2"}}};      //these 2 need to be consistent 
+  double width_target = 0.2;    //going to find a way to use the same variable
   // Run this in multi-threaded mode if desired
   ROOT::EnableImplicitMT(kNumThreads);
 
@@ -112,8 +112,8 @@ int vm_mass(const std::string& config_name)
 
   // Define output histograms
   //auto h_im_rec = d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", (int)(vm_mass+0.5)*2*100, 0., 2.*(int)(vm_mass+0.5)}, "mass_rec"); //real rec 
-  auto h_im_rec = d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", 50, 1., 5.}, "mass_rec");//for dummy_rec
-  auto h_im_sim = d_im.Histo1D({"h_im_sim", ";m_{ll'} (GeV/c^{2});#", 50, 1., 5.}, "mass_sim");
+  auto h_im_rec = d_im.Histo1D({"h_im_rec", ";m_{ll'} (GeV/c^{2});#", 30, 1.5, 4.5}, "mass_rec");//for dummy_rec
+  auto h_im_sim = d_im.Histo1D({"h_im_sim", ";m_{ll'} (GeV/c^{2});#", 30, 1.5, 4.5}, "mass_sim");
 
   auto h_pt_rec = d_im.Histo1D({"h_pt_rec", ";p_{T} (GeV/c);#", 50, 0., 10.}, "pt_rec");
   auto h_pt_sim = d_im.Histo1D({"h_pt_sim", ";p_{T} (GeV/c);#", 50, 0., 10.}, "pt_sim");
@@ -127,7 +127,7 @@ int vm_mass(const std::string& config_name)
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
-  {
+  //{
     TCanvas c{"canvas", "canvas", 1200, 1200};
     c.Divide(2, 2, 0.0001, 0.0001);
     // pad 1 mass
@@ -147,8 +147,22 @@ int vm_mass(const std::string& config_name)
     // draw everything
     h11.DrawClone("hist");
     h12.DrawClone("hist same");
+    
+    //Fit
+    TF1* mfMass = new TF1("mfMass", "[2]*TMath::Gaus(x, [0], [1], kFALSE)", 1.5, 4.5);
+    mfMass->SetParameters(3.096, 0.1, 100.);
+    mfMass->SetParLimits(0, 3.0, 3.2);
+    mfMass->SetParLimits(1, 0., 10.);
+    mfMass->SetParLimits(2, 0., 1000.);
+    mfMass->SetNpx(1000);
+    mfMass->SetLineColor(2);
+    mfMass->SetLineStyle(7);
+    
+    TFitResultPtr myFitPtr = h12.Fit(mfMass, "S 0", "", 1.5, 4.5);
+    mfMass->Draw("same");
+    
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    plot::draw_label(10, 100, detector);                                                                                                               
     TText* tptr1;
     auto   t1 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t1->SetFillColorAlpha(kWhite, 0);
@@ -175,18 +189,8 @@ int vm_mass(const std::string& config_name)
     h21.GetXaxis()->CenterTitle();
     h21.GetYaxis()->CenterTitle();
     // draw everything
-    //TF1* mfPt = new TF1("mfPt", "[0]*exp(-[1]*x)", 1.2, 10.);
-    //mfPt->SetParameters(5., 1.);
-    //mfPt->SetParLimits(0, 0., 1000000.);
-    //mfPt->SetParLimits(1, 0., 1000000.);
-    //mfPt->SetNpx(1000);
-    //mfPt->SetLineColor(2);
-    //mfPt->SetLineStyle(7);
-    //h21.Fit(mfPt, "", "", 1.2, 10.);
     h21.DrawClone("hist");
     h22.DrawClone("hist same");
-    //mfPt->Draw("same");
-    
     
     // FIXME hardcoded beam configuration
     plot::draw_label(10, 100, detector);
@@ -262,11 +266,19 @@ int vm_mass(const std::string& config_name)
     t4->Draw();
 
     c.Print(fmt::format("{}vm_mass_pt_phi_rapidity.png", output_prefix).c_str());
-  }
+  //}
 
   // TODO we're not actually doing an IM fit yet, so for now just return an
   // error for the test result
-  mass_resolution_test.error(-1);
+  double width = mfMass->GetParameter(1);
+  if(myFitPtr->Status()!=0){
+    mass_resolution_test.error(-1);
+  }else if(width > width_target){
+    mass_resolution_test.fail(width);
+  }else{
+    mass_resolution_test.pass(width);
+  }
+  
 
   // write out our test data
   eic::util::write_test(mass_resolution_test, fmt::format("{}mass.json", output_prefix));

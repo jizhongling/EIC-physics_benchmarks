@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 #include "TF1.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
 
 #include <Math/Vector4D.h>
 
