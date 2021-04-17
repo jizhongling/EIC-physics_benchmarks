@@ -3,10 +3,18 @@ image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:$JUGGLER_TAG
 default:
   tags:
     - silicon
+  before_script:
+    - |
+      if [[ -n "${EIC_DATA_MODEL_VERISON}" ]]; then
+        echo "Triggered from upstream EICD pipeline."
+        git clone -b ${EIC_DATA_MODEL_VERSION} https://eicweb.phy.anl.gov/EIC/eicd.git 
+        mkdir eicd/build && cd eicd/build && cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j20 install && cd ../..
+      fi
   artifacts:
     expire_in: 3 days
 
 stages:
+  - config
   - initialize
   - process
   - collect
