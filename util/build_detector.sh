@@ -42,7 +42,7 @@ git clone -b ${JUGGLER_DETECTOR_VERSION} https://eicweb.phy.anl.gov/EIC/detector
 #fi
 ## We also need an up-to-date copy of the accelerator. For now this is done
 ## manually. Down the road we could maybe automize this with cmake
-if [ ! -d accelerator ]; then
+if [ -d accelerator ]; then
   echo "cleaning up accelerator"
   rm -rf accelerator
 fi
