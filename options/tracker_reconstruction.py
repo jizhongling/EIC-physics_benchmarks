@@ -50,8 +50,8 @@ from Configurables import Jug__Reco__SimpleClustering as SimpleClustering
 
 
 
-podioinput = PodioInput("PodioReader", 
-                        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits")#,"EcalBarrelHits"])#, OutputLevel=DEBUG)
+podioinput = PodioInput("PodioReader",
+        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits"])#,"EcalBarrelHits"])#, OutputLevel=DEBUG)
 #"SiVertexBarrelHits",
 
 dummy = MC2DummyParticle("MC2Dummy",
