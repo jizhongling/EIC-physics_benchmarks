@@ -27,26 +27,33 @@ source options/env.sh
 pushd ${DETECTOR_PREFIX}
 
 ## We need an up-to-date copy of the detector
-if [ ! -d ${JUGGLER_DETECTOR} ]; then
-  echo "Fetching ${JUGGLER_DETECTOR}"
-  git clone -b ${JUGGLER_DETECTOR_VERSION} https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
-else
-  echo "Updating ${JUGGLER_DETECTOR}"
-  pushd ${JUGGLER_DETECTOR}
-  git pull --ff-only
-  popd
+## start clean to avoid issues...
+if [ -d ${JUGGLER_DETECTOR} ]; then
+  echo "cleaning up ${JUGGLER_DETECTOR}" 
+  rm -rf ${JUGGLER_DETECTOR}
 fi
+echo "Fetching ${JUGGLER_DETECTOR}"
+git clone -b ${JUGGLER_DETECTOR_VERSION} https://eicweb.phy.anl.gov/EIC/detectors/${JUGGLER_DETECTOR}.git
+#else
+  #echo "Updating ${JUGGLER_DETECTOR}"
+  #pushd ${JUGGLER_DETECTOR}
+  #git pull --ff-only
+  #popd
+#fi
 ## We also need an up-to-date copy of the accelerator. For now this is done
 ## manually. Down the road we could maybe automize this with cmake
 if [ ! -d accelerator ]; then
-  echo "Fetching accelerator"
-  git clone https://eicweb.phy.anl.gov/EIC/detectors/accelerator.git
-else
-  echo "Updating accelerator"
-  pushd accelerator
-  git pull --ff-only
-  popd
+  echo "cleaning up accelerator"
+  rm -rf accelerator
 fi
+echo "Fetching accelerator"
+git clone https://eicweb.phy.anl.gov/EIC/detectors/accelerator.git
+#else
+#  echo "Updating accelerator"
+#  pushd accelerator
+#  git pull --ff-only
+#  popd
+#fi
 ## Now symlink the accelerator definition into the detector definition
 echo "Linking accelerator definition into detector definition"
 ln -s -f ${DETECTOR_PREFIX}/accelerator/eic ${DETECTOR_PATH}/eic
