@@ -51,7 +51,7 @@ from Configurables import Jug__Reco__SimpleClustering as SimpleClustering
 
 
 podioinput = PodioInput("PodioReader", 
-                        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
+                        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits")#,"EcalBarrelHits"])#, OutputLevel=DEBUG)
 #"SiVertexBarrelHits",
 
 dummy = MC2DummyParticle("MC2Dummy",
@@ -67,9 +67,9 @@ trkcopier = TrkCopier("TrkCopier",
         inputCollection="SiTrackerBarrelHits", 
         outputCollection="SiTrackerBarrelHits2") 
 
-ecal_digi = EMCalorimeterDigi("ecal_digi", 
-        inputHitCollection="EcalBarrelHits", 
-        outputHitCollection="RawEcalBarrelHits")
+#ecal_digi = EMCalorimeterDigi("ecal_digi", 
+        #inputHitCollection="EcalBarrelHits", 
+        #outputHitCollection="RawEcalBarrelHits")
 
 ufsd_digi = UFSDTrackerDigi("ufsd_digi", 
         inputHitCollection="SiTrackerBarrelHits",
@@ -86,18 +86,18 @@ ufsd_digi2 = UFSDTrackerDigi("ufsd_digi2",
 #        timeResolution=8)
 
 
-ecal_reco = EMCalReconstruction("ecal_reco", 
-        inputHitCollection="RawEcalBarrelHits", 
-        outputHitCollection="RecEcalBarrelHits",
-        minModuleEdep=0.0*units.MeV,
-        OutputLevel=DEBUG)
+#ecal_reco = EMCalReconstruction("ecal_reco", 
+        #inputHitCollection="RawEcalBarrelHits", 
+        #outputHitCollection="RecEcalBarrelHits",
+        #minModuleEdep=0.0*units.MeV,
+        #OutputLevel=DEBUG)
 
-simple_cluster = SimpleClustering("simple_cluster", 
-        inputHitCollection="RecEcalBarrelHits", 
-        outputClusters="SimpleClusters",
-        minModuleEdep=1.0*units.MeV,
-        maxDistance=50.0*units.cm,
-        OutputLevel=DEBUG)
+#simple_cluster = SimpleClustering("simple_cluster", 
+        #inputHitCollection="RecEcalBarrelHits", 
+        #outputClusters="SimpleClusters",
+        #minModuleEdep=1.0*units.MeV,
+        #maxDistance=50.0*units.cm,
+        #OutputLevel=DEBUG)
 
 trk_barrel_reco = TrackerHitReconstruction("trk_barrel_reco",
         inputHitCollection="SiTrackerBarrelRawHits",
