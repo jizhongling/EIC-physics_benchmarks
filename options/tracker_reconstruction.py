@@ -68,7 +68,7 @@ trkcopier = TrkCopier("TrkCopier",
         outputCollection="SiTrackerBarrelHits2") 
 
 ecal_digi = EMCalorimeterDigi("ecal_digi", 
-        inputHitCollection="EcalBarrelAstroPixHits", 
+        inputHitCollection="EcalBarrelHits", 
         outputHitCollection="RawEcalBarrelHits")
 
 ufsd_digi = UFSDTrackerDigi("ufsd_digi", 
