@@ -14,10 +14,6 @@ echo "JUGGLER_FILE_NAME_TAG = ${JUGGLER_FILE_NAME_TAG}"
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
 ## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
-##
-## You can ready options/env.sh for more in-depth explanations of the variables
-## and how they can be controlled.
-source options/env.sh
 
 
 curl -o test_proton_dvcs_eic.hepmc "https://eicweb.phy.anl.gov/api/v4/projects/345/jobs/artifacts/master/raw/data/test_proton_dvcs_eic.hepmc?job=compile"

@@ -31,9 +31,10 @@ source util/parse_cmd.sh $@
 ## - JUGGLER_N_EVENTS:  Number of events to process
 ## - JUGGLER_RNG_SEED:  Random seed for event generation.
 ##
-## You can read options/env.sh for more in-depth explanations of the variables
+## defined in common_bench repo
+## You can ready bin/env.sh for more in-depth explanations of the variables
 ## and how they can be controlled.
-source options/env.sh
+
 
 ## We also need the following benchmark-specific variables:
 ##

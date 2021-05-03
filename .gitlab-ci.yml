@@ -1,45 +1,43 @@
 image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:$JUGGLER_TAG
 
 default:
-  tags:
-    - silicon
   before_script:
-    - |
-      if [[ -n "${EIC_DATA_MODEL_VERISON}" ]]; then
-        echo "Triggered from upstream EICD pipeline."
-        git clone -b ${EIC_DATA_MODEL_VERSION} https://eicweb.phy.anl.gov/EIC/eicd.git 
-        mkdir eicd/build && cd eicd/build && cmake ../. -DCMAKE_INSTALL_PREFIX=/usr/local && make -j20 install && cd ../..
-      fi
+    - source .local/bin/env.sh
   artifacts:
     expire_in: 3 days
+    paths:
+      - .local/detector
+      - .local/lib
+      - .local/bin
+      - .local/include
+      - .local/share
+      - results
+      - config
 
 stages:
   - config
   - initialize
+  - generate
   - process
   - collect
   - finish
 
-detector:
-  stage: initialize
-  needs: []
-  timeout: 1 hours
-  cache:
-    key:
-      files:
-        - config/env.sh
-        - util/build_detector.sh
-      prefix: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .local/detector
-      - .local/lib
-  artifacts:
-    paths:
-      - .local/detector
-      - .local/lib
+common:setup:
+  stage: config
+  before_script:
+    - git clone https://eicweb.phy.anl.gov/EIC/benchmarks/common_bench.git setup 
   script:
-    - ./util/print_env.sh
-    - ./util/build_detector.sh
+    - source setup/bin/env.sh && ./setup/bin/install_common.sh
+
+common:detector:
+  stage: initialize
+  needs: ["common:setup"]
+  script:
+    - source .local/bin/env.sh && build_detector.sh
+    - mkdir_local_data_link sim_output
+    - mkdir -p results
+    - mkdir -p config
+    - print_env.sh
 
 include:
   - local: 'benchmarks/dis/config.yml'

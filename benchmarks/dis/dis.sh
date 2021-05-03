@@ -30,9 +30,9 @@ source util/parse_cmd.sh $@
 ## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 ##
-## You can ready options/env.sh for more in-depth explanations of the variables
+## defined in common_bench repo
+## You can ready bin/env.sh for more in-depth explanations of the variables
 ## and how they can be controlled.
-source options/env.sh
 
 ## We also need the following benchmark-specific variables:
 ##

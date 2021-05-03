@@ -30,15 +30,6 @@ export REQUIRE_DECAY=1
 export REQUIRE_LEADING=1
 source util/parse_cmd.sh $@
 
-## To run the reconstruction, we need the following global variables:
-## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
-## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
-## - DETECTOR_PATH:          full path to the detector definitions
-##
-## You can ready options/env.sh for more in-depth explanations of the variables
-## and how they can be controlled.
-source options/env.sh
-
 ## We also need the following benchmark-specific variables:
 ##
 ## - BENCHMARK_TAG: Unique identified for this benchmark process.
@@ -65,14 +56,17 @@ PLOT_TAG=${CONFIG}_${DECAY}
 ## =============================================================================
 ## Step 2: Run the simulation
 echo "Running Geant4 simulation"
+ls -lrth 
+ls -lrth input
+echo ${TMP_PATH}
+ls -lrth ${TMP_PATH}
 npsim --runType batch \
       --part.minimalKineticEnergy 100*GeV  \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --inputFiles ${GEN_FILE} \
-      --outputFile ${SIM_FILE} \
-  2>&1 > ${SIM_LOG}
+      --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
   echo "ERROR running npsim"
   exit 1

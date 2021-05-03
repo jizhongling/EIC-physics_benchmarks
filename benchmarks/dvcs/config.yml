@@ -1,12 +1,9 @@
 dvcs:process:
   stage: process
   timeout: 1 hour
-  needs: ["detector"]
+  needs: ["common:detector"]
   script:
     - bash benchmarks/dvcs/dvcs.sh
-  artifacts:
-    paths:
-      - results
 
 dvcs:results:
   stage: collect
@@ -14,7 +11,3 @@ dvcs:results:
   script:
     - pip install junitparser
       #- python dvcs/scripts/merge_results.py
-  artifacts:
-    paths:
-      - results
-        #  reports:

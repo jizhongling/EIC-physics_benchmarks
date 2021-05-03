@@ -25,17 +25,22 @@ echo "Setting up the local environment for the ${BENCHMARK_TAG^^} benchmarks"
 ## Extra beam tag to identify the desired beam configuration
 export BEAM_TAG="${EBEAM}on${PBEAM}"
 
+if [[ ! -d "input" ]] ; then
+  echo " making local link to input "
+  mkdir_local_data_link  input
+fi
+
 ## Data path for input data (generator-level hepmc file)
 INPUT_PATH="input/${BENCHMARK_TAG}/${BEAM_TAG}"
+#export INPUT_PATH=`realpath ${INPUT_PATH}`
 mkdir -p ${INPUT_PATH}
-export INPUT_PATH=`realpath ${INPUT_PATH}`
 echo "INPUT_PATH:             ${INPUT_PATH}"
 
 
 ## Data path for temporary data (not exported as artifacts)
-TMP_PATH=${LOCAL_PREFIX}/tmp/${BEAM_TAG}
+TMP_PATH=${LOCAL_DATA_PATH}/tmp/${BEAM_TAG}
+#export TMP_PATH=`realpath ${TMP_PATH}`
 mkdir -p ${TMP_PATH}
-export TMP_PATH=`realpath ${TMP_PATH}`
 echo "TMP_PATH:               ${TMP_PATH}"
 
 ## Data path for benchmark output (plots and reconstructed files
