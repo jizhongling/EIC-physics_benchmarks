@@ -23,7 +23,7 @@ pushd ${PROJECT_ROOT}
 ## - CONFIG:   The specific generator configuration --> not currenlty used FIXME
 ## - EBEAM:    The electron beam energy --> not currently used FIXME
 ## - PBEAM:    The ion beam energy --> not currently used FIXME
-source util/parse_cmd.sh $@
+source parse_cmd.sh $@
 
 ## To run the generator, we need the following global variables:
 ##
@@ -63,7 +63,7 @@ echo "Generator output for $GEN_TAG not found in cache, need to run generator"
 
 echo "Compiling   benchmarks/dis/generator/pythia_dis.cxx ..."
 g++ benchmarks/dis/generator/pythia_dis.cxx -o ${TMP_PATH}/pythia_dis  \
-   -I/usr/local/include  -Iinclude \
+   -I/usr/local/include  -I${LOCAL_PREFIX}/include \
    -O2 -std=c++11 -pedantic -W -Wall -Wshadow -fPIC  \
    -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lpythia8 -ldl \
    -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lHepMC3

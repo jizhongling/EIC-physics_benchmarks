@@ -28,7 +28,7 @@ echo "Running the DVMP benchmarks"
 ## - LEADING:  Leading particle of interest (J/psi)
 export REQUIRE_DECAY=1
 export REQUIRE_LEADING=1
-source util/parse_cmd.sh $@
+source parse_cmd.sh $@
 
 ## We also need the following benchmark-specific variables:
 ##

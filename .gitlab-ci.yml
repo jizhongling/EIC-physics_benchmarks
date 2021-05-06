@@ -48,7 +48,7 @@ summary:
   stage: finish
   needs: ["dis:results", "dvcs:results", "dvmp:results"]
   script:
-    - ./util/collect_benchmarks.py
+    - collect_benchmarks.py
   artifacts:
     paths:
       - results/*

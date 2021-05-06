@@ -25,7 +25,7 @@ pushd ${PROJECT_ROOT}
 ## - PBEAM:    The ion beam energy
 ## - DECAY:    The decay particle for the generator
 export REQUIRE_DECAY=1
-source util/parse_cmd.sh $@
+source parse_cmd.sh $@
 
 ## To run the generator, we need the following global variables:
 ##

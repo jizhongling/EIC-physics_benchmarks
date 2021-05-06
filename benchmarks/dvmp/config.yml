@@ -3,16 +3,8 @@ dvmp:generate:
   image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
   stage: generate
   timeout: 1 hours
-  #cache:
-  #  key:
-  #    files:
-  #      - benchmarks/dvmp/generator/jpsi_central.json
-  #      - benchmarks/dvmp/scripts/jpsi_central-generate.sh
-  #    prefix: "$CI_COMMIT_REF_SLUG"
-  #  paths:
-  #    - input/dvmp
   script:
-    - ./util/run_many.py ./benchmarks/dvmp/gen.sh 
+    - run_many.py ./benchmarks/dvmp/gen.sh 
           -c jpsi_barrel 
           -e 10x100 
           --decay muon --decay electron
@@ -24,9 +16,9 @@ dvmp:process:
   timeout: 1 hour
   script:
     - ls -lrth
-    - ./util/compile_analyses.py dvmp
+    - compile_analyses.py dvmp
     - ls -lrth
-    - ./util/run_many.py ./benchmarks/dvmp/dvmp.sh 
+    - run_many.py ./benchmarks/dvmp/dvmp.sh 
           -c jpsi_barrel 
           -e 10x100 
           --decay muon --decay electron
@@ -36,17 +28,9 @@ dvmp:process:
     max: 2
     when:
       - runner_system_failure
-  cache:
-    key:
-      files:
-        - .rootlogon.C
-        - util/compile_analyses.py
-      prefix: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .local/root_build
 
 dvmp:results:
   stage: collect
   needs: ["dvmp:process"]
   script:
-    - ./util/collect_tests.py dvmp
+    - collect_tests.py dvmp

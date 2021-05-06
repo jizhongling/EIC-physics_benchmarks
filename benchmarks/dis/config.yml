@@ -2,13 +2,6 @@ dis:generate:
   stage: generate
   needs: ["common:detector"]
   timeout: 1 hours
-  cache:
-    key:
-      files:
-        - benchmarks/dis/generator/pythia_dis.cxx
-      prefix: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - input/dis
   script:
     - bash benchmarks/dis/gen.sh --config barrel --ebeam 18 --pbeam 275
 
@@ -17,23 +10,15 @@ dis:process:
   needs: ["common:detector", "dis:generate"]
   timeout: 1 hour
   script:
-    - ./util/compile_analyses.py dis
+    - compile_analyses.py dis
     - ./benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
   retry:
     max: 2
     when:
       - runner_system_failure
-  cache:
-    key:
-      files:
-        - .rootlogon.C
-        - util/compile_analyses.py
-      prefix: "$CI_COMMIT_REF_SLUG"
-    paths:
-      - .local/root_build
 
 dis:results:
   stage: collect
   needs: ["dis:process"]
   script:
-    - ./util/collect_tests.py dis
+    - collect_tests.py dis

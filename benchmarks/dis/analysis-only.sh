@@ -23,7 +23,7 @@ echo "Running the DIS benchmarks"
 ## - CONFIG:   The specific generator configuration
 ## - EBEAM:    The electron beam energy
 ## - PBEAM:    The ion beam energy
-source util/parse_cmd.sh $@
+source parse_cmd.sh $@
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
