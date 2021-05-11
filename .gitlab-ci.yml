@@ -13,6 +13,9 @@ default:
       - .local/share
       - results
       - config
+      - juggler.env
+    reports:
+      dotenv: juggler.env
 
 stages:
   - config
