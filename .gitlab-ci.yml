@@ -42,18 +42,16 @@ common:detector:
     - mkdir -p config
     - print_env.sh
 
-# commented out 
-#include:
-#  - local: 'benchmarks/dis/config.yml'
-#  - local: 'benchmarks/dvmp/config.yml'
-#  - local: 'benchmarks/dvcs/config.yml'
+include:
+  - local: 'benchmarks/dis/config.yml'
+  - local: 'benchmarks/dvmp/config.yml'
+  - local: 'benchmarks/dvcs/config.yml'
 
 summary:
   stage: finish
-#  needs: ["dis:results", "dvcs:results", "dvmp:results"]
+  needs: ["dis:results", "dvcs:results", "dvmp:results"]
   script:
-#    - collect_benchmarks.py
-     - echo "DISABLED UNTIL WE FIX TRACKING"
+    - collect_benchmarks.py
   artifacts:
     paths:
       - results/*
