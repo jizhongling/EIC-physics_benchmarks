@@ -51,7 +51,7 @@ from Configurables import Jug__Reco__SimpleClustering as SimpleClustering
 
 
 podioinput = PodioInput("PodioReader",
-        collections=["mcparticles","SiTrackerEndcapHits","SiTrackerBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
+        collections=["mcparticles","TrackerEndcapHits","TrackerBarrelHits","EcalBarrelHits"])#, OutputLevel=DEBUG)
 #"SiVertexBarrelHits",
 
 dummy = MC2DummyParticle("MC2Dummy",
@@ -64,20 +64,20 @@ copier = MCCopier("MCCopier",
         inputCollection="mcparticles", 
         outputCollection="mcparticles2") 
 trkcopier = TrkCopier("TrkCopier", 
-        inputCollection="SiTrackerBarrelHits", 
-        outputCollection="SiTrackerBarrelHits2") 
+        inputCollection="TrackerBarrelHits", 
+        outputCollection="TrackerBarrelHits2") 
 
 ecal_digi = EMCalorimeterDigi("ecal_digi", 
         inputHitCollection="EcalBarrelHits", 
         outputHitCollection="RawEcalBarrelHits")
 
 ufsd_digi = UFSDTrackerDigi("ufsd_digi", 
-        inputHitCollection="SiTrackerBarrelHits",
-        outputHitCollection="SiTrackerBarrelRawHits",
+        inputHitCollection="TrackerBarrelHits",
+        outputHitCollection="TrackerBarrelRawHits",
         timeResolution=8)
 ufsd_digi2 = UFSDTrackerDigi("ufsd_digi2", 
-        inputHitCollection="SiTrackerEndcapHits",
-        outputHitCollection="SiTrackerEndcapRawHits",
+        inputHitCollection="TrackerEndcapHits",
+        outputHitCollection="TrackerEndcapRawHits",
         timeResolution=8)
 
 #vtx_digi = UFSDTrackerDigi("vtx_digi", 
@@ -100,11 +100,11 @@ simple_cluster = SimpleClustering("simple_cluster",
         OutputLevel=DEBUG)
 
 trk_barrel_reco = TrackerHitReconstruction("trk_barrel_reco",
-        inputHitCollection="SiTrackerBarrelRawHits",
+        inputHitCollection="TrackerBarrelRawHits",
         outputHitCollection="TrackerBarrelRecHits")
 
 trk_endcap_reco = TrackerHitReconstruction("trk_endcap_reco",
-        inputHitCollection="SiTrackerEndcapRawHits",
+        inputHitCollection="TrackerEndcapRawHits",
         outputHitCollection="TrackerEndcapRecHits")
 
 #vtx_barrel_reco = TrackerHitReconstruction("vtx_barrel_reco",
