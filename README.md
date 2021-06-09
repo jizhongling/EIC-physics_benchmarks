@@ -1,7 +1,7 @@
 Physics Benchmarks for the EIC
 ==============================
 
-![pipeline status](https://eicweb.phy.anl.gov/EIC/physics_benchmarks/badges/master/pipeline.svg)
+![pipeline status](https://eicweb.phy.anl.gov/EIC/benchmarks/physics_benchmarks/badges/master/pipeline.svg)
 
 ## Common bench
 
