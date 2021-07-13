@@ -13,7 +13,7 @@ dvmp:generate:
 dvmp:process:
   stage: process
   needs: ["common:detector", "dvmp:generate"]
-  timeout: 1 hour
+  timeout: 2 hour
   script:
     - ls -lrth
     - compile_analyses.py dvmp

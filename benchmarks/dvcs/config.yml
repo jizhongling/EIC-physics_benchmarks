@@ -1,6 +1,6 @@
 dvcs:process:
   stage: process
-  timeout: 1 hour
+  timeout: 2 hour
   needs: ["common:detector"]
   script:
     - bash benchmarks/dvcs/dvcs.sh
