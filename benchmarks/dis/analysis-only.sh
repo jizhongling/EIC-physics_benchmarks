@@ -77,12 +77,10 @@ echo "Running Geant4 simulation"
 ## variables:
 ## - JUGGLER_SIM_FILE:    input detector simulation
 ## - JUGGLER_REC_FILE:    output reconstructed data
-## - JUGGLER_DETECTOR_PATH: Location of the detector geometry
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
 ## - JUGGLER_DETECTOR:    detector package (part of global environment)
 #export JUGGLER_SIM_FILE=${SIM_FILE}
 #export JUGGLER_REC_FILE=${REC_FILE}
-#export JUGGLER_DETECTOR_PATH=${DETECTOR_PATH}
 #xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
 #  gaudirun.py options/tracker_reconstruction.py 
 ## on-error, first retry running juggler again as there is still a random
