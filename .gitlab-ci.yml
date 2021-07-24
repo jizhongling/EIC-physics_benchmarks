@@ -28,7 +28,12 @@ stages:
 common:setup:
   stage: config
   before_script:
-    - git clone https://eicweb.phy.anl.gov/EIC/benchmarks/common_bench.git setup 
+    - |
+      if [[ "${COMMON_BENCH_VERSION}" == "" ]] ; then
+        export COMMON_BENCH_VERSION="master" 
+      fi
+      echo "COMMON_BENCH_VERSION = ${COMMON_BENCH_VERSION}" 
+      git clone -b "${COMMON_BENCH_VERSION}" https://eicweb.phy.anl.gov/EIC/benchmarks/common_bench.git setup 
   script:
     - source setup/bin/env.sh && ./setup/bin/install_common.sh
 
