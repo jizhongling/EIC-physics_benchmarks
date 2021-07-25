@@ -1,9 +1,9 @@
 #include "dvmp.h"
 #include "plot.h"
 
-#include <benchmark.h>
-#include <mt.h>
-#include <util.h>
+#include <common_bench/benchmark.h>
+#include <common_bench/mt.h>
+#include <common_bench/util.h>
 
 #include <ROOT/RDataFrame.hxx>
 #include <cmath>
@@ -44,7 +44,7 @@ int vm_invar(const std::string& config_name)
 
   // create our test definition
   // test_tag
-  eic::util::Test Q2_resolution_test{
+  common_bench::Test Q2_resolution_test{
       {{"name", fmt::format("{}_Q2_resolution", test_tag)},
        {"title",
         fmt::format("Q^2 Resolution for {} -> {} events with {}", vm_name, decay_name, detector)},
@@ -238,7 +238,7 @@ int vm_invar(const std::string& config_name)
   Q2_resolution_test.error(-1);
 
   // write out our test data
-  eic::util::write_test(Q2_resolution_test, fmt::format("{}invar.json", output_prefix));
+  common_bench::write_test(Q2_resolution_test, fmt::format("{}invar.json", output_prefix));
 
   // That's all!
   return 0;

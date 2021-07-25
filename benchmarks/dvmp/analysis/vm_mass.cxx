@@ -1,9 +1,9 @@
 #include "dvmp.h"
 #include "plot.h"
 
-#include <benchmark.h>
-#include <mt.h>
-#include <util.h>
+#include <common_bench/benchmark.h>
+#include <common_bench/mt.h>
+#include <common_bench/util.h>
 
 #include <ROOT/RDataFrame.hxx>
 #include <cmath>
@@ -61,7 +61,7 @@ int vm_mass(const std::string& config_name)
 
   // create our test definition
   // test_tag
-  eic::util::Test mass_resolution_test{
+  common_bench::Test mass_resolution_test{
       {{"name", fmt::format("{}_mass_resolution", test_tag, vm_name, decay_name)},
        {"title", fmt::format("{} Invariant Mass Resolution for {} -> {} with {}", vm_name, vm_name,
                              decay_name, detector)},
@@ -281,7 +281,7 @@ int vm_mass(const std::string& config_name)
   
 
   // write out our test data
-  eic::util::write_test(mass_resolution_test, fmt::format("{}mass.json", output_prefix));
+  common_bench::write_test(mass_resolution_test, fmt::format("{}mass.json", output_prefix));
 
   // That's all!
   return 0;

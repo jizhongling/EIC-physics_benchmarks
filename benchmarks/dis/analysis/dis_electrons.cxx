@@ -1,9 +1,9 @@
 #include "dis.h"
 #include "plot.h"
 
-#include <benchmark.h>
-#include <mt.h>
-#include <util.h>
+#include <common_bench/benchmark.h>
+#include <common_bench/mt.h>
+#include <common_bench/util.h>
 
 #include "ROOT/RDataFrame.hxx"
 #include <cmath>
@@ -150,7 +150,7 @@ int dis_electrons(const std::string& config_name)
 
   // create our test definition
   // test_tag
-  eic::util::Test dis_Q2_resolution{
+  common_bench::Test dis_Q2_resolution{
       {{"name", fmt::format("{}_Q2_resolution", test_tag)},
        {"title", "DIS Q2 resolution"},
        {"description",
@@ -290,7 +290,7 @@ int dis_electrons(const std::string& config_name)
 
     c.Print(fmt::format("{}momentum.png", output_prefix).c_str());
   }
-  eic::util::write_test({dis_Q2_resolution}, fmt::format("{}dis_electrons.json", output_prefix));
+  common_bench::write_test({dis_Q2_resolution}, fmt::format("{}dis_electrons.json", output_prefix));
 
   return 0;
 }
