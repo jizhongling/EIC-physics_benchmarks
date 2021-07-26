@@ -1,6 +1,5 @@
 from Gaudi.Configuration import *
 
-from GaudiKernel.DataObjectHandleBase import DataObjectHandleBase
 from Configurables import ApplicationMgr, EICDataSvc, PodioOutput, GeoSvc
 from GaudiKernel import SystemOfUnits as units
 
@@ -195,7 +194,7 @@ parts_from_fit2 = ParticlesFromTrackFit("parts_from_fit2",
 #    props = configurable.getDefaultProperties()
 #    for propname, prop in sorted(props.items()):
 #        print(" prop name: {}".format(propname))
-#        if isinstance(prop, DataObjectHandleBase):
+#        if isinstance(prop, DataHandleBase):
 #            types.append(prop.type())
 #            print("  {}: \"{}\"".format(propname, prop.type()))
 #print("---")
