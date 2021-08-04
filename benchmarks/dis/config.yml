@@ -10,8 +10,9 @@ dis:process:
   needs: ["common:detector", "dis:generate"]
   timeout: 2 hour
   script:
-    - compile_analyses.py dis
-    - ./benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
+    - echo "Temporarily disabling!!!"
+      #- compile_analyses.py dis
+      #- ./benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
   retry:
     max: 2
     when:

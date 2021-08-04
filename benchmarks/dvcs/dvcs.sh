@@ -39,7 +39,7 @@ fi
 
 # Need to figure out how to pass file name to juggler from the commandline
 xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/tracker_reconstruction.py
+  gaudirun.py options/reconstruction.py
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running juggler"
   exit 1

@@ -1,6 +1,6 @@
 # DIS Benchmarks
 
-## Compiling Pythia
+## Compiling Pythia example
 
 ```
 g++ src/pythia_dis.cc -o pythia_dis  \

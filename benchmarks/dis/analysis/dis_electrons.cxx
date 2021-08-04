@@ -1,26 +1,25 @@
-#include "dis.h"
-#include "plot.h"
+#include "common_bench/benchmark.h"
+#include "common_bench/mt.h"
+#include "common_bench/util.h"
 
-#include <common_bench/benchmark.h>
-#include <common_bench/mt.h>
-#include <common_bench/util.h>
-
-#include "ROOT/RDataFrame.hxx"
 #include <cmath>
-#include <fmt/color.h>
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <eicd/ReconstructedParticleData.h>
-#include <TH1D.h>
-#include <TFitResult.h>
-#include <TRandom3.h>
 #include <algorithm>
 #include <utility>
 
+#include "ROOT/RDataFrame.hxx"
+#include <TH1D.h>
+#include <TFitResult.h>
+#include <TRandom3.h>
+
+#include "fmt/color.h"
+#include "fmt/core.h"
+
+#include "nlohmann/json.hpp"
+#include "eicd/ReconstructedParticleData.h"
 
 // Get a vector of 4-momenta from the reconstructed data.
 inline auto momenta_from_reconstruction(const std::vector<eic::ReconstructedParticleData>& parts)
