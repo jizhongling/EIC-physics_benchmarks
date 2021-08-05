@@ -1,19 +1,21 @@
 #include "dvmp.h"
-#include "plot.h"
 
-#include <common_bench/benchmark.h>
-#include <common_bench/mt.h>
-#include <common_bench/util.h>
+#include "common_bench/plot.h"
+#include "common_bench/benchmark.h"
+#include "common_bench/mt.h"
+#include "common_bench/util.h"
 
-#include <ROOT/RDataFrame.hxx>
+#include "ROOT/RDataFrame.hxx"
+
 #include <cmath>
-#include <fmt/color.h>
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
+
+#include "nlohmann/json.hpp"
+#include "fmt/color.h"
+#include "fmt/core.h"
 
 // Run VM invariant-mass-based benchmarks on an input reconstruction file for
 // a desired vector meson (e.g. jpsi) and a desired decay particle (e.g. muon)
@@ -57,8 +59,8 @@ int vm_invar(const std::string& config_name)
   ROOT::EnableImplicitMT(kNumThreads);
 
   // The particles we are looking for. E.g. J/psi decaying into e+e-
-  const double vm_mass    = util::get_pdg_mass(vm_name);
-  const double decay_mass = util::get_pdg_mass(decay_name);
+  const double vm_mass    = common_bench::get_pdg_mass(vm_name);
+  const double decay_mass = common_bench::get_pdg_mass(decay_name);
 
   // Ensure our output prefix always ends on a dot, a slash or a dash
   if (output_prefix.back() != '.' && output_prefix.back() != '/' && output_prefix.back() != '-') {
@@ -125,9 +127,9 @@ int vm_invar(const std::string& config_name)
     auto& hy_rec = *h_y_rec;
     auto& hy_sim = *h_y_sim;
     // histogram style
-    hy_rec.SetLineColor(plot::kMpOrange);
+    hy_rec.SetLineColor(common_bench::plot::kMpOrange);
     hy_rec.SetLineWidth(1);
-    hy_sim.SetLineColor(plot::kMpBlue);
+    hy_sim.SetLineColor(common_bench::plot::kMpBlue);
     hy_sim.SetLineWidth(2);
     // axes
     hy_sim.GetXaxis()->CenterTitle();
@@ -135,16 +137,16 @@ int vm_invar(const std::string& config_name)
     hy_sim.DrawClone("hist");
     hy_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr1;
     auto   t1 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t1->SetFillColorAlpha(kWhite, 0);
     t1->SetTextFont(43);
     t1->SetTextSize(25);
     tptr1 = t1->AddText("simulated");
-    tptr1->SetTextColor(plot::kMpBlue);
+    tptr1->SetTextColor(common_bench::plot::kMpBlue);
     tptr1 = t1->AddText("rec(PlaceHolder)");
-    tptr1->SetTextColor(plot::kMpOrange);
+    tptr1->SetTextColor(common_bench::plot::kMpOrange);
     t1->Draw();
 
     // pad 2 Q2
@@ -152,9 +154,9 @@ int vm_invar(const std::string& config_name)
     auto& hQ2_rec = *h_Q2_rec;
     auto& hQ2_sim = *h_Q2_sim;
     // histogram style
-    hQ2_rec.SetLineColor(plot::kMpOrange);
+    hQ2_rec.SetLineColor(common_bench::plot::kMpOrange);
     hQ2_rec.SetLineWidth(1);
-    hQ2_sim.SetLineColor(plot::kMpBlue);
+    hQ2_sim.SetLineColor(common_bench::plot::kMpBlue);
     hQ2_sim.SetLineWidth(2);
     // axes
     hQ2_sim.GetXaxis()->CenterTitle();
@@ -162,16 +164,16 @@ int vm_invar(const std::string& config_name)
     hQ2_sim.DrawClone("hist");
     hQ2_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr2;
     auto   t2 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t2->SetFillColorAlpha(kWhite, 0);
     t2->SetTextFont(43);
     t2->SetTextSize(25);
     tptr2 = t2->AddText("simulated");
-    tptr2->SetTextColor(plot::kMpBlue);
+    tptr2->SetTextColor(common_bench::plot::kMpBlue);
     tptr2 = t2->AddText("rec(PlaceHolder)");
-    tptr2->SetTextColor(plot::kMpOrange);
+    tptr2->SetTextColor(common_bench::plot::kMpOrange);
     t2->Draw();
     
     // pad 3 x
@@ -179,9 +181,9 @@ int vm_invar(const std::string& config_name)
     auto& hx_rec = *h_x_rec;
     auto& hx_sim = *h_x_sim;
     // histogram style
-    hx_rec.SetLineColor(plot::kMpOrange);
+    hx_rec.SetLineColor(common_bench::plot::kMpOrange);
     hx_rec.SetLineWidth(1);
-    hx_sim.SetLineColor(plot::kMpBlue);
+    hx_sim.SetLineColor(common_bench::plot::kMpBlue);
     hx_sim.SetLineWidth(2);
     // axes
     hx_sim.GetXaxis()->CenterTitle();
@@ -189,16 +191,16 @@ int vm_invar(const std::string& config_name)
     hx_sim.DrawClone("hist");
     hx_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr3;
     auto   t3 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t3->SetFillColorAlpha(kWhite, 0);
     t3->SetTextFont(43);
     t3->SetTextSize(25);
     tptr3 = t3->AddText("simulated");
-    tptr3->SetTextColor(plot::kMpBlue);
+    tptr3->SetTextColor(common_bench::plot::kMpBlue);
     tptr3 = t3->AddText("rec(PlaceHolder)");
-    tptr3->SetTextColor(plot::kMpOrange);
+    tptr3->SetTextColor(common_bench::plot::kMpOrange);
     t3->Draw();
     
     // pad 4 t
@@ -206,9 +208,9 @@ int vm_invar(const std::string& config_name)
     auto& ht_rec = *h_t_rec;
     auto& ht_sim = *h_t_sim;
     // histogram style
-    ht_rec.SetLineColor(plot::kMpOrange);
+    ht_rec.SetLineColor(common_bench::plot::kMpOrange);
     ht_rec.SetLineWidth(1);
-    ht_sim.SetLineColor(plot::kMpBlue);
+    ht_sim.SetLineColor(common_bench::plot::kMpBlue);
     ht_sim.SetLineWidth(2);
     // axes
     ht_sim.GetXaxis()->CenterTitle();
@@ -216,16 +218,16 @@ int vm_invar(const std::string& config_name)
     ht_sim.DrawClone("hist");
     ht_rec.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr4;
     auto   t4 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t4->SetFillColorAlpha(kWhite, 0);
     t4->SetTextFont(43);
     t4->SetTextSize(25);
     tptr4 = t4->AddText("simulated");
-    tptr4->SetTextColor(plot::kMpBlue);
+    tptr4->SetTextColor(common_bench::plot::kMpBlue);
     tptr4 = t4->AddText("rec(PlaceHolder)");
-    tptr4->SetTextColor(plot::kMpOrange);
+    tptr4->SetTextColor(common_bench::plot::kMpOrange);
     t4->Draw();
     
     c.Print(fmt::format("{}InvariantQuantities.png", output_prefix).c_str());

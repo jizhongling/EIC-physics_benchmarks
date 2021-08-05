@@ -1,19 +1,21 @@
 #include "dvmp.h"
-#include "plot.h"
+#include "common_bench/plot.h"
 
-#include <common_bench/benchmark.h>
-#include <common_bench/mt.h>
-#include <common_bench/util.h>
+#include "common_bench/benchmark.h"
+#include "common_bench/mt.h"
+#include "common_bench/util.h"
 
-#include <ROOT/RDataFrame.hxx>
+#include "ROOT/RDataFrame.hxx"
 #include <cmath>
-#include <fmt/color.h>
-#include <fmt/core.h>
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
+
+#include "fmt/color.h"
+#include "fmt/core.h"
+#include "nlohmann/json.hpp"
+
 #include "eicd/ReconstructedParticleCollection.h"
 #include "eicd/ReconstructedParticleData.h"
 
@@ -74,8 +76,8 @@ int vm_mass(const std::string& config_name)
   ROOT::EnableImplicitMT(kNumThreads);
 
   // The particles we are looking for. E.g. J/psi decaying into e+e-
-  const double vm_mass    = util::get_pdg_mass(vm_name);
-  const double decay_mass = util::get_pdg_mass(decay_name);
+  const double vm_mass    = common_bench::get_pdg_mass(vm_name);
+  const double decay_mass = common_bench::get_pdg_mass(decay_name);
 
   // Ensure our output prefix always ends on a dot, a slash or a dash
   if (output_prefix.back() != '.' && output_prefix.back() != '/' && output_prefix.back() != '-') {
@@ -89,14 +91,14 @@ int vm_mass(const std::string& config_name)
   // types
   
   auto find_decay_pair = [vm_mass, decay_mass](const std::vector<ROOT::Math::PxPyPzMVector>& parts) {
-    return util::find_decay_pair(parts, vm_mass, decay_mass);
+    return common_bench::find_decay_pair(parts, vm_mass, decay_mass);
   };
 
-  // util::PrintGeant4(mcparticles2);
+  // common_bench::PrintGeant4(mcparticles2);
   // Define analysis flow
-  auto d_im = d.Define("p_rec", util::momenta_RC, {"DummyReconstructedParticles"})       //using dummy rc
+  auto d_im = d.Define("p_rec", common_bench::momenta_RC, {"DummyReconstructedParticles"})       //using dummy rc
                   .Define("N", "p_rec.size()")
-                  .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
+                  .Define("p_sim", common_bench::momenta_from_simulation, {"mcparticles2"})
                   .Define("decay_pair_rec", find_decay_pair, {"p_rec"})
                   .Define("decay_pair_sim", find_decay_pair, {"p_sim"})
                   .Define("p_vm_rec", "decay_pair_rec.first + decay_pair_rec.second")
@@ -137,9 +139,9 @@ int vm_mass(const std::string& config_name)
     auto& h11 = *h_im_sim;
     auto& h12 = *h_im_rec;
     // histogram style
-    h11.SetLineColor(plot::kMpBlue);
+    h11.SetLineColor(common_bench::plot::kMpBlue);
     h11.SetLineWidth(2);
-    h12.SetLineColor(plot::kMpOrange);
+    h12.SetLineColor(common_bench::plot::kMpOrange);
     h12.SetLineWidth(1);
     // axes
     h11.GetXaxis()->CenterTitle();
@@ -162,16 +164,16 @@ int vm_mass(const std::string& config_name)
     mfMass->Draw("same");
     
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);                                                                                                               
+    common_bench::plot::draw_label(10, 100, detector);                                                                                                               
     TText* tptr1;
     auto   t1 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t1->SetFillColorAlpha(kWhite, 0);
     t1->SetTextFont(43);
     t1->SetTextSize(25);
     tptr1 = t1->AddText("simulated");
-    tptr1->SetTextColor(plot::kMpBlue);
+    tptr1->SetTextColor(common_bench::plot::kMpBlue);
     tptr1 = t1->AddText("reconstructed");
-    tptr1->SetTextColor(plot::kMpOrange);
+    tptr1->SetTextColor(common_bench::plot::kMpOrange);
     t1->Draw();
 
     // pad 2 pt
@@ -181,9 +183,9 @@ int vm_mass(const std::string& config_name)
     auto& h21 = *h_pt_sim;
     auto& h22 = *h_pt_rec;
     // histogram style
-    h21.SetLineColor(plot::kMpBlue);
+    h21.SetLineColor(common_bench::plot::kMpBlue);
     h21.SetLineWidth(2);
-    h22.SetLineColor(plot::kMpOrange);
+    h22.SetLineColor(common_bench::plot::kMpOrange);
     h22.SetLineWidth(1);
     // axes
     h21.GetXaxis()->CenterTitle();
@@ -193,16 +195,16 @@ int vm_mass(const std::string& config_name)
     h22.DrawClone("hist same");
     
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr2;
     auto   t2 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t2->SetFillColorAlpha(kWhite, 0);
     t2->SetTextFont(43);
     t2->SetTextSize(25);
     tptr2 = t2->AddText("simulated");
-    tptr2->SetTextColor(plot::kMpBlue);
+    tptr2->SetTextColor(common_bench::plot::kMpBlue);
     tptr2 = t2->AddText("reconstructed");
-    tptr2->SetTextColor(plot::kMpOrange);
+    tptr2->SetTextColor(common_bench::plot::kMpOrange);
     t2->Draw();
 
     // pad 3 phi
@@ -212,9 +214,9 @@ int vm_mass(const std::string& config_name)
     auto& h31 = *h_phi_sim;
     auto& h32 = *h_phi_rec;
     // histogram style
-    h31.SetLineColor(plot::kMpBlue);
+    h31.SetLineColor(common_bench::plot::kMpBlue);
     h31.SetLineWidth(2);
-    h32.SetLineColor(plot::kMpOrange);
+    h32.SetLineColor(common_bench::plot::kMpOrange);
     h32.SetLineWidth(1);
     // axes
     h31.GetXaxis()->CenterTitle();
@@ -223,16 +225,16 @@ int vm_mass(const std::string& config_name)
     h31.DrawClone("hist");
     h32.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr3;
     auto   t3 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t3->SetFillColorAlpha(kWhite, 0);
     t3->SetTextFont(43);
     t3->SetTextSize(25);
     tptr3 = t3->AddText("simulated");
-    tptr3->SetTextColor(plot::kMpBlue);
+    tptr3->SetTextColor(common_bench::plot::kMpBlue);
     tptr3 = t3->AddText("reconstructed");
-    tptr3->SetTextColor(plot::kMpOrange);
+    tptr3->SetTextColor(common_bench::plot::kMpOrange);
     t3->Draw();
 
     // pad 4 rapidity
@@ -242,9 +244,9 @@ int vm_mass(const std::string& config_name)
     auto& h41 = *h_eta_sim;
     auto& h42 = *h_eta_rec;
     // histogram style
-    h41.SetLineColor(plot::kMpBlue);
+    h41.SetLineColor(common_bench::plot::kMpBlue);
     h41.SetLineWidth(2);
-    h42.SetLineColor(plot::kMpOrange);
+    h42.SetLineColor(common_bench::plot::kMpOrange);
     h42.SetLineWidth(1);
     // axes
     h41.GetXaxis()->CenterTitle();
@@ -253,16 +255,16 @@ int vm_mass(const std::string& config_name)
     h41.DrawClone("hist");
     h42.DrawClone("hist same");
     // FIXME hardcoded beam configuration
-    plot::draw_label(10, 100, detector);
+    common_bench::plot::draw_label(10, 100, detector);
     TText* tptr4;
     auto   t4 = new TPaveText(.6, .8417, .9, .925, "NB NDC");
     t4->SetFillColorAlpha(kWhite, 0);
     t4->SetTextFont(43);
     t4->SetTextSize(25);
     tptr4 = t4->AddText("simulated");
-    tptr4->SetTextColor(plot::kMpBlue);
+    tptr4->SetTextColor(common_bench::plot::kMpBlue);
     tptr4 = t4->AddText("reconstructed");
-    tptr4->SetTextColor(plot::kMpOrange);
+    tptr4->SetTextColor(common_bench::plot::kMpOrange);
     t4->Draw();
 
     c.Print(fmt::format("{}vm_mass_pt_phi_rapidity.png", output_prefix).c_str());

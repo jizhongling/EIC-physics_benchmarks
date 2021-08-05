@@ -1,17 +1,17 @@
 #ifndef DVMP_H
 #define DVMP_H
 
-#include <util.h>
+#include "common_bench/util.h"
 
 #include <algorithm>
 #include <cmath>
 #include <exception>
-#include <fmt/core.h>
 #include <limits>
 #include <string>
 #include <vector>
 
-#include <Math/Vector4D.h>
+#include "fmt/core.h"
+#include "Math/Vector4D.h"
 
 // Additional utility functions for DVMP benchmarks. Where useful, these can be
 // promoted to the top-level util library
@@ -26,7 +26,7 @@ namespace util {
   //0:e0  1:p0    2:e1    3:p1    4:recoil system (without p1)    5:l1 from 4 6:l2 from 4
   inline auto momenta_sort_sim(const std::vector<dd4pod::Geant4ParticleData>& parts, std::string_view mother, std::string_view daughter){//mother and daughter are not used yet; will be useful when generater is different and/or when the mcparticles doesn't follow the same order in all events
     std::vector<ROOT::Math::PxPyPzMVector> momenta{7};
-    int order_map[7] = {0, 3, 2, 6, 5, 7, 8};             
+    int order_map[7] = {0, 3, 2, 6, 5, 7, 8};
     for(int i = 0 ; i < 7 ; i++){
       double px = parts[order_map[i]].psx;
       double py = parts[order_map[i]].psy;
@@ -49,10 +49,10 @@ namespace util {
     for(int i = 0 ; i < 7 ; i++) momenta[i].SetPxPyPzE(0., 0., 0., 0.);   //initialize as all 0
     
     //manually set incoming electron and proton;
-    double e0_mass = get_pdg_mass("electron");
+    double e0_mass = common_bench::get_pdg_mass("electron");
     double e0_pz = 1.305e-8 - 10.;
     momenta[0].SetPxPyPzE(0., 0., e0_pz, sqrt(e0_mass*e0_mass + e0_pz*e0_pz));
-    double p0_mass = get_pdg_mass("proton");
+    double p0_mass = common_bench::get_pdg_mass("proton");
     double p0_pz = 99.995598 + 1.313e-7 + 8.783e-11;
     momenta[1].SetPxPyPzE(0., 0., p0_pz, sqrt(p0_mass*p0_mass + p0_pz*p0_pz));
     
@@ -88,7 +88,7 @@ namespace util {
         double energy_tmp2 = parts[j].energy;
         lpt_2.SetPxPyPzE(parts[j].p.x, parts[j].p.y, parts[j].p.z, energy_tmp2);        
         const double new_mass{(lpt_1 + lpt_2).mass()};
-        if (fabs(new_mass - get_pdg_mass(mother)) < fabs(best_mass - get_pdg_mass(mother))) {
+        if (fabs(new_mass - common_bench::get_pdg_mass(mother)) < fabs(best_mass - common_bench::get_pdg_mass(mother))) {
           first = i;
           second = j;
           best_mass = new_mass;
