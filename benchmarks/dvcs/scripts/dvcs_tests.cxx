@@ -111,11 +111,11 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
                  .Define("p_thrown", momentum, {"thrownP"})
                  .Define("nTracks", "outputTrackParameters.size()")
                  .Define("p_track", p_track, {"outputTrackParameters"})
-                 .Define("p_track1", p_track, {"outputTrackParameters1"})
-                 .Define("p_track2", p_track, {"outputTrackParameters2"})
+                 //.Define("p_track1", p_track, {"outputTrackParameters1"})
+                 //.Define("p_track2", p_track, {"outputTrackParameters2"})
                  .Define("delta_p",delta_p, {"p_track", "p_thrown"})
-                 .Define("delta_p1",delta_p, {"p_track1", "p_thrown"})
-                 .Define("delta_p2",delta_p, {"p_track2", "p_thrown"})
+                 //.Define("delta_p1",delta_p, {"p_track1", "p_thrown"})
+                 //.Define("delta_p2",delta_p, {"p_track2", "p_thrown"})
                  .Define("eprime", eprime, {"thrownParticles"})
                  .Define("q",  q_vec, {"eprime"})
                  .Define("Q2", "-1.0*(q.Dot(q))");
@@ -136,11 +136,4 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   //c->SaveAs("results/dvcs/n_dummy.pdf");
 
 
-  // write output results to json file
-  json j;
-  j["Q2 cut"]["pass"] = *n_Q2;
-  j["Q2 cut"]["fail"] = 1;
-  std::ofstream o("results/dvcs/dvcs_tests.json");
-  o << std::setw(4) << j << std::endl;
-  //df0.Snapshot("testing","derp.root");
 }
