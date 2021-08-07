@@ -86,14 +86,15 @@ ufsd_digi2 = UFSDTrackerDigi("ufsd_digi2",
 
 
 ecal_reco = EMCalReconstruction("ecal_reco", 
-        inputHitCollection="RawEcalBarrelHits", 
+        inputHitCollection=ecal_digi.outputHitCollection, 
         outputHitCollection="RecEcalBarrelHits",
         minModuleEdep=0.0*units.MeV,
         OutputLevel=DEBUG)
 
 simple_cluster = SimpleClustering("simple_cluster", 
-        inputHitCollection="RecEcalBarrelHits", 
-        outputClusters="SimpleClusters",
+        inputHitCollection=ecal_reco.outputHitCollection, 
+        outputClusterCollection="SimpleClusters",
+        outputProtoClusterCollection="SimpleProtoClusters",
         minModuleEdep=1.0*units.MeV,
         maxDistance=50.0*units.cm,
         OutputLevel=DEBUG)
