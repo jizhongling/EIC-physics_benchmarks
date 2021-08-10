@@ -75,7 +75,7 @@ podioinput = PodioInput("PodioReader",
             "VertexBarrelHits","VertexEndcapHits",
             "EcalEndcapNHits", "EcalEndcapPHits",
             "EcalBarrelHits", "EcalBarrelScFiHits", 
-            "HcalHadronEndcapHits", "HcalElectronEndcapHits",
+            "HcalEndcapPHits", "HcalEndcapNHits",
             "HcalBarrelHits",
             ])#, OutputLevel=DEBUG)
 
@@ -383,29 +383,29 @@ ci_hcal_daq = dict(
          pedestalMean=400,
          pedestalSigma=10)
 ci_hcal_digi = CalHitDigi("ci_hcal_digi",
-         inputHitCollection="HcalHadronEndcapHits",
-         outputHitCollection="HcalHadronEndcapHitsDigi",
+         inputHitCollection="HcalEndcapPHits",
+         outputHitCollection="HcalEndcapPHitsDigi",
          **ci_hcal_daq)
 algorithms.append(ci_hcal_digi)
 
 ci_hcal_reco = CalHitReco("ci_hcal_reco",
         inputHitCollection=ci_hcal_digi.outputHitCollection,
-        outputHitCollection="HcalHadronEndcapHitsReco",
+        outputHitCollection="HcalEndcapPHitsReco",
         thresholdFactor=5.0,
         **ci_hcal_daq)
 algorithms.append(ci_hcal_reco)
 
 ci_hcal_merger = CalHitsMerger("ci_hcal_merger",
         inputHitCollection=ci_hcal_reco.outputHitCollection,
-        outputHitCollection="HcalHadronEndcapHitsRecoXY",
-        readoutClass="HcalHadronEndcapHits",
+        outputHitCollection="HcalEndcapPHitsRecoXY",
+        readoutClass="HcalEndcapPHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
 algorithms.append(ci_hcal_merger)
 
 ci_hcal_cl = IslandCluster("ci_hcal_cl",
         inputHitCollection=ci_hcal_merger.outputHitCollection,
-        outputProtoClusterCollection="HcalHadronEndcapProtoClusters",
+        outputProtoClusterCollection="HcalEndcapPProtoClusters",
         splitCluster=False,
         minClusterCenterEdep=30.*MeV,
         localDistXY=[15.*cm, 15.*cm])
@@ -414,8 +414,8 @@ algorithms.append(ci_hcal_cl)
 ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
         inputHitCollection=ci_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
-        outputClusterCollection="HcalHadronEndcapClusters",
-        outputInfoCollection="HcalHadronEndcapClustersInfo",
+        outputClusterCollection="HcalEndcapPClusters",
+        outputInfoCollection="HcalEndcapPClustersInfo",
         logWeightBase=6.2,
         samplingFraction=ci_hcal_sf)
 algorithms.append(ci_hcal_clreco)
@@ -428,29 +428,29 @@ ce_hcal_daq = dict(
         pedestalSigma=10)
 
 ce_hcal_digi = CalHitDigi("ce_hcal_digi",
-        inputHitCollection="HcalElectronEndcapHits",
-        outputHitCollection="HcalElectronEndcapHitsDigi",
+        inputHitCollection="HcalEndcapNHits",
+        outputHitCollection="HcalEndcapNHitsDigi",
         **ce_hcal_daq)
 algorithms.append(ce_hcal_digi)
 
 ce_hcal_reco = CalHitReco("ce_hcal_reco",
         inputHitCollection=ce_hcal_digi.outputHitCollection,
-        outputHitCollection="HcalElectronEndcapHitsReco",
+        outputHitCollection="HcalEndcapNHitsReco",
         thresholdFactor=5.0,
         **ce_hcal_daq)
 algorithms.append(ce_hcal_reco)
 
 ce_hcal_merger = CalHitsMerger("ce_hcal_merger",
         inputHitCollection=ce_hcal_reco.outputHitCollection,
-        outputHitCollection="HcalElectronEndcapHitsRecoXY",
-        readoutClass="HcalElectronEndcapHits",
+        outputHitCollection="HcalEndcapNHitsRecoXY",
+        readoutClass="HcalEndcapNHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
 algorithms.append(ce_hcal_merger)
 
 ce_hcal_cl = IslandCluster("ce_hcal_cl",
         inputHitCollection=ce_hcal_merger.outputHitCollection,
-        outputProtoClusterCollection="HcalElectronEndcapProtoClusters",
+        outputProtoClusterCollection="HcalEndcapNProtoClusters",
         splitCluster=False,
         minClusterCenterEdep=30.*MeV,
         localDistXY=[15.*cm, 15.*cm])
@@ -459,8 +459,8 @@ algorithms.append(ce_hcal_cl)
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         inputHitCollection=ce_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
-        outputClusterCollection="HcalElectronEndcapClusters",
-        outputInfoCollection="HcalElectronEndcapClustersInfo",
+        outputClusterCollection="HcalEndcapNClusters",
+        outputInfoCollection="HcalEndcapNClustersInfo",
         logWeightBase=6.2,
         samplingFraction=ce_hcal_sf)
 algorithms.append(ce_hcal_clreco)
