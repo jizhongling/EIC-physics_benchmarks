@@ -28,9 +28,9 @@ namespace util {
     std::vector<ROOT::Math::PxPyPzMVector> momenta{7};
     int order_map[7] = {0, 3, 2, 6, 5, 7, 8};
     for(int i = 0 ; i < 7 ; i++){
-      double px = parts[order_map[i]].psx;
-      double py = parts[order_map[i]].psy;
-      double pz = parts[order_map[i]].psz;
+      double px = parts[order_map[i]].ps.x;
+      double py = parts[order_map[i]].ps.y;
+      double pz = parts[order_map[i]].ps.z;
       double mass = parts[order_map[i]].mass;
       double e = sqrt(px*px + py*py + pz*pz + mass*mass);
       momenta[i].SetPxPyPzE(px, py, pz, e);

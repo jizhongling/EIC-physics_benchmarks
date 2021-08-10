@@ -30,7 +30,7 @@ auto p_track = [](std::vector<eic::TrackParametersData> const& in) {
 auto pt  = [](std::vector<dd4pod::Geant4ParticleData> const& in){
   std::vector<float> result;
   for (size_t i = 0; i < in.size(); ++i) {
-    result.push_back(std::sqrt(in[i].psx * in[i].psx + in[i].psy * in[i].psy));
+    result.push_back(std::sqrt(in[i].ps.x * in[i].ps.x + in[i].ps.y * in[i].ps.y));
   }
   return result;
 };
@@ -53,7 +53,7 @@ auto fourvec = [](ROOT::VecOps::RVec<dd4pod::Geant4ParticleData> const& in) {
   std::vector<ROOT::Math::PxPyPzMVector> result;
   ROOT::Math::PxPyPzMVector lv;
   for (size_t i = 0; i < in.size(); ++i) {
-    lv.SetCoordinates(in[i].psx, in[i].psy, in[i].psz, in[i].mass);
+    lv.SetCoordinates(in[i].ps.x, in[i].ps.y, in[i].ps.z, in[i].mass);
     result.push_back(lv);
   }
   return result;
@@ -94,7 +94,7 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   auto eprime = [](ROOT::VecOps::RVec<dd4pod::Geant4ParticleData> const& in) {
     for(const auto& p : in){
       if(p.pdgID == 11 ) {
-        return PxPyPzMVector(p.psx,p.psy,p.psz,p.mass);
+        return PxPyPzMVector(p.ps.x,p.ps.y,p.ps.z,p.mass);
       }
     }
     return PxPyPzMVector(0,0,0,0);
