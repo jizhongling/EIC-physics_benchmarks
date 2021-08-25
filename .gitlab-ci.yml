@@ -47,9 +47,20 @@ common:detector:
     - mkdir -p config
     - print_env.sh
 
+.phy_benchmark:
+  needs:
+    - ["common:detector"]
+  before_script:
+    - source .local/bin/env.sh
+    - ls -lrtha 
+    - ln -s "${LOCAL_DATA_PATH}/sim_output" sim_output
+    - ln -s "${LOCAL_DATA_PATH}/datasets/data" data
+    - ls -lrtha
+    - bash bin/get_calibrations
+
 include:
   - local: 'benchmarks/dis/config.yml'
-  - local: 'benchmarks/dvmp/config.yml'
+    #- local: 'benchmarks/dvmp/config.yml'
   - local: 'benchmarks/dvcs/config.yml'
 
 summary:

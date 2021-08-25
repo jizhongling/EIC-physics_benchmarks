@@ -96,7 +96,7 @@ int vm_mass(const std::string& config_name)
 
   // common_bench::PrintGeant4(mcparticles2);
   // Define analysis flow
-  auto d_im = d.Define("p_rec", common_bench::momenta_RC, {"DummyReconstructedParticles"})       //using dummy rc
+  auto d_im = d.Define("p_rec", common_bench::momenta_RC, {"ReconstructedParticles"})       //using dummy rc
                   .Define("N", "p_rec.size()")
                   .Define("p_sim", common_bench::momenta_from_simulation, {"mcparticles2"})
                   .Define("decay_pair_rec", find_decay_pair, {"p_rec"})

@@ -1,6 +1,7 @@
 dvmp:generate:
   needs: ["common:detector"]
   image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
+  extends: .phy_benchmark
   stage: generate
   timeout: 1 hours
   script:
@@ -12,6 +13,7 @@ dvmp:generate:
 
 dvmp:process:
   stage: process
+  extends: .phy_benchmark
   needs: ["common:detector", "dvmp:generate"]
   timeout: 2 hour
   script:

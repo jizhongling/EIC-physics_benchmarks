@@ -1,13 +1,17 @@
 dvcs:process:
   stage: process
-  timeout: 2 hour
+  extends: .phy_benchmark
+  tags:
+    - s3
   needs: ["common:detector"]
   script:
+    - bash benchmarks/dvcs/dvcs.sh --data-init
     - bash benchmarks/dvcs/dvcs.sh
 
 dvcs:results:
   stage: collect
   needs: ["dvcs:process"]
   script:
-    - pip install junitparser
+    - ls -lrth
+      #pip install junitparser
       #- python dvcs/scripts/merge_results.py

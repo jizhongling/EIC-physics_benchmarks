@@ -1,0 +1,9 @@
+#!/bin/bash
+
+branch=${1:-master}
+detector_benchmarks=https://eicweb.phy.anl.gov/EIC/benchmarks/detector_benchmarks/-/jobs/artifacts/${branch}/raw/
+
+mkdir -p config
+for i in results/emcal_barrel_calibration.json ; do
+  curl --fail -sL ${detector_benchmarks}/${i}?job=deploy_results --output config/$(basename ${i})
+done

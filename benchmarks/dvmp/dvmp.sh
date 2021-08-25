@@ -85,8 +85,8 @@ echo "Running the digitization and reconstruction"
 export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/reconstruction.py \
-  2>&1 > ${REC_LOG}
+  gaudirun.py options/reconstruction.py 
+##  2>&1 > ${REC_LOG}
 ## on-error, first retry running juggler again as there is still a random
 ## crash we need to address FIXME
 if [ "$?" -ne "0" ] ; then

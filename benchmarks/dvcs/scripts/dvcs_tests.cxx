@@ -106,7 +106,7 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   auto df0 = df.Define("isThrown", "mcparticles2.genStatus == 1")
                  .Define("thrownParticles", "mcparticles2[isThrown]")
                  .Define("thrownP", fourvec, {"thrownParticles"})
-                 .Define("dumRec", dumfourvec, {"DummyReconstructedParticles"})
+                 .Define("dumRec", dumfourvec, {"ReconstructedParticles"})
                  .Define("dumNPart", "dumRec.size()")
                  .Define("p_thrown", momentum, {"thrownP"})
                  .Define("nTracks", "outputTrackParameters.size()")
