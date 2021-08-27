@@ -9,6 +9,7 @@ Physics Benchmarks for the EIC
 - [`juggler`](https://eic.phy.anl.gov/juggler) reconstruction framework.
 - Benchmark repository common code - [common_bench](https://eicweb.phy.anl.gov/EIC/benchmarks/common_bench)
 - [Guide to tracking](https://eicweb.phy.anl.gov/EIC/documentation/guide_to_tracking/-/blob/master/README.md)
+- ROOT's [`RDataFrame`](https://root.cern/doc/master/classROOT_1_1RDataFrame.html)
 
 ## Adding new benchmarks
 
