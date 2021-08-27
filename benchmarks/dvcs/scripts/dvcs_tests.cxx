@@ -1,19 +1,25 @@
-#include <ROOT/RDataFrame.hxx>
 #include <cmath>
-#include "fmt/color.h"
-#include "fmt/core.h"
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "ROOT/RDataFrame.hxx"
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
+R__LOAD_LIBRARY(libfmt.so)
+#include "fmt/core.h"
+#include "fmt/color.h"
+
+R__LOAD_LIBRARY(libeicd.so)
+R__LOAD_LIBRARY(libDD4pod.so)
 
 #include "dd4pod/Geant4ParticleCollection.h"
 #include "eicd/TrackParametersCollection.h"
 #include "eicd/ClusterCollection.h"
-#include "eicd/ClusterData.h"
 #include "eicd/ReconstructedParticleCollection.h"
-#include "eicd/ReconstructedParticleData.h"
+#include "eicd/BasicParticleCollection.h"
 
 using ROOT::RDataFrame;
 using namespace ROOT::VecOps;
@@ -58,7 +64,7 @@ auto fourvec = [](ROOT::VecOps::RVec<dd4pod::Geant4ParticleData> const& in) {
   }
   return result;
 };
-auto dumfourvec = [](ROOT::VecOps::RVec<eic::ReconstructedParticleData> const& in) {
+auto recfourvec = [](ROOT::VecOps::RVec<eic::ReconstructedParticleData> const& in) {
   std::vector<ROOT::Math::PxPyPzMVector> result;
   ROOT::Math::PxPyPzMVector lv;
   for (size_t i = 0; i < in.size(); ++i) {
@@ -106,34 +112,34 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
   auto df0 = df.Define("isThrown", "mcparticles2.genStatus == 1")
                  .Define("thrownParticles", "mcparticles2[isThrown]")
                  .Define("thrownP", fourvec, {"thrownParticles"})
-                 .Define("dumRec", dumfourvec, {"ReconstructedParticles"})
-                 .Define("dumNPart", "dumRec.size()")
+                 .Define("recP", recfourvec, {"ReconstructedParticles"})
+                 .Define("NPart", "recP.size()")
                  .Define("p_thrown", momentum, {"thrownP"})
                  .Define("nTracks", "outputTrackParameters.size()")
                  .Define("p_track", p_track, {"outputTrackParameters"})
-                 //.Define("p_track1", p_track, {"outputTrackParameters1"})
-                 //.Define("p_track2", p_track, {"outputTrackParameters2"})
                  .Define("delta_p",delta_p, {"p_track", "p_thrown"})
-                 //.Define("delta_p1",delta_p, {"p_track1", "p_thrown"})
-                 //.Define("delta_p2",delta_p, {"p_track2", "p_thrown"})
                  .Define("eprime", eprime, {"thrownParticles"})
                  .Define("q",  q_vec, {"eprime"})
                  .Define("Q2", "-1.0*(q.Dot(q))");
 
-  auto h_n_dummy = df0.Histo1D({"h_n_dummy", "; h_n_dummy n", 10, 0, 10}, "dumNPart");
-  auto h_Q2 = df0.Histo1D({"h_Q2", "; Q^{2} [GeV^{2}/c^{2}]", 100, 0, 30}, "Q2");
-  auto n_Q2 = df0.Filter("Q2>1").Count();
+  auto h_n_dummy = df0.Histo1D({"h_n_part", "; h_n_part n", 10, 0, 10}, "NPart");
+  auto h_Q2      = df0.Histo1D({"h_Q2", "; Q^{2} [GeV^{2}/c^{2}]", 100, 0, 30}, "Q2");
+  auto n_Q2      = df0.Filter("Q2>1").Count();
+  auto n_tracks  = df0.Mean("nTracks");
+
+  // ---------------------------
+  // Do evaluation
 
   auto c = new TCanvas();
   h_Q2->DrawCopy();
   c->SaveAs("results/dvcs/Q2.png");
   c->SaveAs("results/dvcs/Q2.pdf");
   fmt::print("{} DVCS events\n",*n_Q2);
+  fmt::print("{} tracks per event\n",*n_tracks);
 
   c = new TCanvas();
   h_n_dummy->DrawCopy();
   c->SaveAs("results/dvcs/n_dummy.png");
   //c->SaveAs("results/dvcs/n_dummy.pdf");
-
 
 }

@@ -52,6 +52,8 @@ from Configurables import Jug__Base__InputCopier_dd4pod__CalorimeterHitCollectio
 from Configurables import Jug__Base__InputCopier_dd4pod__TrackerHitCollection_dd4pod__TrackerHitCollection_ as TrkCopier
 from Configurables import Jug__Base__InputCopier_dd4pod__PhotoMultiplierHitCollection_dd4pod__PhotoMultiplierHitCollection_ as PMTCopier
 
+from Configurables import Jug__Base__MC2DummyParticle as MC2DummyParticle
+
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
 from Configurables import Jug__Digi__UFSDTrackerDigi as TrackerDigi
@@ -66,6 +68,7 @@ from Configurables import Jug__Reco__TrackParamClusterInit as TrackParamClusterI
 from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVertexClusterInit
 from Configurables import Jug__Reco__TrackFindingAlgorithm as TrackFindingAlgorithm
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
+from Configurables import Jug__Reco__ParticlesWithTruthPID as ParticlesWithTruthPID
 
 from Configurables import Jug__Reco__CalorimeterHitReco as CalHitReco
 from Configurables import Jug__Reco__CalorimeterHitsMerger as CalHitsMerger
@@ -114,15 +117,12 @@ copier = MCCopier("MCCopier",
         outputCollection="mcparticles2")
 algorithms.append(copier)
 
-trkcopier = TrkCopier("TrkCopier",
-        inputCollection="TrackerBarrelHits",
-        outputCollection="TrackerBarrelHits2")
-algorithms.append(trkcopier)
-
-pmtcopier = PMTCopier("PMTCopier",
-        inputCollection="DRICHHits",
-        outputCollection="DRICHHits2")
-algorithms.append(pmtcopier)
+# Generated particles
+dummy = MC2DummyParticle("dummy",
+        inputCollection="mcparticles",
+        outputCollection="GeneratedParticles",
+        smearing=0)
+algorithms.append(dummy)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = dict(
@@ -161,6 +161,7 @@ ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
         inputHitCollection=ce_ecal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
         outputClusterCollection="EcalEndcapNClusters",
+        outputInfoCollection="EcalEndcapNClusterInfo",
         samplingFraction=0.998,      # this accounts for a small fraction of leakage
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
@@ -188,7 +189,7 @@ algorithms.append(ci_ecal_reco)
 # merge hits in different layer (projection to local x-y plane)
 ci_ecal_merger = CalHitsMerger("ci_ecal_merger",
         inputHitCollection=ci_ecal_reco.outputHitCollection,
-        outputHitCollection="EcalEndcapPRecHitsXY",
+        outputHitCollection="EcalEndcapPRecMergedHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0],
         readoutClass="EcalEndcapPHits")
@@ -280,7 +281,7 @@ algorithms.append(scfi_barrel_reco)
 # merge hits in different layer (projection to local x-y plane)
 scfi_barrel_merger = CalHitsMerger("scfi_barrel_merger",
          inputHitCollection=scfi_barrel_reco.outputHitCollection,
-         outputHitCollection="EcalBarrelScFiGridReco",
+         outputHitCollection="EcalBarrelScFiMergedHits",
          fields=["fiber"],
          fieldRefNumbers=[1],
          readoutClass="EcalBarrelScFiHits")
@@ -328,7 +329,7 @@ algorithms.append(cb_hcal_reco)
 
 cb_hcal_merger = CalHitsMerger("cb_hcal_merger",
         inputHitCollection=cb_hcal_reco.outputHitCollection,
-        outputHitCollection="HcalBarrelRecHitsXY",
+        outputHitCollection="HcalBarrelMergedHits",
         readoutClass="HcalBarrelHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
@@ -373,7 +374,7 @@ algorithms.append(ci_hcal_reco)
 
 ci_hcal_merger = CalHitsMerger("ci_hcal_merger",
         inputHitCollection=ci_hcal_reco.outputHitCollection,
-        outputHitCollection="HcalEndcapPRecHitsXY",
+        outputHitCollection="HcalEndcapPMergedHits",
         readoutClass="HcalEndcapPHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
@@ -418,7 +419,7 @@ algorithms.append(ce_hcal_reco)
 
 ce_hcal_merger = CalHitsMerger("ce_hcal_merger",
         inputHitCollection=ce_hcal_reco.outputHitCollection,
-        outputHitCollection="HcalEndcapNRecHitsXY",
+        outputHitCollection="HcalEndcapNMergedHits",
         readoutClass="HcalEndcapNHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
@@ -532,9 +533,16 @@ algorithms.append(trk_find_alg)
 
 parts_from_fit = ParticlesFromTrackFit("parts_from_fit",
         inputTrajectories = trk_find_alg.outputTrajectories,
-        outputParticles = "ReconstructedParticles",
+        outputParticles = "outputParticles",
         outputTrackParameters = "outputTrackParameters")
 algorithms.append(parts_from_fit)
+
+# Event building
+parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
+        inputMCParticles = "mcparticles",
+        inputTrackParameters = parts_from_fit.outputTrackParameters,
+        outputParticles = "ReconstructedParticles")
+algorithms.append(parts_with_truth_pid)
 
 # DRICH
 drich_digi = PhotoMultiplierDigi("drich_digi",
@@ -576,11 +584,11 @@ algorithms.append(mrich_reco)
 podout = PodioOutput("out", filename=output_rec)
 podout.outputCommands = [
         "keep *",
-        "drop *Digi",
-        "keep *Reco*",
-        "keep *ClusterHits",
-        "keep *Clusters",
+        "drop *Hits",
         "keep *Layers",
+        "keep *Clusters",
+        "drop *ProtoClusters",
+        "drop outputParticles",
         "drop InitTrackParams",
         ] + [ "drop " + c for c in sim_coll]
 algorithms.append(podout)

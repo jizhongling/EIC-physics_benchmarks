@@ -1,14 +1,22 @@
 #!/bin/bash
 
 function print_the_help {
-  echo "USAGE: ${0} [--data-init]  "
-  echo "  OPTIONS: "
+  echo "USAGE: ${0} [--rec] [--sim] [--analysis] [--all] "
+  echo "    The default options are to run all steps (sim,rec,analysis) "
+  echo "OPTIONS: "
+  echo "  --data-init     download the input event data"
+  echo "  --sim,-s        Runs the Geant4 simulation"
+  echo "  --rec,-r        Run the juggler reconstruction"
+  echo "  --analysis,-a   Run the analysis scripts"
+  echo "  --all           (default) Do all steps. Argument is included so usage can convey intent."
   exit 
 }
 
+DO_ALL=1
 DATA_INIT=
-REC_ONLY=
-ANALYSIS_ONLY=
+DO_SIM=
+DO_REC=
+DO_ANALYSIS=
 
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -20,8 +28,33 @@ do
       shift # past argument
       print_the_help
       ;;
+    --all)
+      DO_ALL=2
+      if [[ ! "${DO_REC}${DO_SIM}${DO_ANALYSIS}" -eq "" ]] ; then
+        echo "Error: cannot use --all with other arguments." 1>&2
+        print_the_help
+        exit 1
+      fi
+      shift # past value
+      ;;
+    -s|--sim)
+      DO_SIM=1
+      DO_ALL=
+      shift # past value
+      ;;
     --data-init)
       DATA_INIT=1
+      DO_ALL=
+      shift # past value
+      ;;
+    -r|--rec)
+      DO_REC=1
+      DO_ALL=
+      shift # past value
+      ;;
+    -a|--analysis)
+      DO_ANALYSIS=1
+      DO_ALL=
       shift # past value
       ;;
     *)    # unknown option
@@ -33,73 +66,86 @@ do
   esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
-# these variables might not need exported.
-export FILE_NAME_TAG="dvcs"
 
-export JUGGLER_SIM_FILE="sim_${FILE_NAME_TAG}.root"
-export JUGGLER_REC_FILE="rec_${FILE_NAME_TAG}.root"
-
-echo "JUGGLER_N_EVENTS      = ${JUGGLER_N_EVENTS}"
-echo "JUGGLER_DETECTOR      = ${JUGGLER_DETECTOR}"
-echo "FILE_NAME_TAG = ${FILE_NAME_TAG}"
-
+# assuming something like .local/bin/env.sh has already been sourced.
 print_env.sh
+
+FILE_NAME_TAG="dvcs"
+DATA_URL="S3/eictest/ATHENA/EVGEN/DVCS/DVCS_10x100_2M/DVCS.1.hepmc"
+
+export JUGGLER_MC_FILE="${LOCAL_DATA_PATH}/mc_${FILE_NAME_TAG}.hepmc"
+export JUGGLER_SIM_FILE="${LOCAL_DATA_PATH}/sim_${FILE_NAME_TAG}.root"
+export JUGGLER_REC_FILE="${LOCAL_DATA_PATH}/rec_${FILE_NAME_TAG}.root"
+
+echo "FILE_NAME_TAG       = ${FILE_NAME_TAG}"
+echo "JUGGLER_N_EVENTS    = ${JUGGLER_N_EVENTS}"
+echo "JUGGLER_DETECTOR    = ${JUGGLER_DETECTOR}"
+
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
 ## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 
-if [[ -n "${DATA_INIT}" ]] ; then 
+## Step 1. Get the data
+if [[ -n "${DATA_INIT}" || -n "${DO_ALL}" ]] ; then
   mc -C . config host add S3 https://dtn01.sdcc.bnl.gov:9000 $S3_ACCESS_KEY $S3_SECRET_KEY
-  mc -C . cat  --insecure S3/eictest/ATHENA/EVGEN/DVCS/DVCS_10x100_2M/DVCS.1.hepmc |  head  -n 1004 > "${LOCAL_DATA_PATH}/dvcs_test.hepmc"
+  mc -C . cat  --insecure ${DATA_URL} |  head  -n 1004 > "${JUGGLER_MC_FILE}"
   if [[ "$?" -ne "0" ]] ; then
     echo "Failed to download hepmc file"
     exit 1
   fi
-  exit
 fi
 
-
-#curl -o test_proton_dvcs_eic.hepmc "https://eicweb.phy.anl.gov/api/v4/projects/345/jobs/artifacts/master/raw/data/test_proton_dvcs_eic.hepmc?job=compile"
-
-
-## run geant4 simulations
-npsim --runType batch \
-      --part.minimalKineticEnergy 1000*GeV  \
-      -v ERROR \
-      --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
-      --inputFiles "${LOCAL_DATA_PATH}/dvcs_test.hepmc" \
-      --outputFile  ${JUGGLER_SIM_FILE}
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running npsim"
-  exit 1
+### Step 2. Run the simulation (geant4)
+if [[ -n "${DO_SIM}" || -n "${DO_ALL}" ]] ; then
+  ## run geant4 simulations
+  npsim --runType batch \
+    --part.minimalKineticEnergy 1000*GeV  \
+    -v ERROR \
+    --numberOfEvents ${JUGGLER_N_EVENTS} \
+    --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+    --inputFiles "${JUGGLER_MC_FILE}" \
+    --outputFile  ${JUGGLER_SIM_FILE}
+  if [[ "$?" -ne "0" ]] ; then
+    echo "ERROR running npsim"
+    exit 1
+  fi
 fi
 
-# Need to figure out how to pass file name to juggler from the commandline
-xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/reconstruction.py
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running juggler"
-  exit 1
+### Step 3. Run the reconstruction (juggler)
+if [[ -n "${DO_REC}" || -n "${DO_ALL}" ]] ; then
+  xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
+    gaudirun.py options/reconstruction.py
+  if [[ "$?" -ne "0" ]] ; then
+    echo "ERROR running juggler"
+    exit 1
+  fi
+
+  root_filesize=$(stat --format=%s "${JUGGLER_REC_FILE}")
+  if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 
+    # file must be less than 10 MB to upload
+    if [[ "${root_filesize}" -lt "10000000" ]] ; then 
+      cp ${JUGGLER_REC_FILE} results/.
+    fi
+  fi
 fi
 
-mkdir -p results/dvcs
-rootls -t ${JUGGLER_SIM_FILE}
+### Step 4. Run the analysis code
+if [[ -n "${DO_ANALYSIS}" || -n "${DO_ALL}" ]] ; then
+  echo "Running analysis scripts"
+  rootls -t  ${JUGGLER_REC_FILE}
 
-root -b -q "benchmarks/dvcs/scripts/dvcs_tests.cxx(\"${JUGGLER_REC_FILE}\")"
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running root script"
-  exit 1
+  # Store all plots here (preferribly png and pdf files)
+  mkdir -p results/dvcs
+
+  # here you can add as many scripts as you want.
+  root -b -q "benchmarks/dvcs/scripts/dvcs_tests.cxx(\"${JUGGLER_REC_FILE}\")"
+  if [[ "$?" -ne "0" ]] ; then
+    echo "ERROR running root script"
+    exit 1
+  fi
 fi
-
-# copy data if it is not too big
-if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 
-cp ${JUGGLER_REC_FILE} results/dvcs/.
-fi
-
-
 
 
 

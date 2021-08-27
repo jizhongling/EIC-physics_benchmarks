@@ -5,8 +5,7 @@ dvcs:process:
     - s3
   needs: ["common:detector"]
   script:
-    - bash benchmarks/dvcs/dvcs.sh --data-init
-    - bash benchmarks/dvcs/dvcs.sh
+    - bash benchmarks/dvcs/dvcs.sh --all
 
 dvcs:results:
   stage: collect
