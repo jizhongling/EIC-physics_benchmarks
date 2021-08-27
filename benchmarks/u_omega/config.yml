@@ -1,0 +1,14 @@
+u_omega:process:
+  stage: process
+  extends: .phy_benchmark
+  tags:
+    - s3
+  needs: ["common:detector"]
+  script:
+    - bash benchmarks/u_omega/u_omega.sh --all
+
+u_omega:results:
+  stage: collect
+  needs: ["u_omega:process"]
+  script:
+    - ls -lrth
