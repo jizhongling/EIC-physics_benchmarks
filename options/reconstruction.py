@@ -1,6 +1,6 @@
 from Gaudi.Configuration import *
 
-from Configurables import ApplicationMgr, EICDataSvc, PodioOutput, GeoSvc
+from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
 from GaudiKernel import SystemOfUnits as units
 from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
 
@@ -40,10 +40,14 @@ input_sims = [f.strip() for f in str.split(os.environ["JUGGLER_SIM_FILE"], ",") 
 output_rec = str(os.environ["JUGGLER_REC_FILE"])
 n_events = int(os.environ["JUGGLER_N_EVENTS"])
 
+# services
+services = []
+# auditor service
+services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor']))
 # geometry service
-geo_service = GeoSvc("GeoSvc", detectors=["{}.xml".format(compact_path)], OutputLevel=WARNING)
+services.append(GeoSvc("GeoSvc", detectors=["{}.xml".format(compact_path)], OutputLevel=WARNING))
 # data service
-podioevent = EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING)
+services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING))
 
 # juggler components
 from Configurables import PodioInput
@@ -596,7 +600,8 @@ algorithms.append(podout)
 ApplicationMgr(
     TopAlg = algorithms,
     EvtSel = 'NONE',
-    EvtMax   = n_events,
-    ExtSvc = [podioevent,geo_service],
-    OutputLevel=WARNING
+    EvtMax = n_events,
+    ExtSvc = services,
+    OutputLevel = WARNING,
+    AuditAlgorithms = True
  )
