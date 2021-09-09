@@ -194,8 +194,10 @@ algorithms.append(ci_ecal_reco)
 ci_ecal_merger = CalHitsMerger("ci_ecal_merger",
         inputHitCollection=ci_ecal_reco.outputHitCollection,
         outputHitCollection="EcalEndcapPRecMergedHits",
-        fields=["layer", "slice"],
-        fieldRefNumbers=[1, 0],
+        fields=["fiber_x", "fiber_y"],
+        fieldRefNumbers=[1, 1],
+        # fields=["layer", "slice"],
+        # fieldRefNumbers=[1, 0],
         readoutClass="EcalEndcapPHits")
 algorithms.append(ci_ecal_merger)
 
