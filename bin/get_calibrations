@@ -6,4 +6,13 @@ detector_benchmarks=https://eicweb.phy.anl.gov/EIC/benchmarks/detector_benchmark
 mkdir -p config
 for i in results/emcal_barrel_calibration.json ; do
   curl --fail -sL ${detector_benchmarks}/${i}?job=deploy_results --output config/$(basename ${i})
+  if [[ "$?" -ne "0" ]] ; then
+      if find ${DETECTOR_PATH} -name $(basename $i) ; then
+      echo "Warning: falling back to DETECTOR_PATH for calibration ${i}."
+      cp $(find ${DETECTOR_PATH} -name $(basename $i)) config/$(basename ${i})
+    else
+      echo "Error: could not retrieve calibrations!"
+      exit 1
+    fi
+  fi
 done
