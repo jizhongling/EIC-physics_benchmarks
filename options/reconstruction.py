@@ -43,7 +43,7 @@ n_events = int(os.environ["JUGGLER_N_EVENTS"])
 # services
 services = []
 # auditor service
-services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor']))
+services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAuditor']))
 # geometry service
 services.append(GeoSvc("GeoSvc", detectors=["{}.xml".format(compact_path)], OutputLevel=WARNING))
 # data service
