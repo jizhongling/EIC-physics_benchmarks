@@ -125,6 +125,7 @@ algorithms.append(copier)
 dummy = MC2DummyParticle("dummy",
         inputCollection="mcparticles",
         outputCollection="GeneratedParticles",
+        outputRelations="GeneratedParticleRelations",
         smearing=0)
 algorithms.append(dummy)
 
@@ -547,7 +548,8 @@ algorithms.append(parts_from_fit)
 parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
         inputMCParticles = "mcparticles",
         inputTrackParameters = parts_from_fit.outputTrackParameters,
-        outputParticles = "ReconstructedParticles")
+        outputParticles = "ReconstructedParticles",
+        outputRelations = "ReconstructedParticleRelations")
 algorithms.append(parts_with_truth_pid)
 
 # DRICH
