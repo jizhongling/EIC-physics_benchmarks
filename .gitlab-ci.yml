@@ -57,6 +57,10 @@ common:detector:
     - ln -s "${LOCAL_DATA_PATH}/datasets/data" data
     - ls -lrtha
     - bash bin/get_calibrations
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
 
 include:
   - local: 'benchmarks/dis/config.yml'
