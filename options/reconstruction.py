@@ -166,7 +166,7 @@ ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
         inputHitCollection=ce_ecal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
         outputClusterCollection="EcalEndcapNClusters",
-        outputInfoCollection="EcalEndcapNClusterInfo",
+        mcHits="EcalEndcapNHits",
         samplingFraction=0.998,      # this accounts for a small fraction of leakage
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
@@ -214,7 +214,7 @@ ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
         inputHitCollection=ci_ecal_cl.inputHitCollection,
         inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
         outputClusterCollection="EcalEndcapPClusters",
-        outputInfoCollection="EcalEndcapPClustersInfo",
+        mcHits="EcalEndcapPHits",
         logWeightBase=6.2,
         samplingFraction=ci_ecal_sf)
 algorithms.append(ci_ecal_clreco)
@@ -257,7 +257,7 @@ img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
         inputHitCollection=img_barrel_cl.inputHitCollection,
         inputProtoClusterCollection=img_barrel_cl.outputProtoClusterCollection,
         outputClusterCollection="EcalBarrelImagingClusters",
-        outputInfoCollection="EcalBarrelImagingClustersInfo",
+        mcHits="EcalBarrelHits",
         outputLayerCollection="EcalBarrelImagingLayers")
 algorithms.append(img_barrel_clreco)
 
@@ -306,7 +306,7 @@ scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
          inputHitCollection=scfi_barrel_cl.inputHitCollection,
          inputProtoClusterCollection=scfi_barrel_cl.outputProtoClusterCollection,
          outputClusterCollection="EcalBarrelScFiClusters",
-         outputInfoCollection="EcalBarrelScFiClustersInfo",
+         mcHits="EcalBarrelScFiHits",
          logWeightBase=6.2,
          samplingFraction= scifi_barrel_sf)
 algorithms.append(scfi_barrel_clreco)
@@ -354,7 +354,7 @@ cb_hcal_clreco = RecoCoG("cb_hcal_clreco",
         inputHitCollection=cb_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=cb_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalBarrelClusters",
-        outputInfoCollection="HcalBarrelClustersInfo",
+        mcHits="HcalBarrelHits",
         logWeightBase=6.2,
         samplingFraction=cb_hcal_sf)
 algorithms.append(cb_hcal_clreco)
@@ -399,7 +399,7 @@ ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
         inputHitCollection=ci_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapPClusters",
-        outputInfoCollection="HcalEndcapPClustersInfo",
+        mcHits="HcalEndcapPHits",
         logWeightBase=6.2,
         samplingFraction=ci_hcal_sf)
 algorithms.append(ci_hcal_clreco)
@@ -444,7 +444,7 @@ ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         inputHitCollection=ce_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapNClusters",
-        outputInfoCollection="HcalEndcapNClustersInfo",
+        mcHits="HcalEndcapNHits",
         logWeightBase=6.2,
         samplingFraction=ce_hcal_sf)
 algorithms.append(ce_hcal_clreco)
