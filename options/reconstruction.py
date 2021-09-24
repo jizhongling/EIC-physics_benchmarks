@@ -56,22 +56,26 @@ from Configurables import Jug__Base__InputCopier_dd4pod__CalorimeterHitCollectio
 from Configurables import Jug__Base__InputCopier_dd4pod__TrackerHitCollection_dd4pod__TrackerHitCollection_ as TrkCopier
 from Configurables import Jug__Base__InputCopier_dd4pod__PhotoMultiplierHitCollection_dd4pod__PhotoMultiplierHitCollection_ as PMTCopier
 
-from Configurables import Jug__Base__MC2DummyParticle as MC2DummyParticle
+from Configurables import Jug__Fast__MC2SmearedParticle as MC2DummyParticle
+from Configurables import Jug__Fast__ParticlesWithTruthPID as ParticlesWithTruthPID
+from Configurables import Jug__Fast__SmearedFarForwardParticles as SmearedFarForwardParticles
 
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
-from Configurables import Jug__Digi__UFSDTrackerDigi as TrackerDigi
+from Configurables import Jug__Digi__SiliconTrackerDigi as TrackerDigi
 
 from Configurables import Jug__Reco__TrackerHitReconstruction as TrackerHitReconstruction
 from Configurables import Jug__Reco__TrackingHitsCollector2 as TrackingHitsCollector
 from Configurables import Jug__Reco__TrackerSourceLinker as TrackerSourceLinker
-#from Configurables import Jug__Reco__TrackingHitsSourceLinker as TrackingHitsSourceLinker
+
 from Configurables import Jug__Reco__TrackParamTruthInit as TrackParamTruthInit
 from Configurables import Jug__Reco__TrackParamClusterInit as TrackParamClusterInit
 from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVertexClusterInit
 from Configurables import Jug__Reco__TrackFindingAlgorithm as TrackFindingAlgorithm
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
-from Configurables import Jug__Reco__ParticlesWithTruthPID as ParticlesWithTruthPID
+
+from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
+from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
 
 from Configurables import Jug__Reco__CalorimeterHitReco as CalHitReco
 from Configurables import Jug__Reco__CalorimeterHitsMerger as CalHitsMerger
@@ -85,8 +89,6 @@ from Configurables import Jug__Reco__ImagingClusterReco as ImagingClusterReco
 
 from Configurables import Jug__Reco__PhotoMultiplierReco as PhotoMultiplierReco
 from Configurables import Jug__Reco__PhotoRingClusters as PhotoRingClusters
-
-from Configurables import Jug__Reco__EMCalReconstruction as EMCalReconstruction
 
 # branches needed from simulation root file
 sim_coll = [
