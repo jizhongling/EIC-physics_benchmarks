@@ -84,19 +84,16 @@ echo "Running the digitization and reconstruction"
 ## - JUGGLER_DETECTOR:    detector package (part of global environment)
 export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
-xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-  gaudirun.py options/reconstruction.py 
-## on-error, first retry running juggler again as there is still a random
-## crash we need to address FIXME
+for rec in options/*.py ; do
+  unset tag
+  [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
+  JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
+    xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
+    gaudirun.py ${rec}
+done
 if [ "$?" -ne "0" ] ; then
-  echo "Juggler crashed, retrying..."
-  xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
-    gaudirun.py options/reconstruction.py \
-    2>&1 > ${REC_LOG}
-  if [ "$?" -ne "0" ] ; then
-    echo "ERROR running juggler, both attempts failed"
-    exit 1
-  fi
+  echo "ERROR running juggler"
+  exit 1
 fi
 
 ## =============================================================================
