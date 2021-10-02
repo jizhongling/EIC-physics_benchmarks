@@ -116,12 +116,6 @@ algorithms = []
 podin = PodioInput("PodioReader", collections=sim_coll)
 algorithms.append(podin)
 
-## copiers to get around input --> output copy bug. Note the "2" appended to the output collection.
-copier = MCCopier("MCCopier",
-        inputCollection="mcparticles",
-        outputCollection="mcparticles2")
-algorithms.append(copier)
-
 # Generated particles
 dummy = MC2DummyParticle("dummy",
         inputCollection="mcparticles",
@@ -599,7 +593,11 @@ podout.outputCommands = [
         "drop *ProtoClusters",
         "drop outputParticles",
         "drop InitTrackParams",
-        ] + [ "drop " + c for c in sim_coll]
+        ] + [
+        "drop " + c for c in sim_coll
+        ] + [
+        "keep mcparticles"
+        ]
 algorithms.append(podout)
 
 ApplicationMgr(

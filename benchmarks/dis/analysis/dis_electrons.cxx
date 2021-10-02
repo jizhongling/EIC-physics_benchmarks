@@ -196,7 +196,7 @@ int dis_electrons(const std::string& config_name)
   //Old dataframe
   auto d0 = d.Define("p_rec", momenta_from_tracking, {"outputTrackParameters"})
                 .Define("N", "p_rec.size()")
-                .Define("p_sim", util::momenta_from_simulation, {"mcparticles2"})
+                .Define("p_sim", util::momenta_from_simulation, {"mcparticles"})
                 .Define("mom_sim", util::mom, {"p_sim"})
                 .Define("mom_rec", util::mom, {"p_rec"});
 */
@@ -206,7 +206,7 @@ int dis_electrons(const std::string& config_name)
                 .Define("Q2_recon", Q2, {"p_recon_sort"})
                 .Define("Q2_recon_rand", randomize, {"Q2_recon"})
                 .Define("elec_Q2_recon_rand", "Q2_recon_rand[0]")
-                .Define("p_sim_M", util::momenta_from_simulation, {"mcparticles2"})
+                .Define("p_sim_M", util::momenta_from_simulation, {"mcparticles"})
                 .Define("p_sim", convertMtoE, {"p_sim_M"})
                 .Define("p_sim_sort", sort_momenta, {"p_sim"})
                 .Define("Q2_sim", Q2, {"p_sim_sort"})

@@ -94,11 +94,11 @@ int vm_mass(const std::string& config_name)
     return common_bench::find_decay_pair(parts, vm_mass, decay_mass);
   };
 
-  // common_bench::PrintGeant4(mcparticles2);
+  // common_bench::PrintGeant4(mcparticles);
   // Define analysis flow
   auto d_im = d.Define("p_rec", common_bench::momenta_RC, {"ReconstructedParticles"})       //using dummy rc
                   .Define("N", "p_rec.size()")
-                  .Define("p_sim", common_bench::momenta_from_simulation, {"mcparticles2"})
+                  .Define("p_sim", common_bench::momenta_from_simulation, {"mcparticles"})
                   .Define("decay_pair_rec", find_decay_pair, {"p_rec"})
                   .Define("decay_pair_sim", find_decay_pair, {"p_sim"})
                   .Define("p_vm_rec", "decay_pair_rec.first + decay_pair_rec.second")

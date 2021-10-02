@@ -109,8 +109,8 @@ void demo(const char* fname = "rec_dvcs.root"){
     return p_ebeam - p;
   };
 
-  auto df0 = df.Define("isThrown", "mcparticles2.genStatus == 1")
-                 .Define("thrownParticles", "mcparticles2[isThrown]")
+  auto df0 = df.Define("isThrown", "mcparticles.genStatus == 1")
+                 .Define("thrownParticles", "mcparticles[isThrown]")
                  .Define("thrownP", fourvec, {"thrownParticles"})
                  .Define("recP", recfourvec, {"ReconstructedParticles"})
                  .Define("NPart", "recP.size()")
