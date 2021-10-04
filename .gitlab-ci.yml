@@ -3,6 +3,8 @@ image: eicweb.phy.anl.gov:4567/eic/juggler/juggler:$JUGGLER_TAG
 default:
   before_script:
     - source .local/bin/env.sh
+  tags:
+    - phy-scratch
   artifacts:
     expire_in: 3 days
     paths:
