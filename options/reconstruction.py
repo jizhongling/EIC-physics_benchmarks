@@ -71,7 +71,7 @@ from Configurables import Jug__Reco__TrackerSourceLinker as TrackerSourceLinker
 from Configurables import Jug__Reco__TrackParamTruthInit as TrackParamTruthInit
 from Configurables import Jug__Reco__TrackParamClusterInit as TrackParamClusterInit
 from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVertexClusterInit
-from Configurables import Jug__Reco__TrackFindingAlgorithm as TrackFindingAlgorithm
+from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
@@ -526,7 +526,7 @@ truth_trk_init = TrackParamTruthInit("truth_trk_init",
 algorithms.append(truth_trk_init)
 
 # Tracking algorithms
-trk_find_alg = TrackFindingAlgorithm("trk_find_alg",
+trk_find_alg = CKFTracking("trk_find_alg",
         inputSourceLinks = sourcelinker.outputSourceLinks,
         inputMeasurements = sourcelinker.outputMeasurements,
         inputInitialTrackParameters = truth_trk_init.outputInitialTrackParameters,
