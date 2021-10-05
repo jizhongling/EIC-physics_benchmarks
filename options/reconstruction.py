@@ -59,6 +59,7 @@ from Configurables import Jug__Base__InputCopier_dd4pod__PhotoMultiplierHitColle
 from Configurables import Jug__Fast__MC2SmearedParticle as MC2DummyParticle
 from Configurables import Jug__Fast__ParticlesWithTruthPID as ParticlesWithTruthPID
 from Configurables import Jug__Fast__SmearedFarForwardParticles as SmearedFarForwardParticles
+from Configurables import Jug__Fast__MatchClusters as MatchClusters
 
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
@@ -543,16 +544,34 @@ algorithms.append(parts_from_fit)
 trajs_from_fit = TrajectoryFromTrackFit("trajs_from_fit",
         inputTrajectories = trk_find_alg.outputTrajectories,
         outputTrajectoryParameters = "outputTrajectoryParameters")
-        #OutputLevel=DEBUG)
 algorithms.append(trajs_from_fit)
 
 # Event building
 parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
         inputMCParticles = "mcparticles",
         inputTrackParameters = parts_from_fit.outputTrackParameters,
+        outputParticles = "ReconstructedChargedParticles",
+        outputRelations = "ReconstructedChargedParticleRelations")
+algorithms.append(parts_with_truth_pid)
+
+match_clusters = MatchClusters("match_clusters",
+        inputMCParticles = "mcparticles",
+        inputParticles = parts_with_truth_pid.outputParticles,
+        inputRelations = parts_with_truth_pid.outputRelations,
+        inputEcalClusters = [
+                str(ce_ecal_clreco.outputClusterCollection),
+                str(img_barrel_clreco.outputClusterCollection),
+                str(scfi_barrel_clreco.outputClusterCollection),
+                str(ci_ecal_clreco.outputClusterCollection)
+        ],
+        inputHcalClusters = [
+                str(ce_hcal_clreco.outputClusterCollection),
+                str(cb_hcal_clreco.outputClusterCollection),
+                str(ci_hcal_clreco.outputClusterCollection)
+        ],
         outputParticles = "ReconstructedParticles",
         outputRelations = "ReconstructedParticleRelations")
-algorithms.append(parts_with_truth_pid)
+algorithms.append(match_clusters)
 
 # DRICH
 drich_digi = PhotoMultiplierDigi("drich_digi",
