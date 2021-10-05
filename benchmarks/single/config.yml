@@ -1,0 +1,6 @@
+single:process:
+  extends: .phy_benchmark
+  timeout: 24 hours
+  stage: process
+  script:
+    - bash benchmarks/single/single.sh e-_1GeV_45to135deg
