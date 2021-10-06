@@ -60,6 +60,8 @@ from Configurables import Jug__Fast__MC2SmearedParticle as MC2DummyParticle
 from Configurables import Jug__Fast__ParticlesWithTruthPID as ParticlesWithTruthPID
 from Configurables import Jug__Fast__SmearedFarForwardParticles as SmearedFarForwardParticles
 from Configurables import Jug__Fast__MatchClusters as MatchClusters
+from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
+from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
 
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
@@ -168,6 +170,12 @@ ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
 
+ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
+        inputClusters = ce_ecal_clreco.outputClusterCollection,
+        outputClusters = "EcalEndcapNMergedClusters",
+        outputRelations = "EcalEndcapNMergedClusterRelations")
+algorithms.append(ce_ecal_clmerger)
+
 # Endcap Sampling Ecal
 ci_ecal_daq = dict(
         dynamicRangeADC=50.*units.MeV,
@@ -215,6 +223,12 @@ ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
         logWeightBase=6.2,
         samplingFraction=ci_ecal_sf)
 algorithms.append(ci_ecal_clreco)
+
+ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
+        inputClusters = ci_ecal_clreco.outputClusterCollection,
+        outputClusters = "EcalEndcapPMergedClusters",
+        outputRelations = "EcalEndcapPMergedClusterRelations")
+algorithms.append(ci_ecal_clmerger)
 
 # Central Barrel Ecal (Imaging Cal.)
 img_barrel_daq = dict(
@@ -307,6 +321,16 @@ scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
          logWeightBase=6.2,
          samplingFraction= scifi_barrel_sf)
 algorithms.append(scfi_barrel_clreco)
+
+## barrel cluster merger
+barrel_clus_merger = EnergyPositionClusterMerger("barrel_clus_merger",
+        inputMCParticles = "mcparticles",
+        inputEnergyClusters = scfi_barrel_clreco.outputClusterCollection,
+        inputPositionClusters = img_barrel_clreco.outputClusterCollection,
+        outputClusters = "EcalBarrelMergedClusters",
+        outputRelations = "EcalBarrelMergedClusterRelations")
+algorithms.append(barrel_clus_merger)
+
 
 # Central Barrel Hcal
 cb_hcal_daq = dict(
@@ -559,10 +583,9 @@ match_clusters = MatchClusters("match_clusters",
         inputParticles = parts_with_truth_pid.outputParticles,
         inputRelations = parts_with_truth_pid.outputRelations,
         inputEcalClusters = [
-                str(ce_ecal_clreco.outputClusterCollection),
-                str(img_barrel_clreco.outputClusterCollection),
-                str(scfi_barrel_clreco.outputClusterCollection),
-                str(ci_ecal_clreco.outputClusterCollection)
+                str(ce_ecal_clmerger.outputClusters),
+                str(barrel_clus_merger.outputClusters),
+                str(ci_ecal_clmerger.outputClusters)
         ],
         inputHcalClusters = [
                 str(ce_hcal_clreco.outputClusterCollection),
