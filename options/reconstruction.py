@@ -62,6 +62,7 @@ from Configurables import Jug__Fast__SmearedFarForwardParticles as FFSmearedPart
 from Configurables import Jug__Fast__MatchClusters as MatchClusters
 from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
 from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
+from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
 
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
@@ -128,6 +129,13 @@ dummy = MC2DummyParticle("dummy",
         outputParticles="GeneratedParticles",
         smearing=0)
 algorithms.append(dummy)
+
+# Truth level kinematics
+truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
+        inputMCParticles="mcparticles",
+        outputData="InclusiveKinematicsTruth"
+)
+algorithms.append(truth_incl_kin)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = dict(

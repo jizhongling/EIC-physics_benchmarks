@@ -5,6 +5,7 @@ u_omega:process:
     - s3
   needs: ["common:detector"]
   script:
+    - compile_analyses.py u_omega
     - bash benchmarks/u_omega/u_omega.sh --all
 
 u_omega:results:

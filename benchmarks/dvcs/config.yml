@@ -5,6 +5,7 @@ dvcs:process:
     - s3
   needs: ["common:detector"]
   script:
+    - compile_analyses.py dvcs
     - bash benchmarks/dvcs/dvcs.sh --all
 
 dvcs:results:

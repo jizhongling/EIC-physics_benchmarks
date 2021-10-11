@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "ROOT/RDataFrame.hxx"
+#include "Math/Vector4D.h"
+#include "TCanvas.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -20,6 +22,7 @@ R__LOAD_LIBRARY(libDD4pod.so)
 #include "eicd/ClusterCollection.h"
 #include "eicd/ReconstructedParticleCollection.h"
 #include "eicd/BasicParticleCollection.h"
+#include "eicd/InclusiveKinematicsCollection.h"
 
 using ROOT::RDataFrame;
 using namespace ROOT::VecOps;
@@ -85,9 +88,9 @@ auto delta_p = [](const std::vector<double>& tracks, const std::vector<double>& 
 };
 
 
-void dvcs_tests(const char* fname = "rec_dvcs.root"){
+void demo(const char* fname = "rec_dvcs.root"){
 
-  fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green), "Running DVCS analysis...\n");
+  fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green), "Running u_omega analysis...\n");
 
   // Run this in multi-threaded mode if desired
   ROOT::EnableImplicitMT();
@@ -109,37 +112,29 @@ void dvcs_tests(const char* fname = "rec_dvcs.root"){
     return p_ebeam - p;
   };
 
-  auto df0 = df.Define("isThrown", "mcparticles.genStatus == 1")
-                 .Define("thrownParticles", "mcparticles[isThrown]")
-                 .Define("thrownP", fourvec, {"thrownParticles"})
-                 .Define("recP", recfourvec, {"ReconstructedParticles"})
-                 .Define("NPart", "recP.size()")
-                 .Define("p_thrown", momentum, {"thrownP"})
-                 .Define("nTracks", "outputTrackParameters.size()")
-                 .Define("p_track", p_track, {"outputTrackParameters"})
-                 .Define("delta_p",delta_p, {"p_track", "p_thrown"})
-                 .Define("eprime", eprime, {"thrownParticles"})
-                 .Define("q",  q_vec, {"eprime"})
-                 .Define("Q2", "-1.0*(q.Dot(q))");
+  auto df0 = df.Define("n_parts", "ReconstructedParticles.size()")
+               .Define("isQ2gt1", "InclusiveKinematicsTruth.Q2 > 1.0")
+               .Define("n_Q2gt1", "isQ2gt1.size()");
 
-  auto h_n_dummy = df0.Histo1D({"h_n_part", "; h_n_part n", 10, 0, 10}, "NPart");
-  auto h_Q2      = df0.Histo1D({"h_Q2", "; Q^{2} [GeV^{2}/c^{2}]", 100, 0, 30}, "Q2");
-  auto n_Q2      = df0.Filter("Q2>1").Count();
-  auto n_tracks  = df0.Mean("nTracks");
+
+  auto h_n_parts = df0.Histo1D({"h_n_parts", "; h_n_parts n", 10, 0, 10}, "n_parts");
+  auto h_Q2      = df0.Histo1D({"h_Q2", "; Q^{2} [GeV^{2}/c^{2}]", 100, 0, 30}, "InclusiveKinematicsTruth.Q2");
+  auto n_Q2gt1   = df0.Mean("n_Q2gt1");
+  auto n_parts   = df0.Mean("n_parts");
 
   // ---------------------------
   // Do evaluation
 
   auto c = new TCanvas();
   h_Q2->DrawCopy();
-  c->SaveAs("results/dvcs/Q2.png");
-  c->SaveAs("results/dvcs/Q2.pdf");
-  fmt::print("{} DVCS events\n",*n_Q2);
-  fmt::print("{} tracks per event\n",*n_tracks);
+  c->SaveAs("results/u_omega/Q2.png");
+  c->SaveAs("results/u_omega/Q2.pdf");
+  fmt::print("{} u_omega events Q2>1\n",*n_Q2gt1);
+  fmt::print("{} tracks per event\n",*n_parts);
 
   c = new TCanvas();
-  h_n_dummy->DrawCopy();
-  c->SaveAs("results/dvcs/n_dummy.png");
-  //c->SaveAs("results/dvcs/n_dummy.pdf");
+  h_n_parts->DrawCopy();
+  c->SaveAs("results/u_omega/n_parts.png");
+  c->SaveAs("results/u_omega/n_parts.pdf");
 
 }

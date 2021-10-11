@@ -3,4 +3,5 @@ single:process:
   timeout: 24 hours
   stage: process
   script:
+    - compile_analyses.py single
     - bash benchmarks/single/single.sh e-_1GeV_45to135deg
