@@ -65,8 +65,8 @@ echo "Compiling   benchmarks/dis/generator/pythia_dis.cxx ..."
 g++ benchmarks/dis/generator/pythia_dis.cxx -o ${TMP_PATH}/pythia_dis  \
    -I/usr/local/include  -I${LOCAL_PREFIX}/include \
    -O2 -std=c++11 -pedantic -W -Wall -Wshadow -fPIC  \
-   -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lpythia8 -ldl \
-   -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lHepMC3
+   $(pythia8-config --cxxflags --ldflags) \
+   $(HepMC3-config --cxxflags --ldflags)
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR compiling pythia"
   exit 1

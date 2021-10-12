@@ -1,5 +1,6 @@
 dis:generate:
   stage: generate
+  extends: .phy_benchmark
   needs: ["common:detector"]
   timeout: 1 hours
   script:
@@ -7,12 +8,12 @@ dis:generate:
 
 dis:process:
   stage: process
+  extends: .phy_benchmark
   needs: ["common:detector", "dis:generate"]
   timeout: 2 hour
   script:
-    - echo "Temporarily disabling!!!"
-      #- compile_analyses.py dis
-      #- ./benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
+    - compile_analyses.py dis
+    - bash benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
   retry:
     max: 2
     when:
