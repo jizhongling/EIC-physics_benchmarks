@@ -78,6 +78,7 @@ from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVe
 from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
 from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
+from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
 from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
@@ -649,6 +650,14 @@ algorithms.append(mrich_reco)
 #        inputHitCollection=pmtreco.outputHitCollection,
 #        #inputTrackCollection="ReconstructedParticles",
 #        outputClusterCollection="ForwardRICHClusters")
+
+# Electron kinematics
+electron_incl_kin = InclusiveKinematicsElectron("electron_incl_kin",
+        inputMCParticles="mcparticles",
+        inputParticles="ReconstructedParticles",
+        outputData="InclusiveKinematicsElectron"
+)
+algorithms.append(electron_incl_kin)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)
