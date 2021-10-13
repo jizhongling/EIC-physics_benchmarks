@@ -1,0 +1,15 @@
+synchrotron:process:
+  stage: process
+  extends: .phy_benchmark
+  tags:
+    - s3
+  needs: ["common:detector"]
+  script:
+    - compile_analyses.py synchrotron
+    - bash benchmarks/synchrotron/synchrotron.sh --all
+
+synchrotron:results:
+  stage: collect
+  needs: ["synchrotron:process"]
+  script:
+    - ls -lrth
