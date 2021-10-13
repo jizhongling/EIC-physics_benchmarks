@@ -83,7 +83,7 @@ int dis_electrons(const std::string& config_name)
   //Q2
   auto h_Q2_sim = d0.Histo1D({"h_Q2_sim", "; GeV^2; counts", 100, -5, 25}, "Q2_sim");
   auto h_Q2_rec = d0.Histo1D({"h_Q2_rec", "; GeV^2; counts", 100, -5, 25}, "Q2_rec");
-  auto h_Q2_res = d0.Histo1D({"h_Q2_res", ";      ; counts", 100, -10, 10}, "Q2_res");
+  auto h_Q2_res = d0.Histo1D({"h_Q2_res", ";      ; counts", 100, -1,  1}, "Q2_res");
   //x
   auto h_x_sim = d0.Histo1D({"h_x_sim", "; ; counts", 100, 0, +1}, "x_sim");
   auto h_x_rec = d0.Histo1D({"h_x_rec", "; ; counts", 100, 0, +1}, "x_rec");
@@ -190,7 +190,7 @@ int dis_electrons(const std::string& config_name)
   {
     TCanvas c("c", "c", 1200, 1200);
     c.cd();
-    gPad->SetLogx(true);
+    gPad->SetLogx(false);
     gPad->SetLogy(true);
     auto& h1 = *h_x_res;
     // histogram style
