@@ -26,7 +26,7 @@ int analyze(std::string file)
 
   auto stats_n_tracks_gen = d.Stats("n_tracks_gen");
   auto stats_n_tracks_rec = d.Stats("n_tracks_rec");
-  if (stats_n_tracks_rec->GetMean() < 0.9) {
+  if (stats_n_tracks_rec->GetMean() < 0.8) {
     std::cout << "Error: too few tracks per events " << std::endl;
     stats_n_tracks_gen->Print();
     stats_n_tracks_rec->Print();
