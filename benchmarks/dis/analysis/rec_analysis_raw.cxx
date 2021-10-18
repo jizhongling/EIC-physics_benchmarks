@@ -34,6 +34,8 @@ int rec_analysis_raw(const std::string& config_name)
   const std::string detector      = config["detector"];
   const std::string output_prefix = config["output_prefix"];
   const std::string test_tag      = config["test_tag"];
+  const int ebeam                 = config["ebeam"];
+  const int pbeam                 = config["pbeam"];
 
   fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
              "Running DIS electron analysis...\n");
@@ -41,16 +43,8 @@ int rec_analysis_raw(const std::string& config_name)
   fmt::print(" - input file: {}\n", rec_file);
   fmt::print(" - output prefix: {}\n", output_prefix);
   fmt::print(" - test tag: {}\n", test_tag);
-
-  // create our test definition
-  // test_tag
-  common_bench::Test dis_Q2_resolution{
-      {{"name", fmt::format("{}_Q2_resolution", test_tag)},
-       {"title", "DIS Q2 resolution"},
-       {"description",
-        fmt::format("DIS Q2 resolution with {}, estimated using a Gaussian fit.", detector)},
-       {"quantity", "resolution (in %)"},
-       {"target", "0.1"}}};
+  fmt::print(" - ebeam: {}\n", ebeam);
+  fmt::print(" - pbeam: {}\n", pbeam);
 
   // Run this in multi-threaded mode if desired
   ROOT::EnableImplicitMT(kNumThreads);
@@ -65,29 +59,60 @@ int rec_analysis_raw(const std::string& config_name)
              .Define("n_HcalEndcapNRawHits",       "HcalEndcapNRawHits.size()")
              ;
 
-  // Ecal
-  auto h_n_EcalEndcapPRawHits = d0.Histo1D({"h_n_EcalEndcapPRawHits", "; hits; counts", 100, 0, 1000}, "n_EcalEndcapPRawHits");
-  auto h_n_EcalBarrelImagingRawHits = d0.Histo1D({"h_n_EcalBarrelImagingRawHits", "; hits; counts", 100, 0, 1000}, "n_EcalBarrelImagingRawHits");
-  auto h_n_EcalBarrelScFiRawHits = d0.Histo1D({"h_n_EcalBarrelScFiRawHits", "; hits; counts", 100, 0, 10000}, "n_EcalBarrelScFiRawHits");
-  auto h_n_EcalEndcapNRawHits = d0.Histo1D({"h_n_EcalEndcapNRawHits", "; hits; counts", 100, 0, 1000}, "n_EcalEndcapNRawHits");
-  auto h_adc_EcalEndcapPRawHits = d0.Histo1D({"h_adc_EcalEndcapPRawHits", "; amplitude; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.amplitude");
-  auto h_adc_EcalBarrelImagingRawHits = d0.Histo1D({"h_adc_EcalBarrelImagingRawHits", "; amplitude; counts", 1024, 0, 8192}, "EcalBarrelImagingRawHits.amplitude");
-  auto h_adc_EcalBarrelScFiRawHits = d0.Histo1D({"h_adc_EcalBarrelScFiRawHits", "; amplitude; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.amplitude");
-  auto h_adc_EcalEndcapNRawHits = d0.Histo1D({"h_adc_EcalEndcapNRawHits", "; amplitude; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.amplitude");
-  auto h_tdc_EcalEndcapPRawHits = d0.Histo1D({"h_tdc_EcalEndcapPRawHits", "; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.time");
-  auto h_tdc_EcalBarrelImagingRawHits = d0.Histo1D({"h_tdc_EcalBarrelImagingRawHits", "; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelImagingRawHits.time");
-  auto h_tdc_EcalBarrelScFiRawHits = d0.Histo1D({"h_tdc_EcalBarrelScFiRawHits", "; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.time");
-  auto h_tdc_EcalEndcapNRawHits = d0.Histo1D({"h_tdc_EcalEndcapNRawHits", "; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.time");
-  // Hcal
-  auto h_n_HcalEndcapPRawHits = d0.Histo1D({"h_n_HcalEndcapPRawHits", "; hits; counts", 100, 0, 1000}, "n_HcalEndcapPRawHits");
-  auto h_n_HcalBarrelRawHits  = d0.Histo1D({"h_n_HcalBarrelRawHits",  "; hits; counts", 100, 0, 1000}, "n_HcalBarrelRawHits");
-  auto h_n_HcalEndcapNRawHits = d0.Histo1D({"h_n_HcalEndcapNRawHits", "; hits; counts", 100, 0, 1000}, "n_HcalEndcapNRawHits");
-  auto h_adc_HcalEndcapPRawHits = d0.Histo1D({"h_adc_HcalEndcapPRawHits", "; hits; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.amplitude");
-  auto h_adc_HcalBarrelRawHits  = d0.Histo1D({"h_adc_HcalBarrelRawHits",  "; hits; counts", 1024, 0, 32768}, "HcalBarrelRawHits.amplitude");
-  auto h_adc_HcalEndcapNRawHits = d0.Histo1D({"h_adc_HcalEndcapNRawHits", "; hits; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.amplitude");
-  auto h_tdc_HcalEndcapPRawHits = d0.Histo1D({"h_tdc_HcalEndcapPRawHits", "; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.time");
-  auto h_tdc_HcalBarrelRawHits  = d0.Histo1D({"h_tdc_HcalBarrelRawHits",  "; TDC channel; counts", 1024, 0, 32768}, "HcalBarrelRawHits.time");
-  auto h_tdc_HcalEndcapNRawHits = d0.Histo1D({"h_tdc_HcalEndcapNRawHits", "; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.time");
+  // Ecal hits
+  auto h_n_EcalEndcapPRawHits = d0.Histo1D({"h_n_EcalEndcapPRawHits", "EcalEndcapP; hits; counts", 100, 0, 1000}, "n_EcalEndcapPRawHits");
+  auto h_n_EcalBarrelImagingRawHits = d0.Histo1D({"h_n_EcalBarrelImagingRawHits", "EcalBarrelImaging; hits; counts", 100, 0, 1000}, "n_EcalBarrelImagingRawHits");
+  auto h_n_EcalBarrelScFiRawHits = d0.Histo1D({"h_n_EcalBarrelScFiRawHits", "EcalBarrelScFi; hits; counts", 100, 0, 10000}, "n_EcalBarrelScFiRawHits");
+  auto h_n_EcalEndcapNRawHits = d0.Histo1D({"h_n_EcalEndcapNRawHits", "EcalEndcapN; hits; counts", 100, 0, 1000}, "n_EcalEndcapNRawHits");
+  // Ecal stats
+  auto stats_n_EcalEndcapPRawHits = d0.Stats("n_EcalEndcapPRawHits");
+  auto stats_n_EcalBarrelImagingRawHits = d0.Stats("n_EcalBarrelImagingRawHits");
+  auto stats_n_EcalBarrelScFiRawHits = d0.Stats("n_EcalBarrelScFiRawHits");
+  auto stats_n_EcalEndcapNRawHits = d0.Stats("n_EcalEndcapNRawHits");
+  // Ecal adc
+  auto h_adc_EcalEndcapPRawHits = d0.Histo1D({"h_adc_EcalEndcapPRawHits", "EcalEndcapP; amplitude; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.amplitude");
+  auto h_adc_EcalBarrelImagingRawHits = d0.Histo1D({"h_adc_EcalBarrelImagingRawHits", "EcalBarrelImaging; amplitude; counts", 1024, 0, 8192}, "EcalBarrelImagingRawHits.amplitude");
+  auto h_adc_EcalBarrelScFiRawHits = d0.Histo1D({"h_adc_EcalBarrelScFiRawHits", "EcalBarrelScFi; amplitude; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.amplitude");
+  auto h_adc_EcalEndcapNRawHits = d0.Histo1D({"h_adc_EcalEndcapNRawHits", "EcalEndcapN; amplitude; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.amplitude");
+  // Ecal tdc
+  auto h_tdc_EcalEndcapPRawHits = d0.Histo1D({"h_tdc_EcalEndcapPRawHits", "EcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.time");
+  auto h_tdc_EcalBarrelImagingRawHits = d0.Histo1D({"h_tdc_EcalBarrelImagingRawHits", "EcalBarrelImaging; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelImagingRawHits.time");
+  auto h_tdc_EcalBarrelScFiRawHits = d0.Histo1D({"h_tdc_EcalBarrelScFiRawHits", "EcalBarrelScFi; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.time");
+  auto h_tdc_EcalEndcapNRawHits = d0.Histo1D({"h_tdc_EcalEndcapNRawHits", "EcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.time");
+  // Hcal hits
+  auto h_n_HcalEndcapPRawHits = d0.Histo1D({"h_n_HcalEndcapPRawHits", "HcalEndcapP; hits; counts", 100, 0, 1000}, "n_HcalEndcapPRawHits");
+  auto h_n_HcalBarrelRawHits  = d0.Histo1D({"h_n_HcalBarrelRawHits",  "HcalBarrel; hits; counts", 100, 0, 1000}, "n_HcalBarrelRawHits");
+  auto h_n_HcalEndcapNRawHits = d0.Histo1D({"h_n_HcalEndcapNRawHits", "HcalEndcapN; hits; counts", 100, 0, 1000}, "n_HcalEndcapNRawHits");
+  // Hcal stats
+  auto stats_n_HcalEndcapPRawHits = d0.Stats("n_HcalEndcapPRawHits");
+  auto stats_n_HcalBarrelRawHits  = d0.Stats("n_HcalBarrelRawHits");
+  auto stats_n_HcalEndcapNRawHits = d0.Stats("n_HcalEndcapNRawHits");
+  // Hcal adc
+  auto h_adc_HcalEndcapPRawHits = d0.Histo1D({"h_adc_HcalEndcapPRawHits", "HcalEndcapP; hits; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.amplitude");
+  auto h_adc_HcalBarrelRawHits  = d0.Histo1D({"h_adc_HcalBarrelRawHits",  "HcalBarrel; hits; counts", 1024, 0, 32768}, "HcalBarrelRawHits.amplitude");
+  auto h_adc_HcalEndcapNRawHits = d0.Histo1D({"h_adc_HcalEndcapNRawHits", "HcalEndcapN; hits; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.amplitude");
+  // Hcal tdc
+  auto h_tdc_HcalEndcapPRawHits = d0.Histo1D({"h_tdc_HcalEndcapPRawHits", "HcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.time");
+  auto h_tdc_HcalBarrelRawHits  = d0.Histo1D({"h_tdc_HcalBarrelRawHits",  "HcalBarrel; TDC channel; counts", 1024, 0, 32768}, "HcalBarrelRawHits.time");
+  auto h_tdc_HcalEndcapNRawHits = d0.Histo1D({"h_tdc_HcalEndcapNRawHits", "HcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.time");
+
+  fmt::print("EcalEndcapPRawHits:");
+  stats_n_EcalEndcapPRawHits->Print();
+  fmt::print("EcalBarrelImagingRawHits:");
+  stats_n_EcalBarrelImagingRawHits->Print();
+  fmt::print("EcalBarrelScFiRawHits:");
+  stats_n_EcalBarrelScFiRawHits->Print();
+  fmt::print("EcalEndcapNRawHits:");
+  stats_n_EcalEndcapNRawHits->Print();
+  fmt::print("HcalEndcapPRawHits:");
+  stats_n_HcalEndcapPRawHits->Print();
+  fmt::print("HcalBarrelRawHits:");
+  stats_n_HcalBarrelRawHits->Print();
+  fmt::print("HcalEndcapNRawHits:");
+  stats_n_HcalEndcapNRawHits->Print();
+
+
+  gStyle->SetOptTitle(kTRUE);
 
   // Ecal nhits
   {
@@ -117,6 +142,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -142,18 +168,7 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h4.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}EcalRawHits_n.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_EcalRawHits_n.png", output_prefix).c_str());
   }
 
   // Ecal adc
@@ -184,6 +199,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -209,18 +225,7 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h4.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}EcalRawHits_adc.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_EcalRawHits_adc.png", output_prefix).c_str());
   }
 
 
@@ -252,6 +257,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -277,18 +283,7 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h4.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}EcalRawHits_tdc.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_EcalRawHits_tdc.png", output_prefix).c_str());
   }
 
   // Hcal nhits
@@ -319,6 +314,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -332,18 +328,7 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h3.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}HcalRawHits_n.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_HcalRawHits_n.png", output_prefix).c_str());
   }
 
   // Hcal adc
@@ -374,6 +359,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -387,18 +373,7 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h3.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}HcalRawHits_adc.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_HcalRawHits_adc.png", output_prefix).c_str());
   }
 
   // Hcal tdc
@@ -429,6 +404,7 @@ int rec_analysis_raw(const std::string& config_name)
     h2.GetYaxis()->CenterTitle();
     // draw everything
     h2.DrawClone("hist");
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
 
     c.cd(3);
     gPad->SetLogy(true);
@@ -442,34 +418,9 @@ int rec_analysis_raw(const std::string& config_name)
     // draw everything
     h3.DrawClone("hist");
 
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    TText* tptr1;
-    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
-    t1.SetFillColorAlpha(kWhite, 0);
-    t1.SetTextFont(43);
-    t1.SetTextSize(25);
-    tptr1 = t1.AddText("simulated");
-    tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    t1.Draw();
-
-    c.Print(fmt::format("{}HcalRawHits_tdc.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_HcalRawHits_tdc.png", output_prefix).c_str());
   }
 
-  auto stats_n_EcalEndcapPRawHits = d0.Stats("n_EcalEndcapPRawHits");
-  auto stats_n_EcalBarrelImagingRawHits = d0.Stats("n_EcalBarrelImagingRawHits");
-  auto stats_n_EcalBarrelScFiRawHits = d0.Stats("n_EcalBarrelScFiRawHits");
-  auto stats_n_EcalEndcapNRawHits = d0.Stats("n_EcalEndcapNRawHits");
-  auto stats_n_HcalEndcapPRawHits = d0.Stats("n_HcalEndcapPRawHits");
-  auto stats_n_HcalBarrelRawHits  = d0.Stats("n_HcalBarrelRawHits");
-  auto stats_n_HcalEndcapNRawHits = d0.Stats("n_HcalEndcapNRawHits");
-  stats_n_EcalEndcapPRawHits->Print();
-  stats_n_EcalBarrelImagingRawHits->Print();
-  stats_n_EcalBarrelScFiRawHits->Print();
-  stats_n_EcalEndcapNRawHits->Print();
-  stats_n_HcalEndcapPRawHits->Print();
-  stats_n_HcalBarrelRawHits->Print();
-  stats_n_HcalEndcapNRawHits->Print();
   if (
     stats_n_EcalEndcapPRawHits->GetMean() < 0.8 ||
     stats_n_EcalBarrelImagingRawHits->GetMean() < 0.8 ||

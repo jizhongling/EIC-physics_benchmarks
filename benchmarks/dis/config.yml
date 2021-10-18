@@ -2,18 +2,34 @@ dis:generate:
   stage: generate
   extends: .phy_benchmark
   needs: ["common:detector"]
+  parallel:
+    matrix:
+      - EBEAM: 5
+        PBEAM: 41
+      - EBEAM: 10
+        PBEAM: 100
+      - EBEAM: 18
+        PBEAM: 275
   timeout: 1 hours
   script:
-    - bash benchmarks/dis/gen.sh --config barrel --ebeam 18 --pbeam 275
+    - bash benchmarks/dis/gen.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
 
 dis:process:
   stage: process
   extends: .phy_benchmark
   needs: ["common:detector", "dis:generate"]
+  parallel:
+    matrix:
+      - EBEAM: 5
+        PBEAM: 41
+      - EBEAM: 10
+        PBEAM: 100
+      - EBEAM: 18
+        PBEAM: 275
   timeout: 2 hour
   script:
     - compile_analyses.py dis
-    - bash benchmarks/dis/dis.sh --config barrel --ebeam 18 --pbeam 275
+    - bash benchmarks/dis/dis.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
   retry:
     max: 2
     when:
