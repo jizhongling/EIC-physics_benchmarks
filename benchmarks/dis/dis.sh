@@ -111,11 +111,60 @@ cat << EOF > ${CONFIG}
   "test_tag": "${BEAM_TAG}"
 }
 EOF
-#cat ${CONFIG}
 root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
-#root -b -q "benchmarks/dis/analysis/dis_electrons.cxx(\"${CONFIG}\")"
 if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running rec_dis_electron script"
+  echo "ERROR running dis_electron script"
+  exit 1
+fi
+
+CONFIG="${TMP_PATH}/${PLOT_TAG}.raw.json"
+cat << EOF > ${CONFIG}
+{
+  "rec_file": "${REC_FILE/.root/.raw.root}",
+  "detector": "${JUGGLER_DETECTOR}",
+  "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
+  "ebeam": ${EBEAM},
+  "pbeam": ${PBEAM},
+  "test_tag": "${BEAM_TAG}"
+}
+EOF
+root -b -q "benchmarks/dis/analysis/rec_analysis_raw.cxx+(\"${CONFIG}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running rec_analysis_raw script"
+  exit 1
+fi
+
+CONFIG="${TMP_PATH}/${PLOT_TAG}.ecal.json"
+cat << EOF > ${CONFIG}
+{
+  "rec_file": "${REC_FILE/.root/.ecal.root}",
+  "detector": "${JUGGLER_DETECTOR}",
+  "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
+  "ebeam": ${EBEAM},
+  "pbeam": ${PBEAM},
+  "test_tag": "${BEAM_TAG}"
+}
+EOF
+root -b -q "benchmarks/dis/analysis/rec_analysis_ecal.cxx+(\"${CONFIG}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running rec_analysis_ecal script"
+  exit 1
+fi
+
+CONFIG="${TMP_PATH}/${PLOT_TAG}.hcal.json"
+cat << EOF > ${CONFIG}
+{
+  "rec_file": "${REC_FILE/.root/.hcal.root}",
+  "detector": "${JUGGLER_DETECTOR}",
+  "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
+  "ebeam": ${EBEAM},
+  "pbeam": ${PBEAM},
+  "test_tag": "${BEAM_TAG}"
+}
+EOF
+root -b -q "benchmarks/dis/analysis/rec_analysis_hcal.cxx+(\"${CONFIG}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running rec_analysis_hcal script"
   exit 1
 fi
 
