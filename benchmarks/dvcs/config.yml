@@ -2,7 +2,7 @@ dvcs:process:
   stage: process
   extends: .phy_benchmark
   tags:
-    - s3
+    - phy
   needs: ["common:detector"]
   script:
     - compile_analyses.py dvcs

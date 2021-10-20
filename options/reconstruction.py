@@ -8,11 +8,17 @@ import json
 
 detector_name = "athena"
 if "JUGGLER_DETECTOR" in os.environ :
-  detector_name = str(os.environ["JUGGLER_DETECTOR"])
+    detector_name = str(os.environ["JUGGLER_DETECTOR"])
 
 detector_path = ""
 if "DETECTOR_PATH" in os.environ :
-  detector_path = str(os.environ["DETECTOR_PATH"])
+    detector_path = str(os.environ["DETECTOR_PATH"])
+
+detector_version = 'default'
+if "JUGGLER_DETECTOR_VERSION" in os.environ:
+    env_version = str(os.environ["JUGGLER_DETECTOR_VERSION"])
+    if 'acadia' in env_version:
+        detector_version = 'acadia'
 
 compact_path = os.path.join(detector_path, detector_name)
 
@@ -45,7 +51,15 @@ services = []
 # auditor service
 services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAuditor']))
 # geometry service
-services.append(GeoSvc("GeoSvc", detectors=["{}.xml".format(compact_path)], OutputLevel=WARNING))
+## only have material maps for acadia right now
+if detector_version == 'acadia':
+    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
+                                     materials="config/material-maps.json",
+                                     OutputLevel=WARNING))
+else:
+    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
+                                    #materials="config/material-maps.json",
+                                    OutputLevel=WARNING))
 # data service
 services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING))
 
@@ -100,22 +114,25 @@ from Configurables import Jug__Reco__ParticleCollector as ParticleCollector
 
 # branches needed from simulation root file
 sim_coll = [
-    "mcparticles",
-    "EcalEndcapNHits",
-    "EcalEndcapPHits",
-    "EcalBarrelHits",
-    "EcalBarrelScFiHits",
-    "HcalBarrelHits",
-    "HcalEndcapPHits",
-    "HcalEndcapNHits",
-    "TrackerEndcapHits",
-    "TrackerBarrelHits",
-    "GEMTrackerEndcapHits",
-    "VertexBarrelHits",
-    "VertexEndcapHits",
-    "DRICHHits",
-    "MRICHHits"
+    'mcparticles',
+    'EcalEndcapNHits',
+    'EcalEndcapPHits',
+    'EcalBarrelHits',
+    'EcalBarrelScFiHits',
+    'HcalBarrelHits',
+    'HcalEndcapPHits',
+    'HcalEndcapNHits',
+    'TrackerEndcapHits',
+    'TrackerBarrelHits',
+    'GEMTrackerEndcapHits',
+    'VertexBarrelHits',
+    'DRICHHits',
 ]
+if 'acadia' in detector_version:
+    sim_coll.append('VertexEndcapHits')
+    sim_coll.append('MRICHHits')
+else:
+    sim_coll.append('MPGDTrackerBarrelHits')
 
 # list of algorithms
 algorithms = []
@@ -499,11 +516,18 @@ vtx_b_digi = TrackerDigi("vtx_b_digi",
         timeResolution=8)
 algorithms.append(vtx_b_digi)
 
-vtx_ec_digi = TrackerDigi("vtx_ec_digi",
-        inputHitCollection="VertexEndcapHits",
-        outputHitCollection="VertexEndcapRawHits",
-        timeResolution=8)
-algorithms.append(vtx_ec_digi)
+if 'acadia' in detector_version:
+    vtx_ec_digi = TrackerDigi("vtx_ec_digi", 
+            inputHitCollection="VertexEndcapHits",
+            outputHitCollection="VertexEndcapRawHits",
+            timeResolution=8)
+    algorithms.append( vtx_ec_digi )
+else:
+    mm_b_digi = TrackerDigi("mm_b_digi", 
+            inputHitCollection="MPGDTrackerBarrelHits",
+            outputHitCollection="MPGDTrackerBarrelRawHits",
+            timeResolution=8)
+    algorithms.append( mm_b_digi )
 
 gem_ec_digi = TrackerDigi("gem_ec_digi",
         inputHitCollection="GEMTrackerEndcapHits",
@@ -527,26 +551,37 @@ vtx_b_reco = TrackerHitReconstruction("vtx_b_reco",
         outputHitCollection="VertexBarrelRecHits")
 algorithms.append(vtx_b_reco)
 
-vtx_ec_reco = TrackerHitReconstruction("vtx_ec_reco",
-        inputHitCollection = vtx_ec_digi.outputHitCollection,
-        outputHitCollection="VertexEndcapRecHits")
-algorithms.append(vtx_ec_reco)
+if 'acadia' in detector_version:
+    vtx_ec_reco = TrackerHitReconstruction("vtx_ec_reco",
+            inputHitCollection = vtx_ec_digi.outputHitCollection,
+            outputHitCollection="VertexEndcapRecHits")
+    algorithms.append( vtx_ec_reco )
+else:
+    mm_b_reco = TrackerHitReconstruction("mm_b_reco",
+            inputHitCollection = mm_b_digi.outputHitCollection,
+            outputHitCollection="MPGDTrackerBarrelRecHits")
+    algorithms.append( mm_b_reco )
 
 gem_ec_reco = TrackerHitReconstruction("gem_ec_reco",
         inputHitCollection=gem_ec_digi.outputHitCollection,
         outputHitCollection="GEMTrackerEndcapRecHits")
 algorithms.append(gem_ec_reco)
 
-# Tracking hit collector
+input_tracking_hits = [
+    str(trk_b_reco.outputHitCollection),
+    str(trk_ec_reco.outputHitCollection),
+    str(vtx_b_reco.outputHitCollection),
+    str(gem_ec_reco.outputHitCollection) ]
+if 'acadia' in detector_version:
+    input_tracking_hits.append(str(vtx_ec_reco.outputHitCollection))
+else:
+    input_tracking_hits.append(str(mm_b_reco.outputHitCollection))
+
 trk_hit_col = TrackingHitsCollector("trk_hit_col",
-        inputTrackingHits=[
-            str(trk_b_reco.outputHitCollection),
-            str(trk_ec_reco.outputHitCollection),
-            str(vtx_b_reco.outputHitCollection),
-            str(vtx_ec_reco.outputHitCollection),
-            str(gem_ec_reco.outputHitCollection) ],
-        trackingHits="trackingHits")
-algorithms.append(trk_hit_col)
+        inputTrackingHits=input_tracking_hits,
+        trackingHits="trackingHits",
+        OutputLevel=VERBOSE)
+algorithms.append( trk_hit_col )
 
 # Hit Source linker
 sourcelinker = TrackerSourceLinker("trk_srcslnkr",
@@ -634,22 +669,16 @@ algorithms.append(drich_reco)
 #        outputClusterCollection="ForwardRICHClusters")
 
 # MRICH
-mrich_digi = PhotoMultiplierDigi("mrich_digi",
-        inputHitCollection="MRICHHits",
-        outputHitCollection="MRICHRawHits",
-        quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
-algorithms.append(mrich_digi)
-
-mrich_reco = PhotoMultiplierReco("mrich_reco",
-        inputHitCollection=mrich_digi.outputHitCollection,
-        outputHitCollection="MRICHRecHits")
-algorithms.append(mrich_reco)
-
-# FIXME
-#mrich_cluster = PhotoRingClusters("drich_cluster",
-#        inputHitCollection=pmtreco.outputHitCollection,
-#        #inputTrackCollection="ReconstructedParticles",
-#        outputClusterCollection="ForwardRICHClusters")
+if 'acadia' in detector_version:
+    mrich_digi = PhotoMultiplierDigi("mrich_digi",
+            inputHitCollection="MRICHHits",
+            outputHitCollection="MRICHRawHits",
+            quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
+    algorithms.append(mrich_digi)
+    mrich_reco = PhotoMultiplierReco("mrich_reco",
+            inputHitCollection=mrich_digi.outputHitCollection,
+            outputHitCollection="MRICHRecHits")
+    algorithms.append(mrich_reco)
 
 # Electron kinematics
 electron_incl_kin = InclusiveKinematicsElectron("electron_incl_kin",
