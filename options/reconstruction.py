@@ -579,8 +579,7 @@ else:
 
 trk_hit_col = TrackingHitsCollector("trk_hit_col",
         inputTrackingHits=input_tracking_hits,
-        trackingHits="trackingHits",
-        OutputLevel=VERBOSE)
+        trackingHits="trackingHits")
 algorithms.append( trk_hit_col )
 
 # Hit Source linker
