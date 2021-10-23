@@ -93,6 +93,8 @@ from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
 from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
 from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
+from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
+from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
 from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
@@ -679,13 +681,25 @@ if 'acadia' in detector_version:
             outputHitCollection="MRICHRecHits")
     algorithms.append(mrich_reco)
 
-# Electron kinematics
-electron_incl_kin = InclusiveKinematicsElectron("electron_incl_kin",
+# Inclusive kinematics
+incl_kin_electron = InclusiveKinematicsElectron("incl_kin_electron",
         inputMCParticles="mcparticles",
         inputParticles="ReconstructedParticles",
         outputData="InclusiveKinematicsElectron"
 )
-algorithms.append(electron_incl_kin)
+algorithms.append(incl_kin_electron)
+incl_kin_jb = InclusiveKinematicsJB("incl_kin_jb",
+        inputMCParticles="mcparticles",
+        inputParticles="ReconstructedParticles",
+        outputData="InclusiveKinematicsJB"
+)
+algorithms.append(incl_kin_jb)
+incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
+        inputMCParticles="mcparticles",
+        inputParticles="ReconstructedParticles",
+        outputData="InclusiveKinematicsDA"
+)
+algorithms.append(incl_kin_da)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)
