@@ -91,7 +91,7 @@ from Configurables import Jug__Reco__TrackParamClusterInit as TrackParamClusterI
 from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVertexClusterInit
 from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
-from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
+# from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
 from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
 from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
 from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
@@ -611,10 +611,10 @@ parts_from_fit = ParticlesFromTrackFit("parts_from_fit",
         outputTrackParameters = "outputTrackParameters")
 algorithms.append(parts_from_fit)
 
-trajs_from_fit = TrajectoryFromTrackFit("trajs_from_fit",
-        inputTrajectories = trk_find_alg.outputTrajectories,
-        outputTrajectoryParameters = "outputTrajectoryParameters")
-algorithms.append(trajs_from_fit)
+# trajs_from_fit = TrajectoryFromTrackFit("trajs_from_fit",
+#         inputTrajectories = trk_find_alg.outputTrajectories,
+#         outputTrajectoryParameters = "outputTrajectoryParameters")
+# algorithms.append(trajs_from_fit)
 
 # Event building
 parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
