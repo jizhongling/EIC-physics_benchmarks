@@ -12,7 +12,7 @@ dis:generate:
         PBEAM: 275
   timeout: 1 hours
   script:
-    - bash benchmarks/dis/gen.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
+    - bash benchmarks/dis/get.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
 
 dis:process:
   stage: process

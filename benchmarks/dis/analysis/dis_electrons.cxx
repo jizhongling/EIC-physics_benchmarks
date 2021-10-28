@@ -35,6 +35,8 @@ int dis_electrons(const std::string& config_name)
   const std::string detector      = config["detector"];
   const std::string output_prefix = config["output_prefix"];
   const std::string test_tag      = config["test_tag"];
+  const int ebeam                 = config["ebeam"];
+  const int pbeam                 = config["pbeam"];
 
   fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
              "Running DIS electron analysis...\n");
@@ -42,6 +44,8 @@ int dis_electrons(const std::string& config_name)
   fmt::print(" - input file: {}\n", rec_file);
   fmt::print(" - output prefix: {}\n", output_prefix);
   fmt::print(" - test tag: {}\n", test_tag);
+  fmt::print(" - ebeam: {}\n", ebeam);
+  fmt::print(" - pbeam: {}\n", pbeam);
 
   // create our test definition
   // test_tag
@@ -110,6 +114,16 @@ int dis_electrons(const std::string& config_name)
   TFitResultPtr f_x_el_res = h_x_el_res->Fit("gaus", "S");
   if (f_x_el_res == 0) f_x_el_res->Print("V");
 
+  TFitResultPtr f_Q2_jb_res = h_Q2_jb_res->Fit("gaus", "S");
+  if (f_Q2_jb_res == 0) f_Q2_jb_res->Print("V");
+  TFitResultPtr f_x_jb_res = h_x_jb_res->Fit("gaus", "S");
+  if (f_x_jb_res == 0) f_x_jb_res->Print("V");
+
+  TFitResultPtr f_Q2_da_res = h_Q2_da_res->Fit("gaus", "S");
+  if (f_Q2_da_res == 0) f_Q2_da_res->Print("V");
+  TFitResultPtr f_x_da_res = h_x_da_res->Fit("gaus", "S");
+  if (f_x_da_res == 0) f_x_da_res->Print("V");
+
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
@@ -141,8 +155,8 @@ int dis_electrons(const std::string& config_name)
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
     h4.DrawClone("hist same");
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
+    // legend
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
     TPaveText t1(.6, .8417, .9, .925, "NB NDC");
     t1.SetFillColorAlpha(kWhite, 0);
@@ -150,14 +164,14 @@ int dis_electrons(const std::string& config_name)
     t1.SetTextSize(25);
     tptr1 = t1.AddText("simulated");
     tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    tptr1 = t1.AddText("electron");
+    tptr1 = t1.AddText("EL method");
     tptr1->SetTextColor(common_bench::plot::kMpOrange);
-    tptr1 = t1.AddText("JB");
+    tptr1 = t1.AddText("JB method");
     tptr1->SetTextColor(common_bench::plot::kMpRed);
-    tptr1 = t1.AddText("DA");
+    tptr1 = t1.AddText("DA method");
     tptr1->SetTextColor(common_bench::plot::kMpGreen);
     t1.Draw();
-    c.Print(fmt::format("{}Q2.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_Q2.png", output_prefix).c_str());
   }
 
   // Q2 resolution
@@ -170,11 +184,11 @@ int dis_electrons(const std::string& config_name)
     auto& h2 = *h_Q2_jb_res;
     auto& h3 = *h_Q2_da_res;
     // histogram style
-    h1.SetLineColor(common_bench::plot::kMpBlue);
+    h1.SetLineColor(common_bench::plot::kMpOrange);
     h1.SetLineWidth(2);
-    h2.SetLineColor(common_bench::plot::kMpOrange);
+    h2.SetLineColor(common_bench::plot::kMpRed);
     h2.SetLineWidth(2);
-    h3.SetLineColor(common_bench::plot::kMpRed);
+    h3.SetLineColor(common_bench::plot::kMpGreen);
     h3.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
@@ -183,9 +197,21 @@ int dis_electrons(const std::string& config_name)
     h1.DrawClone("hist");
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    c.Print(fmt::format("{}Q2resolution.png", output_prefix).c_str());
+    // legend
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
+    TText* tptr1;
+    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
+    t1.SetFillColorAlpha(kWhite, 0);
+    t1.SetTextFont(43);
+    t1.SetTextSize(25);
+    tptr1 = t1.AddText("EL method");
+    tptr1->SetTextColor(common_bench::plot::kMpOrange);
+    tptr1 = t1.AddText("JB method");
+    tptr1->SetTextColor(common_bench::plot::kMpRed);
+    tptr1 = t1.AddText("DA method");
+    tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    t1.Draw();
+    c.Print(fmt::format("{}_Q2_resolution.png", output_prefix).c_str());
   }
 
   // x comparison
@@ -215,8 +241,8 @@ int dis_electrons(const std::string& config_name)
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
     h4.DrawClone("hist same");
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
+    // legend
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
     TPaveText t1(.6, .8417, .9, .925, "NB NDC");
     t1.SetFillColorAlpha(kWhite, 0);
@@ -224,10 +250,14 @@ int dis_electrons(const std::string& config_name)
     t1.SetTextSize(25);
     tptr1 = t1.AddText("simulated");
     tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    tptr1 = t1.AddText("reconstructed");
+    tptr1 = t1.AddText("EL method");
     tptr1->SetTextColor(common_bench::plot::kMpOrange);
+    tptr1 = t1.AddText("JB method");
+    tptr1->SetTextColor(common_bench::plot::kMpRed);
+    tptr1 = t1.AddText("DA method");
+    tptr1->SetTextColor(common_bench::plot::kMpGreen);
     t1.Draw();
-    c.Print(fmt::format("{}x.png", output_prefix).c_str());
+    c.Print(fmt::format("{}_x.png", output_prefix).c_str());
   }
 
   // x resolution
@@ -240,11 +270,11 @@ int dis_electrons(const std::string& config_name)
     auto& h2 = *h_x_jb_res;
     auto& h3 = *h_x_da_res;
     // histogram style
-    h1.SetLineColor(common_bench::plot::kMpBlue);
+    h1.SetLineColor(common_bench::plot::kMpOrange);
     h1.SetLineWidth(2);
-    h2.SetLineColor(common_bench::plot::kMpOrange);
+    h2.SetLineColor(common_bench::plot::kMpRed);
     h2.SetLineWidth(2);
-    h3.SetLineColor(common_bench::plot::kMpRed);
+    h3.SetLineColor(common_bench::plot::kMpGreen);
     h3.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
@@ -253,9 +283,21 @@ int dis_electrons(const std::string& config_name)
     h1.DrawClone("hist");
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
-    // FIXME hardcoded beam configuration
-    common_bench::plot::draw_label(18, 275, detector);
-    c.Print(fmt::format("{}xresolution.png", output_prefix).c_str());
+    // legend
+    common_bench::plot::draw_label(ebeam, pbeam, detector);
+    TText* tptr1;
+    TPaveText t1(.6, .8417, .9, .925, "NB NDC");
+    t1.SetFillColorAlpha(kWhite, 0);
+    t1.SetTextFont(43);
+    t1.SetTextSize(25);
+    tptr1 = t1.AddText("EL method");
+    tptr1->SetTextColor(common_bench::plot::kMpOrange);
+    tptr1 = t1.AddText("JB method");
+    tptr1->SetTextColor(common_bench::plot::kMpRed);
+    tptr1 = t1.AddText("DA method");
+    tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    t1.Draw();
+    c.Print(fmt::format("{}_x_resolution.png", output_prefix).c_str());
   }
 
   common_bench::write_test({dis_Q2_resolution}, fmt::format("{}dis_electrons.json", output_prefix));

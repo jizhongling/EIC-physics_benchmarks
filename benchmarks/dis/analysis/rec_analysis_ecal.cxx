@@ -35,6 +35,8 @@ int rec_analysis_ecal(const std::string& config_name)
   const std::string detector      = config["detector"];
   const std::string output_prefix = config["output_prefix"];
   const std::string test_tag      = config["test_tag"];
+  const int ebeam                 = config["ebeam"];
+  const int pbeam                 = config["pbeam"];
 
   fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
              "Running DIS electron analysis...\n");
@@ -42,6 +44,8 @@ int rec_analysis_ecal(const std::string& config_name)
   fmt::print(" - input file: {}\n", rec_file);
   fmt::print(" - output prefix: {}\n", output_prefix);
   fmt::print(" - test tag: {}\n", test_tag);
+  fmt::print(" - ebeam: {}\n", ebeam);
+  fmt::print(" - pbeam: {}\n", pbeam);
 
   // create our test definition
   // test_tag
