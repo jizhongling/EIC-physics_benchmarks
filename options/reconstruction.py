@@ -52,13 +52,17 @@ services = []
 services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAuditor']))
 # geometry service
 ## only have material maps for acadia right now
+
+## note: old version of material map is called material-maps.XXX, new version is materials-map.XXX
+##       these names are somewhat inconsistent, and should probably all be renamed to 'material-map.XXX'
+##       FIXME
 if detector_version == 'acadia':
     services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
                                      materials="config/material-maps.json",
                                      OutputLevel=WARNING))
 else:
     services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
-                                    #materials="config/material-maps.json",
+                                    materials="calibrations/materials-map.cbor",
                                     OutputLevel=WARNING))
 # data service
 services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING))
