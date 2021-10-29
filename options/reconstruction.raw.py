@@ -49,6 +49,9 @@ from Configurables import Jug__Digi__SiliconTrackerDigi as TrackerDigi
 # branches needed from simulation root file
 sim_coll = [
     'mcparticles',
+    'B0TrackerHits',
+    'ForwardRomanPotHits',
+    'ForwardOffMTrackerHits',
     'EcalEndcapNHits',
     'EcalEndcapPHits',
     'EcalBarrelHits',
@@ -74,6 +77,27 @@ algorithms = []
 # input
 podin = PodioInput("PodioReader", collections=sim_coll)
 algorithms.append(podin)
+
+## Roman pots
+ffi_romanpot_digi = TrackerDigi("ffi_romanpot_digi",
+        inputHitCollection = "ForwardRomanPotHits",
+        outputHitCollection = "ForwardRomanPotRawHits",
+        timeResolution = 8)
+algorithms.append(ffi_romanpot_digi)
+
+## Off momentum tracker
+ffi_offmtracker_digi = TrackerDigi("ffi_offmtracker_digi",
+        inputHitCollection = "ForwardOffMTrackerHits",
+        outputHitCollection = "ForwardOffMTrackerRawHits",
+        timeResolution = 8)
+algorithms.append(ffi_offmtracker_digi)
+
+## B0 tracker
+trk_b0_digi = TrackerDigi("trk_b0_digi",
+        inputHitCollection="B0TrackerHits",
+        outputHitCollection="B0TrackerRawHits",
+        timeResolution=8)
+algorithms.append(trk_b0_digi)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = dict(

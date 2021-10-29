@@ -86,6 +86,8 @@ from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
 from Configurables import Jug__Digi__SiliconTrackerDigi as TrackerDigi
 
+from Configurables import Jug__Reco__FarForwardParticles as FarForwardParticles
+
 from Configurables import Jug__Reco__TrackerHitReconstruction as TrackerHitReconstruction
 from Configurables import Jug__Reco__TrackingHitsCollector2 as TrackingHitsCollector
 from Configurables import Jug__Reco__TrackerSourceLinker as TrackerSourceLinker
@@ -121,6 +123,9 @@ from Configurables import Jug__Reco__ParticleCollector as ParticleCollector
 # branches needed from simulation root file
 sim_coll = [
     'mcparticles',
+    'B0TrackerHits',
+    'ForwardRomanPotHits',
+    'ForwardOffMTrackerHits',
     'EcalEndcapNHits',
     'EcalEndcapPHits',
     'EcalBarrelHits',
@@ -160,6 +165,52 @@ truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
         outputData="InclusiveKinematicsTruth"
 )
 algorithms.append(truth_incl_kin)
+
+## Roman pots
+ffi_romanpot_digi = TrackerDigi("ffi_romanpot_digi",
+        inputHitCollection = "ForwardRomanPotHits",
+        outputHitCollection = "ForwardRomanPotRawHits",
+        timeResolution = 8)
+algorithms.append(ffi_romanpot_digi)
+
+ffi_romanpot_reco = TrackerHitReconstruction("ffi_romanpot_reco",
+        inputHitCollection = ffi_romanpot_digi.outputHitCollection,
+        outputHitCollection = "ForwardRomanPotRecHits")
+algorithms.append(ffi_romanpot_reco)
+
+ffi_romanpot_parts = FarForwardParticles("ffi_romanpot_parts",
+        inputCollection = ffi_romanpot_reco.outputHitCollection,
+        outputCollection = "ForwardRomanPotParticles")
+algorithms.append(ffi_romanpot_parts)
+
+## Off momentum tracker
+ffi_offmtracker_digi = TrackerDigi("ffi_offmtracker_digi",
+        inputHitCollection = "ForwardOffMTrackerHits",
+        outputHitCollection = "ForwardOffMTrackerRawHits",
+        timeResolution = 8)
+algorithms.append(ffi_offmtracker_digi)
+
+ffi_offmtracker_reco = TrackerHitReconstruction("ffi_offmtracker_reco",
+        inputHitCollection = ffi_offmtracker_digi.outputHitCollection,
+        outputHitCollection = "ForwardOffMTrackerRecHits")
+algorithms.append(ffi_offmtracker_reco)
+
+ffi_offmtracker_parts = FarForwardParticles("ffi_offmtracker_parts",
+        inputCollection = ffi_offmtracker_reco.outputHitCollection,
+        outputCollection = "ForwardOffMTrackerParticles")
+algorithms.append(ffi_offmtracker_parts)
+
+## B0 tracker
+trk_b0_digi = TrackerDigi("trk_b0_digi",
+        inputHitCollection="B0TrackerHits",
+        outputHitCollection="B0TrackerRawHits",
+        timeResolution=8)
+algorithms.append(trk_b0_digi)
+
+trk_b0_reco = TrackerHitReconstruction("trk_b0_reco",
+        inputHitCollection = trk_b0_digi.outputHitCollection,
+        outputHitCollection="B0TrackerRecHits")
+algorithms.append(trk_b0_reco)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = dict(
