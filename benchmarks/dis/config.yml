@@ -34,6 +34,7 @@ dis:process:
     max: 2
     when:
       - runner_system_failure
+  allow_failure: true
 
 dis:results:
   stage: collect
