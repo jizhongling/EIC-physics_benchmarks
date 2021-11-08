@@ -62,7 +62,7 @@ PLOT_TAG=${CONFIG}
 echo "Running Geant4 simulation"
 npsim --runType batch \
       --part.minimalKineticEnergy 1000*GeV  \
-      -v WARNING \
+      -v INFO \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --inputFiles ${GEN_FILE} \
