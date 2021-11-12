@@ -58,7 +58,7 @@ fi
 nlines=$((180*${JUGGLER_N_EVENTS}))
 DATA_URL=S3/eictest/ATHENA/EVGEN/DIS/NC/${EBEAM}x${PBEAM}/minQ2=1/pythia8NCDIS_${EBEAM}x${PBEAM}_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_vtxfix_1.hepmc
 mc config host add S3 https://dtn01.sdcc.bnl.gov:9000 ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
-mc head -n ${nlines} ${DATA_URL} | sanitize_hepmc3 | sed -e 's| \-\?421 | 321 |g' > ${TMP_PATH}/${GEN_TAG}.hepmc
+mc head -n ${nlines} ${DATA_URL} | sanitize_hepmc3 > ${TMP_PATH}/${GEN_TAG}.hepmc
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR downloading file"
   exit 1
