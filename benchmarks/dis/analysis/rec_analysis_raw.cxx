@@ -50,6 +50,7 @@ int rec_analysis_raw(const std::string& config_name)
   ROOT::EnableImplicitMT(kNumThreads);
   ROOT::RDataFrame d("events", rec_file);
 
+
   auto d0 = d.Define("n_EcalEndcapPRawHits",       "EcalEndcapPRawHits.size()")
              .Define("n_EcalBarrelImagingRawHits", "EcalBarrelImagingRawHits.size()")
              .Define("n_EcalBarrelScFiRawHits",    "EcalBarrelScFiRawHits.size()")
@@ -57,6 +58,31 @@ int rec_analysis_raw(const std::string& config_name)
              .Define("n_HcalEndcapPRawHits",       "HcalEndcapPRawHits.size()")
              .Define("n_HcalBarrelRawHits",        "HcalBarrelRawHits.size()")
              .Define("n_HcalEndcapNRawHits",       "HcalEndcapNRawHits.size()")
+//             .Define("n_B0PreshowerRawHits", "B0TrackerRawHits.size()")
+//             .Define("n_B0TrackerRawHits",         "B0TrackerRawHits.size()")
+             .Define("n_DRICHRawHits",             "DRICHRawHits.size()")
+//             .Define("n_ERICHRawHits",             "ERICHRawHits.size()")
+//             .Define("n_FakeDIRCRawHits",          "FakeDIRCRawHits.size()")
+//             .Define("n_ffi_ZDC_ECALRawHits",      "ffi_ZDC_ECALRawHits.size()")
+//            .Define("n_ffi_ZDC_HCALRawHits",      "ffi_ZDC_HCALRawHits.size()")
+//             .Define("n_ForwardOffMTracker_station_1RawHits", "ForwardOffMTracker_station_1RawHits.size()")
+//             .Define("n_ForwardOffMTracker_station_2RawHits", "ForwardOffMTracker_station_2RawHits.size()")
+//             .Define("n_ForwardOffMTracker_station_3RawHits", "ForwardOffMTracker_station_3RawHits.size()")
+ //            .Define("n_ForwardOffMTracker_station_4RawHits", "ForwardOffMTracker_station_4RawHits.size()")
+ //            .Define("n_ForwardRomanPot_Station_1RawHits", "ForwardRomanPot_Status_1RawHits.size()")
+ //            .Define("n_ForwardRomanPot_Station_2RawHits", "ForwardRomanPot_Status_2RawHits.size()")
+ //            .Define("n_GEMEndcapNRawHits", "GEMEndcapNRawHits.size()")
+ //            .Define("n_GEMEndcapPRawHits", "GEMEndcapPRawHits.size()")
+ //            .Define("n_InnerTrackerBarrelRawHits", "InnerTrackerBarrelRawHits.size()")
+//             .Define("n_InnerTrackerEndcapNRawHits", "InnerTrackerEndcapNRawHits.size()")
+ //            .Define("n_InnerTrackerEndcapPRawHits", "InnerTrackerEndcapPRawHits.size()")
+ //            .Define("n_MedialTrackerBarrelRawHits", "MedialTrackerBarrelRawHits.size()")
+ //            .Define("n_MedialTrackerEndcapNRawHits", "MedialTrackerEndcapNRawHits.size()")
+//             .Define("n_MedialTrackerEndcapPRawHits", "MedialTrackerEndcapPRawHits.size()")
+ //            .Define("n_OuterTrackerBarrelRawHits", "OuterTrackerBarrelRawHits.size()")
+ //            .Define("n_OuterTrackerEndcapNRawHits", "OuterTrackerEndcapNRawHits.size()")
+ //            .Define("n_OuterTrackerEndcapPRawHits", "OuterTrackerEndcapPRawHits.size()")
+             .Define("n_VertexBarrelRawHits", "VertexBarrelRawHits.size()")
              ;
 
   // Ecal hits
@@ -96,6 +122,33 @@ int rec_analysis_raw(const std::string& config_name)
   auto h_tdc_HcalBarrelRawHits  = d0.Histo1D({"h_tdc_HcalBarrelRawHits",  "HcalBarrel; TDC channel; counts", 1024, 0, 32768}, "HcalBarrelRawHits.time");
   auto h_tdc_HcalEndcapNRawHits = d0.Histo1D({"h_tdc_HcalEndcapNRawHits", "HcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.time");
 
+  // other detector stats
+  //auto stats_n_B0PreshowerRawHits = d0.Stats("n_B0PreshowerRawHits");
+  //auto stats_n_B0TrackerRawHits = d0.Stats("n_B0TrackerRawHits");
+  auto stats_n_DRICHRawHits = d0.Stats("n_DRICHRawHits");
+ // auto stats_n_ERICHRawHits = d0.Stats("n_ERICHRawHits");
+  //auto stats_n_FakeDIRCRawHits = d0.Stats("n_FakeDIRCRawHits");
+  //auto stats_n_ffi_ZDC_ECALRawHits = d0.Stats("n_ffi_ZDC_ECALRawHits");
+  //auto stats_n_ffi_ZDC_HCALRawHits = d0.Stats("n_ffi_ZDC_HCALRawHits");
+  //auto stats_n_ForwardOffMTracker_station_1RawHits = d0.Stats("n_ForwardOffMTracker_station_1RawHits");
+  //auto stats_n_ForwardOffMTracker_station_2RawHits = d0.Stats("n_ForwardOffMTracker_station_2RawHits");
+  //auto stats_n_ForwardOffMTracker_station_3RawHits = d0.Stats("n_ForwardOffMTracker_station_3RawHits");
+  //auto stats_n_ForwardOffMTracker_station_4RawHits = d0.Stats("n_ForwardOffMTracker_station_4RawHits");
+  //auto stats_n_ForwardRomanPot_Station_1RawHits = d0.Stats("n_ForwardRomanPot_Station_1RawHits");
+  //auto stats_n_ForwardRomanPot_Station_2RawHits = d0.Stats("n_ForwardRomanPot_Station_2RawHits");
+  //auto stats_n_GEMEndcapNRawHits = d0.Stats("n_GEMEndcapNRawHits");
+  //auto stats_n_GEMEndcapPRawHits = d0.Stats("n_GEMEndcapPRawHits");
+  //auto stats_n_InnerTrackerBarrelRawHits = d0.Stats("n_InnerTrackerBarrelRawHits");
+  //auto stats_n_InnerTrackerEndcapNRawHits = d0.Stats("n_InnerTrackerEndcapNRawHits");
+  //auto stats_n_InnerTrackerEndcapPRawHits = d0.Stats("n_InnerTrackerEndcapPRawHits");
+  //auto stats_n_MedialTrackerBarrelRawHits = d0.Stats("n_MedialTrackerBarrelRawHits");
+  //auto stats_n_MedialTrackerEndcapNRawHits = d0.Stats("n_MedialTrackerEndcapNRawHits");
+  //auto stats_n_MedialTrackerEndcapPRawHits = d0.Stats("n_MedialTrackerEndcapPRawHits");
+  //auto stats_n_OuterTrackerBarrelRawHits = d0.Stats("n_OuterTrackerBarrelRawHits");
+  //auto stats_n_OuterTrackerEndcapNRawHits = d0.Stats("n_OuterTrackerEndcapNRawHits");
+  //auto stats_n_OuterTrackerEndcapPRawHits = d0.Stats("n_OuterTrackerEndcapPRawHits");
+  auto stats_n_VertexBarrelRawHits = d0.Stats("n_VertexBarrelRawHits");
+
   fmt::print("EcalEndcapPRawHits:");
   stats_n_EcalEndcapPRawHits->Print();
   fmt::print("EcalBarrelImagingRawHits:");
@@ -111,7 +164,58 @@ int rec_analysis_raw(const std::string& config_name)
   fmt::print("HcalEndcapNRawHits:");
   stats_n_HcalEndcapNRawHits->Print();
 
-
+  // other detector stats
+  //fmt::print("B0PreshowerRawHits:");
+  //stats_n_B0PreshowerRawHits->Print();
+  //fmt::print("B0TrackerRawHits:");
+  //stats_n_B0TrackerRawHits->Print();
+  fmt::print("n_DRICHRawHits:");
+  stats_n_DRICHRawHits->Print();
+  //fmt::print("n_ERICHRawHits:");
+ // stats_n_ERICHRawHits->Print();
+  //fmt::print("n_FakeDIRCRawHits:");
+  //stats_n_FakeDIRCRawHits->Print();
+  //fmt::print("n_ffi_ZDC_ECALRawHits:");
+  //stats_n_ffi_ZDC_ECALRawHits->Print();
+  //fmt::print("n_ffi_ZDC_HCALRawHits:");
+  //stats_n_ffi_ZDC_HCALRawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_1RawHits:");
+  //stats_n_ForwardOffMTracker_station_1RawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_2RawHits:");
+  //stats_n_ForwardOffMTracker_station_2RawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_3RawHits:");
+  //stats_n_ForwardOffMTracker_station_3RawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_4RawHits:");
+  //stats_n_ForwardOffMTracker_station_4RawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_1RawHits:");
+  //stats_n_ForwardRomanPot_Station_1RawHits->Print();
+  //fmt::print("n_ForwardOffMTracker_station_2RawHits:");
+  //stats_n_ForwardRomanPot_Station_2RawHits->Print();
+  //fmt::print("n_GEMEndcapNRawHits:");
+  //stats_n_GEMEndcapNRawHits->Print();
+  //fmt::print("n_GEMEndcapPRawHits:");
+  //stats_n_GEMEndcapPRawHits->Print();
+  //fmt::print("n_InnerTrackerBarrelRawHits:");
+  //stats_n_InnerTrackerBarrelRawHits->Print();
+  //fmt::print("n_InnerTrackerEndcapNRawHits:");
+  //stats_n_InnerTrackerEndcapNRawHits->Print();
+  //fmt::print("n_InnerTrackerEndcapPRawHits:");
+  //stats_n_InnerTrackerEndcapPRawHits->Print();
+  //fmt::print("n_MedialTrackerBarrelRawHits:");
+  //stats_n_MedialTrackerBarrelRawHits->Print();
+  //fmt::print("n_MedialTrackerEndcapNRawHits:");
+  //stats_n_MedialTrackerEndcapNRawHits->Print(); 
+  //fmt::print("n_MedialTrackerEndcapPRawHits:");
+  //stats_n_MedialTrackerEndcapPRawHits->Print();
+  //fmt::print("n_OuterTrackerBarrelRawHits:");   
+  //stats_n_OuterTrackerBarrelRawHits->Print();
+  //fmt::print("n_OuterTrackerEndcapNRawHits:");
+  //stats_n_OuterTrackerEndcapNRawHits->Print(); 
+  //fmt::print("n_OuterTrackerEndcapPRawHits:");
+  //->Print();
+  fmt::print("n_VertexBarrelRawHits:");
+  stats_n_VertexBarrelRawHits->Print(); 
+  
   gStyle->SetOptTitle(kTRUE);
 
   // Ecal nhits
