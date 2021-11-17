@@ -14,11 +14,32 @@ detector_path = ""
 if "DETECTOR_PATH" in os.environ :
   detector_path = str(os.environ["DETECTOR_PATH"])
 
+detector_version = 'default'
+if "JUGGLER_DETECTOR_VERSION" in os.environ:
+    env_version = str(os.environ["JUGGLER_DETECTOR_VERSION"])
+    if 'acadia' in env_version:
+        detector_version = 'acadia'
 compact_path = os.path.join(detector_path, detector_name)
+
 
 # CAL reconstruction
 # get sampling fractions from system environment variable
 ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.253))
+
+# input calorimeter DAQ info
+calo_daq = {}
+with open('{}/calibrations/calo_digi_{}.json'.format(detector_path, detector_version)) as f:
+    calo_config = json.load(f)
+    ## add proper ADC capacity based on bit depth
+    for sys in calo_config:
+        cfg = calo_config[sys]
+        calo_daq[sys] = {
+            'dynamicRangeADC': eval(cfg['dynamicRange']),
+            'capacityADC': 2**int(cfg['capacityBitsADC']),
+            'pedestalMean': int(cfg['pedestalMean']),
+            'pedestalSigma': float(cfg['pedestalSigma'])
+        }
+print(calo_daq)
 
 # input and output
 input_sims = [f.strip() for f in str.split(os.environ["JUGGLER_SIM_FILE"], ",") if f.strip()]
@@ -55,11 +76,7 @@ podin = PodioInput("PodioReader", collections=sim_coll)
 algorithms.append(podin)
 
 # Crystal Endcap Ecal
-ce_ecal_daq = dict(
-        dynamicRangeADC=5.*units.GeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=3)
+ce_ecal_daq = calo_daq['ecal_neg_endcap']
 
 ce_ecal_digi = CalHitDigi("ce_ecal_digi",
         inputHitCollection="EcalEndcapNHits",
@@ -97,11 +114,7 @@ ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
 algorithms.append(ce_ecal_clreco)
 
 # Endcap Sampling Ecal
-ci_ecal_daq = dict(
-        dynamicRangeADC=50.*units.MeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=10)
+ci_ecal_daq = calo_daq['ecal_pos_endcap']
 
 ci_ecal_digi = CalHitDigi("ci_ecal_digi",
         inputHitCollection="EcalEndcapPHits",

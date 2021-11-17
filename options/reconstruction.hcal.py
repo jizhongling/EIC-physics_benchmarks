@@ -14,6 +14,12 @@ detector_path = ""
 if "DETECTOR_PATH" in os.environ :
   detector_path = str(os.environ["DETECTOR_PATH"])
 
+detector_version = 'default'
+if "JUGGLER_DETECTOR_VERSION" in os.environ:
+    env_version = str(os.environ["JUGGLER_DETECTOR_VERSION"])
+    if 'acadia' in env_version:
+        detector_version = 'acadia'
+
 compact_path = os.path.join(detector_path, detector_name)
 
 # CAL reconstruction
@@ -21,6 +27,21 @@ compact_path = os.path.join(detector_path, detector_name)
 cb_hcal_sf = float(os.environ.get("CB_HCAL_SAMP_FRAC", 0.038))
 ci_hcal_sf = float(os.environ.get("CI_HCAL_SAMP_FRAC", 0.025))
 ce_hcal_sf = float(os.environ.get("CE_HCAL_SAMP_FRAC", 0.025))
+
+# input calorimeter DAQ info
+calo_daq = {}
+with open('{}/calibrations/calo_digi_{}.json'.format(detector_path, detector_version)) as f:
+    calo_config = json.load(f)
+    ## add proper ADC capacity based on bit depth
+    for sys in calo_config:
+        cfg = calo_config[sys]
+        calo_daq[sys] = {
+            'dynamicRangeADC': eval(cfg['dynamicRange']),
+            'capacityADC': 2**int(cfg['capacityBitsADC']),
+            'pedestalMean': int(cfg['pedestalMean']),
+            'pedestalSigma': float(cfg['pedestalSigma'])
+        }
+print(calo_daq)
 
 # input and output
 input_sims = [f.strip() for f in str.split(os.environ["JUGGLER_SIM_FILE"], ",") if f.strip()]
@@ -57,11 +78,7 @@ podin = PodioInput("PodioReader", collections=sim_coll)
 algorithms.append(podin)
 
 # Hcal Hadron Endcap
-ci_hcal_daq = dict(
-         dynamicRangeADC=50.*units.MeV,
-         capacityADC=32768,
-         pedestalMean=400,
-         pedestalSigma=10)
+ci_hcal_daq = calo_daq['hcal_pos_endcap']
 
 ci_hcal_digi = CalHitDigi("ci_hcal_digi",
          inputHitCollection="HcalEndcapPHits",
@@ -102,11 +119,7 @@ ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
 algorithms.append(ci_hcal_clreco)
 
 # Hcal Electron Endcap
-ce_hcal_daq = dict(
-        dynamicRangeADC=50.*units.MeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=10)
+ce_hcal_daq = calo_daq['hcal_neg_endcap']
 
 ce_hcal_digi = CalHitDigi("ce_hcal_digi",
         inputHitCollection="HcalEndcapNHits",

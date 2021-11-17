@@ -25,6 +25,21 @@ compact_path = os.path.join(detector_path, detector_name)
 # RICH reconstruction
 qe_data = [(1.0, 0.25), (7.5, 0.25),]
 
+# input calorimeter DAQ info
+calo_daq = {}
+with open('{}/calibrations/calo_digi_{}.json'.format(detector_path, detector_version)) as f:
+    calo_config = json.load(f)
+    ## add proper ADC capacity based on bit depth
+    for sys in calo_config:
+        cfg = calo_config[sys]
+        calo_daq[sys] = {
+            'dynamicRangeADC': eval(cfg['dynamicRange']),
+            'capacityADC': 2**int(cfg['capacityBitsADC']),
+            'pedestalMean': int(cfg['pedestalMean']),
+            'pedestalSigma': float(cfg['pedestalSigma'])
+        }
+print(calo_daq)
+
 # input and output
 input_sims = [f.strip() for f in str.split(os.environ["JUGGLER_SIM_FILE"], ",") if f.strip()]
 output_rec = str(os.environ["JUGGLER_REC_FILE"])
@@ -100,11 +115,7 @@ trk_b0_digi = TrackerDigi("trk_b0_digi",
 algorithms.append(trk_b0_digi)
 
 # Crystal Endcap Ecal
-ce_ecal_daq = dict(
-        dynamicRangeADC=5.*units.GeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=3)
+ce_ecal_daq = calo_daq['ecal_neg_endcap']
 
 ce_ecal_digi = CalHitDigi("ce_ecal_digi",
         inputHitCollection="EcalEndcapNHits",
@@ -114,11 +125,7 @@ ce_ecal_digi = CalHitDigi("ce_ecal_digi",
 algorithms.append(ce_ecal_digi)
 
 # Endcap Sampling Ecal
-ci_ecal_daq = dict(
-        dynamicRangeADC=50.*units.MeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=10)
+ci_ecal_daq = calo_daq['ecal_pos_endcap']
 
 ci_ecal_digi = CalHitDigi("ci_ecal_digi",
         inputHitCollection="EcalEndcapPHits",
@@ -127,11 +134,7 @@ ci_ecal_digi = CalHitDigi("ci_ecal_digi",
 algorithms.append(ci_ecal_digi)
 
 # Central Barrel Ecal (Imaging Cal.)
-img_barrel_daq = dict(
-        dynamicRangeADC=3*units.MeV,
-        capacityADC=8192,
-        pedestalMean=400,
-        pedestalSigma=20)   # about 6 keV
+img_barrel_daq = calo_daq['ecal_barrel_imaging']
 
 img_barrel_digi = CalHitDigi("img_barrel_digi",
         inputHitCollection="EcalBarrelHits",
@@ -141,11 +144,7 @@ img_barrel_digi = CalHitDigi("img_barrel_digi",
 algorithms.append(img_barrel_digi)
 
 # Central ECAL SciFi
-scfi_barrel_daq = dict(
-        dynamicRangeADC=50.*MeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=10)
+scfi_barrel_daq = calo_daq['ecal_barrel_scfi']
 
 scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
         inputHitCollection="EcalBarrelScFiHits",
@@ -154,11 +153,7 @@ scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
 algorithms.append(scfi_barrel_digi)
 
 # Central Barrel Hcal
-cb_hcal_daq = dict(
-         dynamicRangeADC=50.*units.MeV,
-         capacityADC=32768,
-         pedestalMean=400,
-         pedestalSigma=10)
+cb_hcal_daq = calo_daq['hcal_barrel']
 
 cb_hcal_digi = CalHitDigi("cb_hcal_digi",
          inputHitCollection="HcalBarrelHits",
@@ -167,11 +162,7 @@ cb_hcal_digi = CalHitDigi("cb_hcal_digi",
 algorithms.append(cb_hcal_digi)
 
 # Hcal Hadron Endcap
-ci_hcal_daq = dict(
-         dynamicRangeADC=50.*units.MeV,
-         capacityADC=32768,
-         pedestalMean=400,
-         pedestalSigma=10)
+ci_hcal_daq = calo_daq['hcal_pos_endcap']
 
 ci_hcal_digi = CalHitDigi("ci_hcal_digi",
          inputHitCollection="HcalEndcapPHits",
@@ -180,11 +171,7 @@ ci_hcal_digi = CalHitDigi("ci_hcal_digi",
 algorithms.append(ci_hcal_digi)
 
 # Hcal Electron Endcap
-ce_hcal_daq = dict(
-        dynamicRangeADC=50.*units.MeV,
-        capacityADC=32768,
-        pedestalMean=400,
-        pedestalSigma=10)
+ce_hcal_daq = calo_daq['hcal_neg_endcap']
 
 ce_hcal_digi = CalHitDigi("ce_hcal_digi",
         inputHitCollection="HcalEndcapNHits",
