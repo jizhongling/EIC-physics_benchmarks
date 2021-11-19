@@ -5,6 +5,7 @@ from GaudiKernel import SystemOfUnits as units
 from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
 
 import json
+from math import sqrt
 
 detector_name = "athena"
 if "JUGGLER_DETECTOR" in os.environ :
@@ -27,7 +28,7 @@ qe_data = [(1.0, 0.25), (7.5, 0.25),]
 
 # CAL reconstruction
 # get sampling fractions from system environment variable
-ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.253))
+ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.03))
 cb_hcal_sf = float(os.environ.get("CB_HCAL_SAMP_FRAC", 0.038))
 ci_hcal_sf = float(os.environ.get("CI_HCAL_SAMP_FRAC", 0.025))
 ce_hcal_sf = float(os.environ.get("CE_HCAL_SAMP_FRAC", 0.025))
@@ -96,6 +97,7 @@ from Configurables import Jug__Fast__MatchClusters as MatchClusters
 from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
 from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
 from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
+from Configurables import Jug__Fast__TruthClustering as TruthClustering
 
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
@@ -240,27 +242,33 @@ ce_ecal_reco = CalHitReco("ce_ecal_reco",
         inputHitCollection=ce_ecal_digi.outputHitCollection,
         outputHitCollection="EcalEndcapNRecHits",
         thresholdFactor=4,          # 4 sigma cut on pedestal sigma
+        samplingFraction=0.998,      # this accounts for a small fraction of leakage
         readoutClass="EcalEndcapNHits",
         sectorField="sector",
         **ce_ecal_daq)
 algorithms.append(ce_ecal_reco)
 
-ce_ecal_cl = IslandCluster("ce_ecal_cl",
-        inputHitCollection=ce_ecal_reco.outputHitCollection,
-        outputProtoClusterCollection="EcalEndcapNProtoClusters",
-        splitCluster=False,
-        minClusterHitEdep=1.0*units.MeV,  # discard low energy hits
-        minClusterCenterEdep=30*units.MeV,
-        sectorDist=5.0*units.cm,
-        dimScaledLocalDistXY=[1.8, 1.8]) # dimension scaled dist is good for hybrid sectors with different module size
+ce_ecal_cl = TruthClustering("ce_ecal_cl",
+        inputHits=ce_ecal_reco.outputHitCollection,
+        mcHits="EcalEndcapNHits",
+        outputProtoClusters="EcalEndcapNProtoClusters")
+#ce_ecal_cl = IslandCluster("ce_ecal_cl",
+#        inputHitCollection=ce_ecal_reco.outputHitCollection,
+#        outputProtoClusterCollection="EcalEndcapNProtoClusters",
+#        splitCluster=False,
+#        minClusterHitEdep=1.0*units.MeV,  # discard low energy hits
+#        minClusterCenterEdep=30*units.MeV,
+#        sectorDist=5.0*units.cm,
+#        dimScaledLocalDistXY=[1.8, 1.8]) # dimension scaled dist is good for hybrid sectors with different module size
 algorithms.append(ce_ecal_cl)
 
 ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
-        inputHitCollection=ce_ecal_cl.inputHitCollection,
-        inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
+        #inputHitCollection=ce_ecal_cl.inputHitCollection,
+        inputHitCollection=ce_ecal_cl.inputHits,
+        #inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
+        inputProtoClusterCollection=ce_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapNClusters",
         mcHits="EcalEndcapNHits",
-        samplingFraction=0.998,      # this accounts for a small fraction of leakage
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
 
@@ -270,12 +278,14 @@ ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
         outputRelations = "EcalEndcapNMergedClusterRelations")
 algorithms.append(ce_ecal_clmerger)
 
-# Endcap Sampling Ecal
+# Endcap ScFi Ecal
 ci_ecal_daq = calo_daq['ecal_pos_endcap']
 
 ci_ecal_digi = CalHitDigi("ci_ecal_digi",
         inputHitCollection="EcalEndcapPHits",
         outputHitCollection="EcalEndcapPRawHits",
+        scaleResponse=ci_ecal_sf,
+        energyResolutions=[.1, .0015, 0.],
         **ci_ecal_daq)
 algorithms.append(ci_ecal_digi)
 
@@ -283,6 +293,7 @@ ci_ecal_reco = CalHitReco("ci_ecal_reco",
         inputHitCollection=ci_ecal_digi.outputHitCollection,
         outputHitCollection="EcalEndcapPRecHits",
         thresholdFactor=5.0,
+        samplingFraction=ci_ecal_sf,
         **ci_ecal_daq)
 algorithms.append(ci_ecal_reco)
 
@@ -297,21 +308,27 @@ ci_ecal_merger = CalHitsMerger("ci_ecal_merger",
         readoutClass="EcalEndcapPHits")
 algorithms.append(ci_ecal_merger)
 
-ci_ecal_cl = IslandCluster("ci_ecal_cl",
-        inputHitCollection=ci_ecal_merger.outputHitCollection,
-        outputProtoClusterCollection="EcalEndcapPProtoClusters",
-        splitCluster=False,
-        minClusterCenterEdep=10.*units.MeV,
-        localDistXY=[10*units.mm, 10*units.mm])
+ci_ecal_cl = TruthClustering("ci_ecal_cl",
+        inputHits=ci_ecal_reco.outputHitCollection,
+        mcHits="EcalEndcapPHits",
+        outputProtoClusters="EcalEndcapPProtoClusters")
+#ci_ecal_cl = IslandCluster("ci_ecal_cl",
+        #inputHitCollection=ci_ecal_merger.outputHitCollection,
+        #outputProtoClusterCollection="EcalEndcapPProtoClusters",
+        #splitCluster=False,
+        #minClusterCenterEdep=10.*units.MeV,
+        #localDistXY=[10*units.mm, 10*units.mm])
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
-        inputHitCollection=ci_ecal_cl.inputHitCollection,
-        inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
+        #inputHitCollection=ci_ecal_cl.inputHitCollection,
+        inputHitCollection=ci_ecal_cl.inputHits,
+        #inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
+        inputProtoClusterCollection=ci_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapPClusters",
+        enableEtaBounds=True,
         mcHits="EcalEndcapPHits",
-        logWeightBase=6.2,
-        samplingFraction=ci_ecal_sf)
+        logWeightBase=6.2)
 algorithms.append(ci_ecal_clreco)
 
 ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
@@ -334,6 +351,7 @@ img_barrel_reco = ImCalPixelReco("img_barrel_reco",
         inputHitCollection=img_barrel_digi.outputHitCollection,
         outputHitCollection="EcalBarrelImagingRecHits",
         thresholdFactor=3,  # about 20 keV
+        samplingFraction=img_barrel_sf,
         readoutClass="EcalBarrelHits",  # readout class
         layerField="layer",             # field to get layer id
         sectorField="module",           # field to get sector id
@@ -350,7 +368,6 @@ img_barrel_cl = ImagingCluster("img_barrel_cl",
 algorithms.append(img_barrel_cl)
 
 img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
-        samplingFraction=img_barrel_sf,
         inputHitCollection=img_barrel_cl.inputHitCollection,
         inputProtoClusterCollection=img_barrel_cl.outputProtoClusterCollection,
         outputClusterCollection="EcalBarrelImagingClusters",
@@ -371,6 +388,7 @@ scfi_barrel_reco = CalHitReco("scfi_barrel_reco",
         inputHitCollection=scfi_barrel_digi.outputHitCollection,
         outputHitCollection="EcalBarrelScFiRecHits",
         thresholdFactor=5.0,
+        samplingFraction= scifi_barrel_sf,
         readoutClass="EcalBarrelScFiHits",
         layerField="layer",
         sectorField="module",
@@ -400,8 +418,7 @@ scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
          inputProtoClusterCollection=scfi_barrel_cl.outputProtoClusterCollection,
          outputClusterCollection="EcalBarrelScFiClusters",
          mcHits="EcalBarrelScFiHits",
-         logWeightBase=6.2,
-         samplingFraction= scifi_barrel_sf)
+         logWeightBase=6.2)
 algorithms.append(scfi_barrel_clreco)
 
 ## barrel cluster merger
@@ -427,6 +444,7 @@ cb_hcal_reco = CalHitReco("cb_hcal_reco",
         inputHitCollection=cb_hcal_digi.outputHitCollection,
         outputHitCollection="HcalBarrelRecHits",
         thresholdFactor=5.0,
+        samplingFraction=cb_hcal_sf,
         readoutClass="HcalBarrelHits",
         layerField="layer",
         sectorField="module",
@@ -454,8 +472,7 @@ cb_hcal_clreco = RecoCoG("cb_hcal_clreco",
         inputProtoClusterCollection=cb_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalBarrelClusters",
         mcHits="HcalBarrelHits",
-        logWeightBase=6.2,
-        samplingFraction=cb_hcal_sf)
+        logWeightBase=6.2)
 algorithms.append(cb_hcal_clreco)
 
 # Hcal Hadron Endcap
@@ -471,6 +488,7 @@ ci_hcal_reco = CalHitReco("ci_hcal_reco",
         inputHitCollection=ci_hcal_digi.outputHitCollection,
         outputHitCollection="HcalEndcapPRecHits",
         thresholdFactor=5.0,
+        samplingFraction=ci_hcal_sf,
         **ci_hcal_daq)
 algorithms.append(ci_hcal_reco)
 
@@ -495,8 +513,7 @@ ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapPClusters",
         mcHits="HcalEndcapPHits",
-        logWeightBase=6.2,
-        samplingFraction=ci_hcal_sf)
+        logWeightBase=6.2)
 algorithms.append(ci_hcal_clreco)
 
 # Hcal Electron Endcap
@@ -512,6 +529,7 @@ ce_hcal_reco = CalHitReco("ce_hcal_reco",
         inputHitCollection=ce_hcal_digi.outputHitCollection,
         outputHitCollection="HcalEndcapNRecHits",
         thresholdFactor=5.0,
+        samplingFraction=ce_hcal_sf,
         **ce_hcal_daq)
 algorithms.append(ce_hcal_reco)
 
@@ -536,8 +554,7 @@ ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapNClusters",
         mcHits="HcalEndcapNHits",
-        logWeightBase=6.2,
-        samplingFraction=ce_hcal_sf)
+        logWeightBase=6.2)
 algorithms.append(ce_hcal_clreco)
 
 # Tracking

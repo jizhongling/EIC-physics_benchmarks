@@ -90,6 +90,7 @@ ci_hcal_reco = CalHitReco("ci_hcal_reco",
         inputHitCollection=ci_hcal_digi.outputHitCollection,
         outputHitCollection="HcalEndcapPRecHits",
         thresholdFactor=5.0,
+        samplingFraction=ci_hcal_sf,
         **ci_hcal_daq)
 algorithms.append(ci_hcal_reco)
 
@@ -114,8 +115,7 @@ ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapPClusters",
         mcHits="HcalEndcapPHits",
-        logWeightBase=6.2,
-        samplingFraction=ci_hcal_sf)
+        logWeightBase=6.2)
 algorithms.append(ci_hcal_clreco)
 
 # Hcal Electron Endcap
@@ -131,6 +131,7 @@ ce_hcal_reco = CalHitReco("ce_hcal_reco",
         inputHitCollection=ce_hcal_digi.outputHitCollection,
         outputHitCollection="HcalEndcapNRecHits",
         thresholdFactor=5.0,
+        samplingFraction=ce_hcal_sf,
         **ce_hcal_daq)
 algorithms.append(ce_hcal_reco)
 
@@ -155,8 +156,7 @@ ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapNClusters",
         mcHits="HcalEndcapNHits",
-        logWeightBase=6.2,
-        samplingFraction=ce_hcal_sf)
+        logWeightBase=6.2)
 algorithms.append(ce_hcal_clreco)
 
 # Output
