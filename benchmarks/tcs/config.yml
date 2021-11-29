@@ -1,0 +1,26 @@
+tcs:process:
+  stage: process
+  extends: .phy_benchmark
+  tags:
+    - phy
+  needs: ["common:detector"]
+  parallel:
+    matrix:
+      - EBEAM: 5
+        PBEAM: 41
+        TAG: s450
+      - EBEAM: 10
+        PBEAM: 100
+        TAG: s100
+      - EBEAM: 18
+        PBEAM: 275
+        TAG: s800
+  script:
+    - compile_analyses.py tcs
+    - bash benchmarks/tcs/tcs.sh --all --ebeam ${EBEAM} --pbeam ${PBEAM} --tag ${TAG}
+
+tcs:results:
+  stage: collect
+  needs: ["tcs:process"]
+  script:
+    - ls -lrth
