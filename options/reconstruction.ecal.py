@@ -24,7 +24,8 @@ compact_path = os.path.join(detector_path, detector_name)
 
 # CAL reconstruction
 # get sampling fractions from system environment variable
-ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.253))
+#ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.253))
+ci_ecal_sf = float(os.environ.get("CI_ECAL_SAMP_FRAC", 0.03))
 
 # input calorimeter DAQ info
 calo_daq = {}
@@ -66,7 +67,7 @@ from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
 # branches needed from simulation root file
 sim_coll = [
     "mcparticles",
-    "EcalEndcapNHits",
+    #"EcalEndcapNHits",
     "EcalEndcapPHits",
 ]
 
@@ -84,7 +85,7 @@ ce_ecal_digi = CalHitDigi("ce_ecal_digi",
         outputHitCollection="EcalEndcapNRawHits",
         energyResolutions=[0., 0.02, 0.],
         **ce_ecal_daq)
-algorithms.append(ce_ecal_digi)
+#algorithms.append(ce_ecal_digi)
 
 ce_ecal_reco = CalHitReco("ce_ecal_reco",
         inputHitCollection=ce_ecal_digi.outputHitCollection,
@@ -94,7 +95,7 @@ ce_ecal_reco = CalHitReco("ce_ecal_reco",
         readoutClass="EcalEndcapNHits",
         sectorField="sector",
         **ce_ecal_daq)
-algorithms.append(ce_ecal_reco)
+#algorithms.append(ce_ecal_reco)
 
 ce_ecal_cl = TruthClustering("ce_ecal_cl",
         inputHits=ce_ecal_reco.outputHitCollection,
@@ -108,7 +109,7 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 #        minClusterCenterEdep=30*units.MeV,
 #        sectorDist=5.0*units.cm,
 #        dimScaledLocalDistXY=[1.8, 1.8]) # dimension scaled dist is good for hybrid sectors with different module size
-algorithms.append(ce_ecal_cl)
+#algorithms.append(ce_ecal_cl)
 
 ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
         #inputHitCollection=ce_ecal_cl.inputHitCollection,
@@ -118,13 +119,13 @@ ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
         outputClusterCollection="EcalEndcapNClusters",
         mcHits="EcalEndcapNHits",
         logWeightBase=4.6)
-algorithms.append(ce_ecal_clreco)
+#algorithms.append(ce_ecal_clreco)
 
 ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
         inputClusters = ce_ecal_clreco.outputClusterCollection,
         outputClusters = "EcalEndcapNMergedClusters",
         outputRelations = "EcalEndcapNMergedClusterRelations")
-algorithms.append(ce_ecal_clmerger)
+#algorithms.append(ce_ecal_clmerger)
 
 # Endcap ScFi Ecal
 ci_ecal_daq = calo_daq['ecal_pos_endcap']
@@ -193,9 +194,9 @@ podout.outputCommands = [
         "keep *RecHits",
         "keep *Layers",
         "keep *Clusters",
-        "drop *ProtoClusters",
-        "drop outputParticles",
-        "drop InitTrackParams",
+        "keep *ProtoClusters",
+        "keep outputParticles",
+        "keep InitTrackParams",
         ] + [ "drop " + c for c in sim_coll]
 algorithms.append(podout)
 
