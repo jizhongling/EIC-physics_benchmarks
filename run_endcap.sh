@@ -1,10 +1,11 @@
 #!/bin/bash
 
 function print_the_help {
-  echo "USAGE: ${0} -n <nevents> -e <energy> -t <nametag> -p <particle> "
+  echo "USAGE: ${0} -n <nevents> -s <skip> -e <energy> -t <nametag> -p <particle> "
   echo "  OPTIONS: "
-  echo "    -n,--nevents     Number of events"
-  echo "    -e,--energy      Energy"
+  echo "    -n,--nevents     Number of events in eatch batch"
+  echo "    -s,--skip        Skip number of batches"
+  echo "    -e,--energy      Energy list"
   echo "    -t,--nametag     Name tag"
   echo "    -p,--particle    Particle type"
   echo "                     Allowed types: pion0, pion+, pion-, kaon0, kaon+, kaon-, proton, neutron, electron, positron, photon"
@@ -36,9 +37,12 @@ do
       shift # past argument
       shift # past value
       ;;
+    -s|--skip)
+      export SKIP_N_BATCHES="$2"
+      shift # past argument
+      shift # past value
+      ;;
     -e|--energy)
-      #energies=(0.1 0.2 0.5 1 2 5 10 20 40 60)
-      #export ENERGY="${energies[$2]}"
       export ENERGY="$2"
       shift # past argument
       shift # past value
@@ -56,6 +60,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 #export PYTHONPATH=${ATHENA_PREFIX}/python:${PYTHONPATH}
 export DETECTOR_PATH=${ATHENA_PREFIX}/../athena
 export JUGGLER_DETECTOR=athena
+export JUGGLER_DETECTOR_VERSION=default
 export JUGGLER_COMPACT_PATH=${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml
 
 if [[ ! -n  "${JUGGLER_N_EVENTS}" ]] ; then
@@ -67,12 +72,15 @@ if [[ ! -n  "${ENERGY}" ]] ; then
 fi
 
 mkdir -p ${nametag}_FTFP
-export GEN_FILE="${nametag}_FTFP/${nametag}_${ENERGY}GeV.hepmc"
-export JUGGLER_SIM_FILE="${nametag}_FTFP/sim_${nametag}_${ENERGY}GeV.root"
-export JUGGLER_REC_FILE="${nametag}_FTFP/rec_${nametag}_${ENERGY}GeV.root"
-export OUT_FILE="${nametag}_${ENERGY}GeV_FTFP.pdf"
+PROC=${SKIP_N_BATCHES}
+SKIP_N_EVENTS=$(( SKIP_N_BATCHES * JUGGLER_N_EVENTS ))
+export GEN_FILE="${nametag}_FTFP/${nametag}_minQ2${ENERGY}.hepmc"
+export JUGGLER_SIM_FILE="${nametag}_FTFP/sim_${nametag}_minQ2${ENERGY}_${PROC}.root"
+export JUGGLER_REC_FILE="${nametag}_FTFP/rec_${nametag}_minQ2${ENERGY}_${PROC}.root"
+export OUT_FILE="${nametag}_minQ2${ENERGY}_FTFP.pdf"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
+echo "Skip number of events: ${SKIP_N_EVENTS}"
 echo "Energy list: ${ENERGY}"
 echo "Detector path: ${JUGGLER_COMPACT_PATH}"
 
@@ -92,6 +100,7 @@ npsim --runType batch \
       --part.minimalKineticEnergy "0.5*MeV" \
       --physics.list "FTFP_BERT_HP" \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
+      --skipNEvents ${SKIP_N_EVENTS} \
       --compactFile ${JUGGLER_COMPACT_PATH} \
       --inputFiles ${GEN_FILE} \
       --outputFile ${JUGGLER_SIM_FILE}
@@ -110,6 +119,8 @@ if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running juggler"
   exit 1
 fi
+
+exit 0
 
 # Directory for plots
 mkdir -p results
