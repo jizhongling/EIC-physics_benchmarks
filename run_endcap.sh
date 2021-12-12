@@ -71,13 +71,14 @@ if [[ ! -n  "${ENERGY}" ]] ; then
   export ENERGY=10
 fi
 
-mkdir -p ${nametag}_FTFP
+OUTDIR=${SPIN}/data/eic/${nametag}_FTFP
+mkdir -p ${OUTDIR}
 PROC=${SKIP_N_BATCHES}
 SKIP_N_EVENTS=$(( SKIP_N_BATCHES * JUGGLER_N_EVENTS ))
-export GEN_FILE="${nametag}_FTFP/${nametag}_minQ2${ENERGY}.hepmc"
-export JUGGLER_SIM_FILE="${nametag}_FTFP/sim_${nametag}_minQ2${ENERGY}_${PROC}.root"
-export JUGGLER_REC_FILE="${nametag}_FTFP/rec_${nametag}_minQ2${ENERGY}_${PROC}.root"
-export OUT_FILE="${nametag}_minQ2${ENERGY}_FTFP.pdf"
+export GEN_FILE="${OUTDIR}/${nametag}_minQ2${ENERGY}.hepmc"
+export JUGGLER_SIM_FILE="${OUTDIR}/sim_${nametag}_minQ2${ENERGY}_${PROC}.root"
+export JUGGLER_REC_FILE="${OUTDIR}/rec_${nametag}_minQ2${ENERGY}_${PROC}.root"
+export OUT_FILE="fig_${nametag}_minQ2${ENERGY}.pdf"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
 echo "Skip number of events: ${SKIP_N_EVENTS}"
