@@ -59,8 +59,8 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
     for proc in range(int(n_file)):
         tru_files.append(tru_file+str(proc)+".root:events")
         rec_files.append(rec_file+str(proc)+".root:events")
-    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.eta"], library = 'np')
-    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.eta"], library = 'np')
+    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.eta", "EcalEndcapPMergedClusters.eta"], library = 'np')
+    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.eta", "EcalEndcapPMergedClusters.eta"], library = 'np')
 
     eff_bins = np.arange(1.05, 3.5, 0.1)
     eff_center = np.arange(1.1, 3.45, 0.1)
@@ -77,14 +77,32 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
             rec_tracks.append(y)
     rec_hist = np.histogram(rec_tracks, bins=eff_bins)
 
+    merged_tru_tracks = []
+    for x in tru_events["EcalEndcapPMergedClusters.eta"]:
+        for y in x:
+            merged_tru_tracks.append(y)
+    merged_tru_hist = np.histogram(merged_tru_tracks, bins=eff_bins)
+
+    merged_rec_tracks = []
+    for x in rec_events["EcalEndcapPMergedClusters.eta"]:
+        for y in x:
+            merged_rec_tracks.append(y)
+    merged_rec_hist = np.histogram(merged_rec_tracks, bins=eff_bins)
+
     eff_list = np.divide(rec_hist[0], tru_hist[0])
     eff_err = np.multiply(eff_list, np.sqrt(np.divide(1., tru_hist[0]) + np.divide(1., rec_hist[0])))
 
+    merged_eff_list = np.divide(merged_rec_hist[0], merged_tru_hist[0])
+    merged_eff_err = np.multiply(merged_eff_list, np.sqrt(np.divide(1., merged_tru_hist[0]) + np.divide(1., merged_rec_hist[0])))
+
     plt.errorbar(eff_center, eff_list, yerr=eff_err, fmt='o', color='black',
-                 ecolor='black', elinewidth=1., capsize=1.5)
+                 ecolor='black', elinewidth=1., capsize=1.5, label='Unmerged clusters')
+    plt.errorbar(eff_center, merged_eff_list, yerr=merged_eff_err, fmt='s', color='red',
+                 ecolor='red', elinewidth=1., capsize=1.5, label='Merged clusters')
     plt.xlabel(r"$\eta$")
     plt.ylabel(r"eff")
     plt.title(r"eff vs $\eta$")
+    plt.legend()
     plt.savefig(out_dir+"/"+out_file)
          
 
