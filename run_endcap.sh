@@ -71,7 +71,7 @@ if [[ ! -n  "${ENERGY}" ]] ; then
   export ENERGY=10
 fi
 
-OUTDIR=${SPIN}/data/eic/${nametag}_FTFP
+OUTDIR=${SPIN}/data/eic/${nametag}_IslandClus
 mkdir -p ${OUTDIR}
 PROC=${SKIP_N_BATCHES}
 SKIP_N_EVENTS=$(( SKIP_N_BATCHES * JUGGLER_N_EVENTS ))

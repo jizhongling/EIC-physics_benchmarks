@@ -157,23 +157,23 @@ ci_ecal_merger = CalHitsMerger("ci_ecal_merger",
         readoutClass="EcalEndcapPHits")
 algorithms.append(ci_ecal_merger)
 
-ci_ecal_cl = TruthClustering("ci_ecal_cl",
-        inputHits=ci_ecal_reco.outputHitCollection,
-        mcHits="EcalEndcapPHits",
-        outputProtoClusters="EcalEndcapPProtoClusters")
-#ci_ecal_cl = IslandCluster("ci_ecal_cl",
-        #inputHitCollection=ci_ecal_merger.outputHitCollection,
-        #outputProtoClusterCollection="EcalEndcapPProtoClusters",
-        #splitCluster=False,
-        #minClusterCenterEdep=10.*units.MeV,
-        #localDistXY=[10*units.mm, 10*units.mm])
+#ci_ecal_cl = TruthClustering("ci_ecal_cl",
+#        inputHits=ci_ecal_reco.outputHitCollection,
+#        mcHits="EcalEndcapPHits",
+#        outputProtoClusters="EcalEndcapPProtoClusters")
+ci_ecal_cl = IslandCluster("ci_ecal_cl",
+        inputHitCollection=ci_ecal_merger.outputHitCollection,
+        outputProtoClusterCollection="EcalEndcapPProtoClusters",
+        splitCluster=False,
+        minClusterCenterEdep=10.*units.MeV,
+        localDistXY=[10*units.mm, 10*units.mm])
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
-        #inputHitCollection=ci_ecal_cl.inputHitCollection,
-        inputHitCollection=ci_ecal_cl.inputHits,
-        #inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
-        inputProtoClusterCollection=ci_ecal_cl.outputProtoClusters,
+        inputHitCollection=ci_ecal_cl.inputHitCollection,
+        #inputHitCollection=ci_ecal_cl.inputHits,
+        inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
+        #inputProtoClusterCollection=ci_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapPClusters",
         enableEtaBounds=True,
         mcHits="EcalEndcapPHits",
