@@ -78,8 +78,10 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
     rec_hist = np.histogram(rec_tracks, bins=eff_bins)
 
     eff_list = np.divide(rec_hist[0], tru_hist[0])
+    eff_err = np.multiply(eff_list, np.sqrt(np.divide(1., tru_hist[0]) + np.divide(1., rec_hist[0])))
 
-    plt.plot(eff_center, eff_list)
+    plt.errorbar(eff_center, eff_list, yerr=eff_err, fmt='o', color='black',
+                 ecolor='black', elinewidth=1., capsize=1.5)
     plt.xlabel(r"$\eta$")
     plt.ylabel(r"eff")
     plt.title(r"eff vs $\eta$")

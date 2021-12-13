@@ -120,15 +120,3 @@ if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running juggler"
   exit 1
 fi
-
-exit 0
-
-# Directory for plots
-mkdir -p results
-
-# Plot clusters first
-python scripts/plot_reco_endcap.py ${JUGGLER_REC_FILE} ${OUT_FILE} -o results
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running analysis script: plot_reco_endcap.py"
-  exit 1
-fi
