@@ -95,21 +95,21 @@ echo "Detector path: ${JUGGLER_COMPACT_PATH}"
 ls -lh ${GEN_FILE}
 
 # Run geant4 simulations
-npsim --runType batch \
-      -v WARNING \
-      --part.minimalKineticEnergy "0.5*MeV" \
-      --physics.list "FTFP_BERT_HP" \
-      --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --skipNEvents ${SKIP_N_EVENTS} \
-      --compactFile ${JUGGLER_COMPACT_PATH} \
-      --inputFiles ${GEN_FILE} \
-      --outputFile ${JUGGLER_SIM_FILE}
+#npsim --runType batch \
+#      -v WARNING \
+#      --part.minimalKineticEnergy "0.5*MeV" \
+#      --physics.list "FTFP_BERT_HP" \
+#      --numberOfEvents ${JUGGLER_N_EVENTS} \
+#      --skipNEvents ${SKIP_N_EVENTS} \
+#      --compactFile ${JUGGLER_COMPACT_PATH} \
+#      --inputFiles ${GEN_FILE} \
+#      --outputFile ${JUGGLER_SIM_FILE}
 #-G --gun.particle "${particle}" --gun.energy "${ENERGY}*GeV" --gun.position "2.5025*cm 2.4747*cm -8.5*cm" --gun.direction "0 0.3420201433 0.9396926208" \
 
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running npdet"
-  exit 1
-fi
+#if [[ "$?" -ne "0" ]] ; then
+#  echo "ERROR running npdet"
+#  exit 1
+#fi
 
 rootls -t "${JUGGLER_SIM_FILE}"
 

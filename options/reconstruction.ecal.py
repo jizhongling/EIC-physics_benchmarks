@@ -164,8 +164,9 @@ algorithms.append(ci_ecal_merger)
 ci_ecal_cl = IslandCluster("ci_ecal_cl",
         inputHitCollection=ci_ecal_merger.outputHitCollection,
         outputProtoClusterCollection="EcalEndcapPProtoClusters",
-        splitCluster=False,
-        minClusterCenterEdep=10.*units.MeV,
+        splitCluster=True,
+        minClusterHitEdep=10.*units.MeV,
+        minClusterCenterEdep=50.*units.MeV,
         localDistXY=[10*units.mm, 10*units.mm])
 algorithms.append(ci_ecal_cl)
 
