@@ -90,15 +90,20 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
     merged_rec_hist = np.histogram(merged_rec_tracks, bins=eff_bins)
 
     eff_list = np.divide(rec_hist[0], tru_hist[0])
-    eff_err = np.multiply(eff_list, np.sqrt(np.divide(1., tru_hist[0]) + np.divide(1., rec_hist[0])))
+    eff_err = np.multiply(eff_list, np.sqrt(np.divide(1., rec_hist[0]) + np.divide(1., tru_hist[0])))
 
     merged_eff_list = np.divide(merged_rec_hist[0], merged_tru_hist[0])
-    merged_eff_err = np.multiply(merged_eff_list, np.sqrt(np.divide(1., merged_tru_hist[0]) + np.divide(1., merged_rec_hist[0])))
+    merged_eff_err = np.multiply(merged_eff_list, np.sqrt(np.divide(1., merged_rec_hist[0]) + np.divide(1., merged_tru_hist[0])))
+
+    tru_eff_list = np.divide(merged_tru_hist[0], tru_hist[0])
+    tru_eff_err = np.multiply(tru_eff_list, np.sqrt(np.divide(1., merged_tru_hist[0]) + np.divide(1., tru_hist[0])))
 
     plt.errorbar(eff_center, eff_list, yerr=eff_err, fmt='o', color='black',
                  ecolor='black', elinewidth=1., capsize=1.5, label='Unmerged clusters')
     plt.errorbar(eff_center, merged_eff_list, yerr=merged_eff_err, fmt='s', color='red',
                  ecolor='red', elinewidth=1., capsize=1.5, label='Merged clusters')
+    plt.errorbar(eff_center, tru_eff_list, yerr=tru_eff_err, fmt='^', color='green',
+                 ecolor='green', elinewidth=1., capsize=1.5, label='True clusters')
     plt.xlabel(r"$\eta$")
     plt.ylabel(r"eff")
     plt.title(r"eff vs $\eta$")
