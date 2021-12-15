@@ -44,8 +44,8 @@ def plot_energy(rec_file, out_file, out_dir):
         w_list.append(w)
         r_list.append(sigma/mu)
         w += 1
-        
     plt.savefig(out_dir+"/"+out_file)
+
     plt.clf()
     plt.xlabel("w")
     plt.ylabel(r"$\sigma/\mu$")
@@ -118,7 +118,7 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
                     ecolor='green', elinewidth=1., capsize=1.5, label='True clusters')
         ax.set_xlabel(r"$\eta$")
         ax.set_ylabel(r"eff")
-        ax.set_title(r"$E_{clus}$ > "+f"{min_ene[iax]:.1f}")
+        ax.set_title(r"$E_{clus}$ > "+f"{min_ene[iax]:.1f} GeV")
         #ax.legend()
     plt.savefig(out_dir+"/"+out_file)
          

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 function print_the_help {
-  echo "USAGE: ${0} -n <nevents> -s <skip> -e <energy> -t <nametag> -p <particle> "
+  echo "USAGE: ${0} -j <job> -n <nevents> -e <energy> -t <nametag> -p <particle> "
   echo "  OPTIONS: "
+  echo "    -j,--job         Index of job"
   echo "    -n,--nevents     Number of events in eatch batch"
-  echo "    -s,--skip        Skip number of batches"
   echo "    -e,--energy      Energy list"
   echo "    -t,--nametag     Name tag"
   echo "    -p,--particle    Particle type"
@@ -22,6 +22,11 @@ do
       shift # past argument
       print_the_help
       ;;
+    -j|--job)
+      export PROC="$2"
+      shift # past argument
+      shift # past value
+      ;;
     -t|--nametag)
       nametag="$2"
       shift # past argument
@@ -34,11 +39,6 @@ do
       ;;
     -n|--nevents)
       export JUGGLER_N_EVENTS="$2"
-      shift # past argument
-      shift # past value
-      ;;
-    -s|--skip)
-      export SKIP_N_BATCHES="$2"
       shift # past argument
       shift # past value
       ;;
@@ -73,11 +73,10 @@ fi
 
 OUTDIR=${SPIN}/data/eic/${nametag}_IslandClus
 mkdir -p ${OUTDIR}
-PROC=${SKIP_N_BATCHES}
-SKIP_N_EVENTS=$(( SKIP_N_BATCHES * JUGGLER_N_EVENTS ))
-export GEN_FILE="${OUTDIR}/${nametag}_minQ2${ENERGY}.hepmc"
-export JUGGLER_SIM_FILE="${OUTDIR}/sim_${nametag}_minQ2${ENERGY}_${PROC}.root"
-export JUGGLER_REC_FILE="${OUTDIR}/rec_${nametag}_minQ2${ENERGY}_${PROC}.root"
+SKIP_N_EVENTS=$(( 0 * PROC * JUGGLER_N_EVENTS ))
+export GEN_FILE="${OUTDIR}/${nametag}_${ENERGY}GeV_${PROC}.hepmc"
+export JUGGLER_SIM_FILE="${OUTDIR}/sim_${nametag}_${ENERGY}GeV_${PROC}.root"
+export JUGGLER_REC_FILE="${OUTDIR}/rec_${nametag}_${ENERGY}GeV_${PROC}.root"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
 echo "Skip number of events: ${SKIP_N_EVENTS}"
@@ -85,31 +84,31 @@ echo "Energy list: ${ENERGY}"
 echo "Detector path: ${JUGGLER_COMPACT_PATH}"
 
 # Generate the input events
-#python scripts/gen_particles.py ${GEN_FILE} -n ${JUGGLER_N_EVENTS}\
-#    --angmin 20 --angmax 20 --parray ${ENERGY} --particles="${particle}"
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running script: generating input events"
-#  exit 1
-#fi
+python scripts/gen_particles.py ${GEN_FILE} -n ${JUGGLER_N_EVENTS}\
+    --angmin 20 --angmax 20 --parray ${ENERGY} --particles="${particle}"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running script: generating input events"
+  exit 1
+fi
 
 ls -lh ${GEN_FILE}
 
 # Run geant4 simulations
-#npsim --runType batch \
-#      -v WARNING \
-#      --part.minimalKineticEnergy "0.5*MeV" \
-#      --physics.list "FTFP_BERT_HP" \
-#      --numberOfEvents ${JUGGLER_N_EVENTS} \
-#      --skipNEvents ${SKIP_N_EVENTS} \
-#      --compactFile ${JUGGLER_COMPACT_PATH} \
-#      --inputFiles ${GEN_FILE} \
-#      --outputFile ${JUGGLER_SIM_FILE}
+npsim --runType batch \
+      -v WARNING \
+      --part.minimalKineticEnergy "0.5*MeV" \
+      --physics.list "FTFP_BERT_HP" \
+      --numberOfEvents ${JUGGLER_N_EVENTS} \
+      --skipNEvents ${SKIP_N_EVENTS} \
+      --compactFile ${JUGGLER_COMPACT_PATH} \
+      --inputFiles ${GEN_FILE} \
+      --outputFile ${JUGGLER_SIM_FILE}
 #-G --gun.particle "${particle}" --gun.energy "${ENERGY}*GeV" --gun.position "2.5025*cm 2.4747*cm -8.5*cm" --gun.direction "0 0.3420201433 0.9396926208" \
 
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running npdet"
-#  exit 1
-#fi
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running npdet"
+  exit 1
+fi
 
 rootls -t "${JUGGLER_SIM_FILE}"
 
