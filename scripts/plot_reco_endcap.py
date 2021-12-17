@@ -60,10 +60,29 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
     for proc in range(int(n_file)):
         tru_files.append(tru_file+str(proc)+".root:events")
         rec_files.append(rec_file+str(proc)+".root:events")
-    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
+    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.nhits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
                                             "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library = 'np')
-    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
+    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.nhits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
                                             "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library = 'np')
+
+    tru_nhits = []
+    for n_trus in tru_events["EcalEndcapPClusters.nhits"]:
+        for n_tru in n_trus:
+            tru_nhits.append(n_tru)
+
+    rec_nhits = []
+    for n_recs in rec_events["EcalEndcapPClusters.nhits"]:
+        for n_rec in n_recs:
+            rec_nhits.append(n_rec)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    ax1.hist(tru_nhits, bins=10, range=(0.5, 10.5))
+    ax2.hist(rec_nhits, bins=10, range=(0.5, 10.5))
+    for ax in [ax1, ax2]:
+        ax.set_xlabel("nhits")
+    ax1.set_title("Truth clustering")
+    ax2.set_title("Island clustering")
+    plt.savefig(out_dir+"/n_"+out_file)
 
     min_ene = np.arange(0.1, 0.95, 0.1)
     eff_bins = np.arange(1.05, 3.5, 0.1)
@@ -93,7 +112,8 @@ def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
             merged_rec_tracks.append(ene_eta(ene, eta))
     merged_rec_hist = np.histogram(merged_rec_tracks, bins=eff_bins)
 
-    fig, axs = plt.subplots(3, 3, figsize=(20,15))
+    plt.clf()
+    fig, axs = plt.subplots(3, 3, figsize=(20, 15))
     for iax in range(9):
         tru_hist = np.histogram([x.eta for x in tru_tracks if x.energy > min_ene[iax]], bins=eff_bins)
         rec_hist = np.histogram([x.eta for x in rec_tracks if x.energy > min_ene[iax]], bins=eff_bins)
