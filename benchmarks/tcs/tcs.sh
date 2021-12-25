@@ -140,7 +140,6 @@ if [[ -n "${DO_REC}" || -n "${DO_ALL}" ]] ; then
     unset tag
     [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
     JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
-    xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
       gaudirun.py ${rec} || [ $? -eq 4 ]
   done
 
