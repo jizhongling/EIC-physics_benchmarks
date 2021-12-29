@@ -3,12 +3,13 @@ import numpy as np
 import uproot as ur
 from collections import namedtuple
 from scipy.stats import norm
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
 
 def plot_energy(rec_file, out_file, out_dir):
     files = [rec_file+":events"]
-    endcap_events = ur.concatenate(files, ["EcalEndcapPHitsReco.energy", "HcalEndcapPHitsReco.energy"], library = 'np')
+    endcap_events = ur.concatenate(files, ["EcalEndcapPHitsReco.energy", "HcalEndcapPHitsReco.energy"], library='np')
 
     ecal_list = []
     hcal_list = []
@@ -39,7 +40,7 @@ def plot_energy(rec_file, out_file, out_dir):
 
         #plot
         ax.set(xlabel="Energy (GeV)")
-        ax.set_title(r"$w=%d, \mu=%.3f,\ \sigma=%.3f$" %(w, mu, sigma))
+        ax.set_title(r"$w=%d, \mu=%.3f,\ \sigma=%.3f$" % (w, mu, sigma))
         
         w_list.append(w)
         r_list.append(sigma/mu)
@@ -54,30 +55,48 @@ def plot_energy(rec_file, out_file, out_dir):
     plt.savefig(out_dir+"/rw_"+out_file)
 
 
-def plot_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
+def plot_hcal_energy(rec_file, out_file, out_dir):
+    with PdfPages(out_dir+"/"+out_file) as pdf:
+        for ene in range(2, 21, 2):
+            fig, axs = plt.subplots(3, 3, figsize=(30, 20))
+            for ang in range(5, 36, 5):
+                events = ur.open(rec_file+str(ene)+"GeV_"+str(ang)+"deg.root:events")
+                energy = events["HcalEndcapPRecHits.energy"].array(library='ak')
+                energy_list = []
+                for i in range(len(energy)):
+                    energy_list.append(np.sum(energy[i]))
+                ax = axs.flat[int(ang/5-1)]
+                ax.hist(energy_list, bins='auto', density=True)
+                ax.set(xlabel="Energy (GeV)")
+                ax.set_title(r"$E=%.0f\ GeV,\ \theta=%.0f^{\circ}$" % (ene, ang))
+            pdf.savefig()
+            plt.close()
+
+
+def plot_ecal_efficiency(n_file, tru_file, rec_file, out_file, out_dir):
     tru_files = []
     rec_files = []
     for proc in range(int(n_file)):
         tru_files.append(tru_file+str(proc)+".root:events")
         rec_files.append(rec_file+str(proc)+".root:events")
-    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.nhits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
-                                            "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library = 'np')
-    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.nhits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
-                                            "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library = 'np')
+    tru_events = ur.concatenate(tru_files, ["EcalEndcapPClusters.whits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
+                                            "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library='np')
+    rec_events = ur.concatenate(rec_files, ["EcalEndcapPClusters.whits", "EcalEndcapPClusters.energy", "EcalEndcapPClusters.eta",
+                                            "EcalEndcapPMergedClusters.energy", "EcalEndcapPMergedClusters.eta"], library='np')
 
     tru_nhits = []
-    for n_trus in tru_events["EcalEndcapPClusters.nhits"]:
+    for n_trus in tru_events["EcalEndcapPClusters.whits"]:
         for n_tru in n_trus:
             tru_nhits.append(n_tru)
 
     rec_nhits = []
-    for n_recs in rec_events["EcalEndcapPClusters.nhits"]:
+    for n_recs in rec_events["EcalEndcapPClusters.whits"]:
         for n_rec in n_recs:
             rec_nhits.append(n_rec)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    ax1.hist(tru_nhits, bins=10, range=(0.5, 10.5))
-    ax2.hist(rec_nhits, bins=10, range=(0.5, 10.5))
+    ax1.hist(tru_nhits, bins=20, range=(0.5, 20.5))
+    ax2.hist(rec_nhits, bins=20, range=(0.5, 20.5))
     for ax in [ax1, ax2]:
         ax.set_xlabel("nhits")
     ax1.set_title("Truth clustering")
@@ -147,8 +166,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--plot_ene', action='store_true', default=False,
                         help='Plot reco energy')
-    parser.add_argument('--plot_eff', action='store_true', default=False,
-                        help='Plot reco efficiency')
+    parser.add_argument('--plot_hcal_ene', action='store_true', default=False,
+                        help='Plot hcal reco energy')
+    parser.add_argument('--plot_ecal_eff', action='store_true', default=False,
+                        help='Plot ecal reco efficiency')
     parser.add_argument('--tru_file', help='Path to truth output file.')
     parser.add_argument('rec_file', help='Path to reconstruction output file.')
     parser.add_argument('out_file', help='Name of output file.')
@@ -159,5 +180,8 @@ if __name__ == '__main__':
     if args.plot_ene:
         plot_energy(args.rec_file, args.out_file, args.out_dir)
 
-    if args.plot_eff:
-        plot_efficiency(args.n_file, args.tru_file, args.rec_file, args.out_file, args.out_dir)
+    if args.plot_hcal_ene:
+        plot_hcal_energy(args.rec_file, args.out_file, args.out_dir)
+
+    if args.plot_ecal_eff:
+        plot_ecal_efficiency(args.n_file, args.tru_file, args.rec_file, args.out_file, args.out_dir)

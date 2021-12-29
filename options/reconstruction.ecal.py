@@ -195,9 +195,9 @@ podout.outputCommands = [
         "keep *RecHits",
         "keep *Layers",
         "keep *Clusters",
-        "keep *ProtoClusters",
-        "keep outputParticles",
-        "keep InitTrackParams",
+        "drop *ProtoClusters",
+        "drop outputParticles",
+        "drop InitTrackParams",
         ] + [ "drop " + c for c in sim_coll]
 algorithms.append(podout)
 

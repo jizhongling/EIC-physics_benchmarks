@@ -67,7 +67,7 @@ from Configurables import Jug__Reco__ClusterRecoCoG as RecoCoG
 sim_coll = [
     "mcparticles",
     "HcalEndcapPHits",
-    "HcalEndcapNHits",
+    #"HcalEndcapNHits",
 ]
 
 # list of algorithms
@@ -125,7 +125,7 @@ ce_hcal_digi = CalHitDigi("ce_hcal_digi",
         inputHitCollection="HcalEndcapNHits",
         outputHitCollection="HcalEndcapNRawHits",
         **ce_hcal_daq)
-algorithms.append(ce_hcal_digi)
+#algorithms.append(ce_hcal_digi)
 
 ce_hcal_reco = CalHitReco("ce_hcal_reco",
         inputHitCollection=ce_hcal_digi.outputHitCollection,
@@ -133,7 +133,7 @@ ce_hcal_reco = CalHitReco("ce_hcal_reco",
         thresholdFactor=5.0,
         samplingFraction=ce_hcal_sf,
         **ce_hcal_daq)
-algorithms.append(ce_hcal_reco)
+#algorithms.append(ce_hcal_reco)
 
 ce_hcal_merger = CalHitsMerger("ce_hcal_merger",
         inputHitCollection=ce_hcal_reco.outputHitCollection,
@@ -141,7 +141,7 @@ ce_hcal_merger = CalHitsMerger("ce_hcal_merger",
         readoutClass="HcalEndcapNHits",
         fields=["layer", "slice"],
         fieldRefNumbers=[1, 0])
-algorithms.append(ce_hcal_merger)
+#algorithms.append(ce_hcal_merger)
 
 ce_hcal_cl = IslandCluster("ce_hcal_cl",
         inputHitCollection=ce_hcal_merger.outputHitCollection,
@@ -149,7 +149,7 @@ ce_hcal_cl = IslandCluster("ce_hcal_cl",
         splitCluster=False,
         minClusterCenterEdep=30.*units.MeV,
         localDistXY=[15.*units.cm, 15.*units.cm])
-algorithms.append(ce_hcal_cl)
+#algorithms.append(ce_hcal_cl)
 
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         inputHitCollection=ce_hcal_cl.inputHitCollection,
@@ -157,7 +157,7 @@ ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
         outputClusterCollection="HcalEndcapNClusters",
         mcHits="HcalEndcapNHits",
         logWeightBase=6.2)
-algorithms.append(ce_hcal_clreco)
+#algorithms.append(ce_hcal_clreco)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)
