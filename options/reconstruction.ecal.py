@@ -133,7 +133,7 @@ ci_ecal_daq = calo_daq['ecal_pos_endcap']
 ci_ecal_digi = CalHitDigi("ci_ecal_digi",
         inputHitCollection="EcalEndcapPHits",
         outputHitCollection="EcalEndcapPRawHits",
-        scaleResponse=ci_ecal_sf,
+        scaleResponse=1.,
         energyResolutions=[.1, .0015, 0.],
         **ci_ecal_daq)
 algorithms.append(ci_ecal_digi)
