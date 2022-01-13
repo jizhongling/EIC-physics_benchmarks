@@ -81,14 +81,15 @@ fi
 OUTDIR=${SPIN}/data/eic/${nametag}
 mkdir -p ${OUTDIR}
 SKIP_N_EVENTS=$(( 0 * PROC * JUGGLER_N_EVENTS ))
-export GEN_FILE="${OUTDIR}/gen_${ENERGY}GeV_${ANGLE}deg.hepmc"
-export JUGGLER_SIM_FILE="${OUTDIR}/sim_${ENERGY}GeV_${ANGLE}deg.root"
-export JUGGLER_REC_FILE="${OUTDIR}/rec_${ENERGY}GeV_${ANGLE}deg.root"
+export GEN_FILE="${OUTDIR}/gen_${ENERGY}GeV_${ANGLE}deg-${PROC}.hepmc"
+export JUGGLER_SIM_FILE="${OUTDIR}/sim_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
+export JUGGLER_REC_FILE="${OUTDIR}/rec_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
 echo "Skip number of events: ${SKIP_N_EVENTS}"
 echo "Energy list: ${ENERGY}"
-echo "Detector path: ${JUGGLER_COMPACT_PATH}"
+echo "NPSim Detector: ${NPSIM_COMPACT_PATH}"
+echo "Juggler Detector: ${JUGGLER_COMPACT_PATH}"
 
 # Generate the input events
 python scripts/gen_particles.py ${GEN_FILE} -n ${JUGGLER_N_EVENTS}\
