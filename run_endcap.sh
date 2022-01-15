@@ -63,10 +63,9 @@ do
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-export PYTHONPATH=${ATHENA_PREFIX}/python:${PYTHONPATH}
+#export PYTHONPATH=${ATHENA_PREFIX}/python:${PYTHONPATH}
 export DETECTOR_PATH=${ATHENA_PREFIX}/../athena
-export NPSIM_COMPACT_PATH=${DETECTOR_PATH}/athena.xml
-export JUGGLER_DETECTOR=athena-juggler
+export JUGGLER_DETECTOR=athena
 export JUGGLER_DETECTOR_VERSION=default
 export JUGGLER_COMPACT_PATH=${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml
 
@@ -108,7 +107,7 @@ npsim --runType batch \
       --physics.list "FTFP_BERT_HP" \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --skipNEvents ${SKIP_N_EVENTS} \
-      --compactFile ${NPSIM_COMPACT_PATH} \
+      --compactFile ${JUGGLER_COMPACT_PATH} \
       --inputFiles ${GEN_FILE} \
       --outputFile ${JUGGLER_SIM_FILE}
 #-G --gun.particle "${particle}" --gun.energy "${ENERGY}*GeV" --gun.position "2.5025*cm 2.4747*cm -8.5*cm" --gun.direction "0 0.3420201433 0.9396926208" \
