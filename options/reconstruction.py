@@ -661,24 +661,13 @@ truth_trk_init = TrackParamTruthInit("truth_trk_init",
 algorithms.append(truth_trk_init)
 
 # Tracking algorithms
-try:
-    trk_find_alg = CKFTracking("trk_find_alg",
+trk_find_alg = CKFTracking("trk_find_alg",
         inputSourceLinks = sourcelinker.outputSourceLinks,
         inputMeasurements = sourcelinker.outputMeasurements,
         inputInitialTrackParameters = truth_trk_init.outputInitialTrackParameters,
         outputTrajectories = "trajectories",
-	chi2CutOff = [50.]
-    )
-    algorithms.append(trk_find_alg)
-except ValueError:
-    trk_find_alg = CKFTracking("trk_find_alg",
-        inputSourceLinks = sourcelinker.outputSourceLinks,
-        inputMeasurements = sourcelinker.outputMeasurements,
-         inputInitialTrackParameters = truth_trk_init.outputInitialTrackParameters,
-        outputTrajectories = "trajectories",
-        chi2CutOff = 50
-    )
-    algorithms.append(trk_find_alg)
+	chi2CutOff = [50.])
+algorithms.append(trk_find_alg)
 
 parts_from_fit = ParticlesFromTrackFit("parts_from_fit",
         inputTrajectories = trk_find_alg.outputTrajectories,
