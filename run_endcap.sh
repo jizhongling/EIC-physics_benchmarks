@@ -105,6 +105,7 @@ npsim --runType batch \
       -v WARNING \
       --part.minimalKineticEnergy "0.5*MeV" \
       --physics.list "FTFP_BERT_HP" \
+      --physics.rangecut "None" \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --skipNEvents ${SKIP_N_EVENTS} \
       --compactFile ${JUGGLER_COMPACT_PATH} \
