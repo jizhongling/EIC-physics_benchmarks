@@ -665,7 +665,8 @@ trk_find_alg = CKFTracking("trk_find_alg",
         inputSourceLinks = sourcelinker.outputSourceLinks,
         inputMeasurements = sourcelinker.outputMeasurements,
         inputInitialTrackParameters = truth_trk_init.outputInitialTrackParameters,
-        outputTrajectories = "trajectories")
+        outputTrajectories = "trajectories",
+	chi2CutOff = [50.])
 algorithms.append(trk_find_alg)
 
 parts_from_fit = ParticlesFromTrackFit("parts_from_fit",

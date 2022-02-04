@@ -88,7 +88,6 @@ for rec in options/*.py ; do
   unset tag
   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
   JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
-    xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
     gaudirun.py ${rec}
 done
 if [ "$?" -ne "0" ] ; then

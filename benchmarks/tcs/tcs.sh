@@ -111,7 +111,7 @@ echo "JUGGLER_DETECTOR    = ${JUGGLER_DETECTOR}"
 ## Step 1. Get the data
 if [[ -n "${DATA_INIT}" || -n "${DO_ALL}" ]] ; then
   mc -C . config host add S3 https://dtn01.sdcc.bnl.gov:9000 $S3_ACCESS_KEY $S3_SECRET_KEY
-  mc -C . cat --insecure ${DATA_URL} | gunzip -c | head -n 1004 |  sanitize_hepmc3 > "${JUGGLER_MC_FILE}"
+  mc -C . cat --insecure ${DATA_URL} | gunzip -c | head -n $((20+10*JUGGLER_N_EVENTS)) |  sanitize_hepmc3 > "${JUGGLER_MC_FILE}"
   if [[ "$?" -ne "0" ]] ; then
     echo "Failed to download hepmc file"
     exit 1
@@ -135,12 +135,12 @@ if [[ -n "${DO_SIM}" || -n "${DO_ALL}" ]] ; then
 fi
 
 ### Step 3. Run the reconstruction (juggler)
+export PBEAM
 if [[ -n "${DO_REC}" || -n "${DO_ALL}" ]] ; then
   for rec in options/*.py ; do
     unset tag
     [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
     JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
-    xenv -x ${JUGGLER_INSTALL_PREFIX}/Juggler.xenv \
       gaudirun.py ${rec} || [ $? -eq 4 ]
   done
 
