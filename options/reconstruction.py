@@ -123,6 +123,8 @@ from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrack
 from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
 from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
 from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
+from Configurables import Jug__Reco__InclusiveKinematicsSigma as InclusiveKinematicsSigma
+from Configurables import Jug__Reco__InclusiveKinematicseSigma as InclusiveKinematicseSigma
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
 from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
@@ -764,6 +766,18 @@ incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
         outputData="InclusiveKinematicsDA"
 )
 algorithms.append(incl_kin_da)
+incl_kin_sigma = InclusiveKinematicsSigma("incl_kin_sigma",
+        inputMCParticles="mcparticles",
+        inputParticles="ReconstructedParticles",
+        outputData="InclusiveKinematicsSigma"
+)
+algorithms.append(incl_kin_sigma)
+incl_kin_esigma = InclusiveKinematicseSigma("incl_kin_esigma",
+        inputMCParticles="mcparticles",
+        inputParticles="ReconstructedParticles",
+        outputData="InclusiveKinematicseSigma"
+)
+algorithms.append(incl_kin_esigma)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)

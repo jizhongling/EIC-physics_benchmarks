@@ -80,16 +80,24 @@ int dis_electrons(const std::string& config_name)
              .Define("Q2_el", "InclusiveKinematicsElectron.Q2")
              .Define("Q2_jb", "InclusiveKinematicsJB.Q2")
              .Define("Q2_da", "InclusiveKinematicsDA.Q2")
+             .Define("Q2_sigma", "InclusiveKinematicsSigma.Q2")
+             .Define("Q2_esigma", "InclusiveKinematicseSigma.Q2")
              .Define("Q2_el_res", combinatorial_diff_ratio, {"Q2_sim", "Q2_el"})
              .Define("Q2_jb_res", combinatorial_diff_ratio, {"Q2_sim", "Q2_jb"})
              .Define("Q2_da_res", combinatorial_diff_ratio, {"Q2_sim", "Q2_da"})
+             .Define("Q2_sigma_res", combinatorial_diff_ratio, {"Q2_sim", "Q2_sigma"})
+             .Define("Q2_esigma_res", combinatorial_diff_ratio, {"Q2_sim", "Q2_esigma"})
              .Define("x_sim", "InclusiveKinematicsTruth.x")
              .Define("x_el", "InclusiveKinematicsElectron.x")
              .Define("x_jb", "InclusiveKinematicsJB.x")
              .Define("x_da", "InclusiveKinematicsDA.x")
+             .Define("x_sigma", "InclusiveKinematicsSigma.x")
+             .Define("x_esigma", "InclusiveKinematicseSigma.x")
              .Define("x_el_res", combinatorial_diff_ratio, {"x_sim", "x_el"})
              .Define("x_jb_res", combinatorial_diff_ratio, {"x_sim", "x_jb"})
              .Define("x_da_res", combinatorial_diff_ratio, {"x_sim", "x_da"})
+             .Define("x_sigma_res", combinatorial_diff_ratio, {"x_sim", "x_sigma"})
+             .Define("x_esigma_res", combinatorial_diff_ratio, {"x_sim", "x_esigma"})
              ;
 
   //Q2
@@ -97,17 +105,25 @@ int dis_electrons(const std::string& config_name)
   auto h_Q2_el = d0.Histo1D({"h_Q2_el", "; GeV^2; counts", 100, -5, 25}, "Q2_el");
   auto h_Q2_jb = d0.Histo1D({"h_Q2_jb", "; GeV^2; counts", 100, -5, 25}, "Q2_jb");
   auto h_Q2_da = d0.Histo1D({"h_Q2_da", "; GeV^2; counts", 100, -5, 25}, "Q2_da");
+  auto h_Q2_sigma = d0.Histo1D({"h_Q2_sigma", "; GeV^2; counts", 100, -5, 25}, "Q2_sigma");
+  auto h_Q2_esigma = d0.Histo1D({"h_Q2_esigma", "; GeV^2; counts", 100, -5, 25}, "Q2_esigma");
   auto h_Q2_el_res = d0.Histo1D({"h_Q2_el_res", ";      ; counts", 100, -1,  1}, "Q2_el_res");
   auto h_Q2_jb_res = d0.Histo1D({"h_Q2_jb_res", ";      ; counts", 100, -1,  1}, "Q2_jb_res");
   auto h_Q2_da_res = d0.Histo1D({"h_Q2_da_res", ";      ; counts", 100, -1,  1}, "Q2_da_res");
+  auto h_Q2_sigma_res = d0.Histo1D({"h_Q2_sigma_res", ";      ; counts", 100, -1,  1}, "Q2_sigma_res");
+  auto h_Q2_esigma_res = d0.Histo1D({"h_Q2_esigma_res", ";      ; counts", 100, -1,  1}, "Q2_esigma_res");
   //x
   auto h_x_sim = d0.Histo1D({"h_x_sim", "; ; counts", 100, 0, +1}, "x_sim");
   auto h_x_el = d0.Histo1D({"h_x_el", "; ; counts", 100, 0, +1}, "x_el");
   auto h_x_jb = d0.Histo1D({"h_x_jb", "; ; counts", 100, 0, +1}, "x_jb");
   auto h_x_da = d0.Histo1D({"h_x_da", "; ; counts", 100, 0, +1}, "x_da");
+  auto h_x_sigma = d0.Histo1D({"h_x_sigma", "; ; counts", 100, 0, +1}, "x_sigma");
+  auto h_x_esigma = d0.Histo1D({"h_x_esigma", "; ; counts", 100, 0, +1}, "x_esigma");
   auto h_x_el_res = d0.Histo1D({"h_x_el_res", "; ; counts", 100, -1, 1}, "x_el_res");
   auto h_x_jb_res = d0.Histo1D({"h_x_jb_res", "; ; counts", 100, -1, 1}, "x_jb_res");
   auto h_x_da_res = d0.Histo1D({"h_x_da_res", "; ; counts", 100, -1, 1}, "x_da_res");
+  auto h_x_sigma_res = d0.Histo1D({"h_x_sigma_res", "; ; counts", 100, -1, 1}, "x_sigma_res");
+  auto h_x_esigma_res = d0.Histo1D({"h_x_esigma_res", "; ; counts", 100, -1, 1}, "x_esigma_res");
 
   TFitResultPtr f_Q2_el_res = h_Q2_el_res->Fit("gaus", "S");
   if (f_Q2_el_res == 0) f_Q2_el_res->Print("V");
@@ -124,6 +140,16 @@ int dis_electrons(const std::string& config_name)
   TFitResultPtr f_x_da_res = h_x_da_res->Fit("gaus", "S");
   if (f_x_da_res == 0) f_x_da_res->Print("V");
 
+  TFitResultPtr f_Q2_sigma_res = h_Q2_sigma_res->Fit("gaus", "S");
+  if (f_Q2_sigma_res == 0) f_Q2_sigma_res->Print("V");
+  TFitResultPtr f_x_sigma_res = h_x_sigma_res->Fit("gaus", "S");
+  if (f_x_sigma_res == 0) f_x_sigma_res->Print("V");
+
+  TFitResultPtr f_Q2_esigma_res = h_Q2_esigma_res->Fit("gaus", "S");
+  if (f_Q2_esigma_res == 0) f_Q2_esigma_res->Print("V");
+  TFitResultPtr f_x_esigma_res = h_x_esigma_res->Fit("gaus", "S");
+  if (f_x_esigma_res == 0) f_x_esigma_res->Print("V");
+
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
@@ -138,6 +164,8 @@ int dis_electrons(const std::string& config_name)
     auto& h2 = *h_Q2_el;
     auto& h3 = *h_Q2_jb;
     auto& h4 = *h_Q2_da;
+    auto& h5 = *h_Q2_sigma;
+    auto& h6 = *h_Q2_esigma;
     // histogram style
     h1.SetLineColor(common_bench::plot::kMpBlue);
     h1.SetLineWidth(2);
@@ -147,6 +175,10 @@ int dis_electrons(const std::string& config_name)
     h3.SetLineWidth(2);
     h4.SetLineColor(common_bench::plot::kMpGreen);
     h4.SetLineWidth(2);
+    h5.SetLineColor(common_bench::plot::kMpMoss);
+    h5.SetLineWidth(2);
+    h6.SetLineColor(common_bench::plot::kMpCyan);
+    h6.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
     h1.GetYaxis()->CenterTitle();
@@ -155,6 +187,8 @@ int dis_electrons(const std::string& config_name)
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
     h4.DrawClone("hist same");
+    h5.DrawClone("hist same");
+    h6.DrawClone("hist same");
     // legend
     common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
@@ -164,12 +198,16 @@ int dis_electrons(const std::string& config_name)
     t1.SetTextSize(25);
     tptr1 = t1.AddText("simulated");
     tptr1->SetTextColor(common_bench::plot::kMpBlue);
-    tptr1 = t1.AddText("EL method");
+    tptr1 = t1.AddText("e method");
     tptr1->SetTextColor(common_bench::plot::kMpOrange);
     tptr1 = t1.AddText("JB method");
     tptr1->SetTextColor(common_bench::plot::kMpRed);
     tptr1 = t1.AddText("DA method");
     tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    tptr1 = t1.AddText("#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpMoss);
+    tptr1 = t1.AddText("e#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpCyan);
     t1.Draw();
     c.Print(fmt::format("{}_Q2.png", output_prefix).c_str());
   }
@@ -183,6 +221,8 @@ int dis_electrons(const std::string& config_name)
     auto& h1 = *h_Q2_el_res;
     auto& h2 = *h_Q2_jb_res;
     auto& h3 = *h_Q2_da_res;
+    auto& h4 = *h_Q2_sigma_res;
+    auto& h5 = *h_Q2_esigma_res;
     // histogram style
     h1.SetLineColor(common_bench::plot::kMpOrange);
     h1.SetLineWidth(2);
@@ -190,6 +230,10 @@ int dis_electrons(const std::string& config_name)
     h2.SetLineWidth(2);
     h3.SetLineColor(common_bench::plot::kMpGreen);
     h3.SetLineWidth(2);
+    h4.SetLineColor(common_bench::plot::kMpMoss);
+    h4.SetLineWidth(2);
+    h5.SetLineColor(common_bench::plot::kMpCyan);
+    h5.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
     h1.GetYaxis()->CenterTitle();
@@ -197,6 +241,8 @@ int dis_electrons(const std::string& config_name)
     h1.DrawClone("hist");
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
+    h4.DrawClone("hist same");
+    h5.DrawClone("hist same");
     // legend
     common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
@@ -210,6 +256,10 @@ int dis_electrons(const std::string& config_name)
     tptr1->SetTextColor(common_bench::plot::kMpRed);
     tptr1 = t1.AddText("DA method");
     tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    tptr1 = t1.AddText("#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpMoss);
+    tptr1 = t1.AddText("e#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpCyan);
     t1.Draw();
     c.Print(fmt::format("{}_Q2_resolution.png", output_prefix).c_str());
   }
@@ -224,6 +274,8 @@ int dis_electrons(const std::string& config_name)
     auto& h2 = *h_x_el;
     auto& h3 = *h_x_jb;
     auto& h4 = *h_x_da;
+    auto& h5 = *h_x_sigma;
+    auto& h6 = *h_x_esigma;
     // histogram style
     h1.SetLineColor(common_bench::plot::kMpBlue);
     h1.SetLineWidth(2);
@@ -233,6 +285,10 @@ int dis_electrons(const std::string& config_name)
     h3.SetLineWidth(2);
     h4.SetLineColor(common_bench::plot::kMpGreen);
     h4.SetLineWidth(2);
+    h5.SetLineColor(common_bench::plot::kMpMoss);
+    h5.SetLineWidth(2);
+    h6.SetLineColor(common_bench::plot::kMpCyan);
+    h6.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
     h1.GetYaxis()->CenterTitle();
@@ -241,6 +297,8 @@ int dis_electrons(const std::string& config_name)
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
     h4.DrawClone("hist same");
+    h5.DrawClone("hist same");
+    h6.DrawClone("hist same");
     // legend
     common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
@@ -256,6 +314,10 @@ int dis_electrons(const std::string& config_name)
     tptr1->SetTextColor(common_bench::plot::kMpRed);
     tptr1 = t1.AddText("DA method");
     tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    tptr1 = t1.AddText("#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpMoss);
+    tptr1 = t1.AddText("e#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpCyan);
     t1.Draw();
     c.Print(fmt::format("{}_x.png", output_prefix).c_str());
   }
@@ -269,6 +331,8 @@ int dis_electrons(const std::string& config_name)
     auto& h1 = *h_x_el_res;
     auto& h2 = *h_x_jb_res;
     auto& h3 = *h_x_da_res;
+    auto& h4 = *h_x_sigma_res;
+    auto& h5 = *h_x_esigma_res;
     // histogram style
     h1.SetLineColor(common_bench::plot::kMpOrange);
     h1.SetLineWidth(2);
@@ -276,6 +340,10 @@ int dis_electrons(const std::string& config_name)
     h2.SetLineWidth(2);
     h3.SetLineColor(common_bench::plot::kMpGreen);
     h3.SetLineWidth(2);
+    h4.SetLineColor(common_bench::plot::kMpMoss);
+    h4.SetLineWidth(2);
+    h5.SetLineColor(common_bench::plot::kMpCyan);
+    h5.SetLineWidth(2);
     // axes
     h1.GetXaxis()->CenterTitle();
     h1.GetYaxis()->CenterTitle();
@@ -283,6 +351,8 @@ int dis_electrons(const std::string& config_name)
     h1.DrawClone("hist");
     h2.DrawClone("hist same");
     h3.DrawClone("hist same");
+    h4.DrawClone("hist same");
+    h5.DrawClone("hist same");
     // legend
     common_bench::plot::draw_label(ebeam, pbeam, detector);
     TText* tptr1;
@@ -296,6 +366,10 @@ int dis_electrons(const std::string& config_name)
     tptr1->SetTextColor(common_bench::plot::kMpRed);
     tptr1 = t1.AddText("DA method");
     tptr1->SetTextColor(common_bench::plot::kMpGreen);
+    tptr1 = t1.AddText("#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpMoss);
+    tptr1 = t1.AddText("e#Sigma method");
+    tptr1->SetTextColor(common_bench::plot::kMpCyan);
     t1.Draw();
     c.Print(fmt::format("{}_x_resolution.png", output_prefix).c_str());
   }
