@@ -28,6 +28,30 @@ if "PBEAM" in os.environ:
 else:
     ionBeamEnergy = 100
 
+# ZDC reconstruction calibrations
+try:
+    ffi_zdc_calibrations = 'calibrations/ffi_zdc.json'
+    with open(os.path.join(detector_path,ffi_zdc_calibrations)) as f:
+        ffi_zdc_config = json.load(f)
+        def ffi_zdc_cal_parse(ffi_zdc_cal):
+            ffi_zdc_cal_sf = float(ffi_zdc_cal['sampling_fraction'])
+            ffi_zdc_cal_cl_kwargs = {
+                'minClusterCenterEdep': eval(ffi_zdc_cal['minClusterCenterEdep']),
+                'minClusterHitEdep': eval(ffi_zdc_cal['minClusterHitEdep']),
+                'localDistXY': [
+                    eval(ffi_zdc_cal['localDistXY'][0]),
+                    eval(ffi_zdc_cal['localDistXY'][1])
+                ],
+                'splitCluster': bool(ffi_zdc_cal['splitCluster'])
+            }
+            return ffi_zdc_cal_sf, ffi_zdc_cal_cl_kwargs
+        ffi_zdc_ecal_sf, ffi_zdc_ecal_cl_kwargs = ffi_zdc_cal_parse(ffi_zdc_config['ffi_zdc_ecal'])
+        ffi_zdc_hcal_sf, ffi_zdc_hcal_cl_kwargs = ffi_zdc_cal_parse(ffi_zdc_config['ffi_zdc_hcal'])
+except (IOError, OSError):
+    print(f'Using default ffi_zdc calibrations; {ffi_zdc_calibrations} not found.')
+    ffi_zdc_ecal_sf = float(os.environ.get("FFI_ZDC_ECAL_SAMP_FRAC", 1.0))
+    ffi_zdc_hcal_sf = float(os.environ.get("FFI_ZDC_HCAL_SAMP_FRAC", 1.0))
+
 # RICH reconstruction
 qe_data = [(1.0, 0.25), (7.5, 0.25),]
 
@@ -162,6 +186,8 @@ sim_coll = [
     'GEMTrackerEndcapHits',
     'VertexBarrelHits',
     'DRICHHits',
+    'ZDCEcalHits',
+    'ZDCHcalHits',
 ]
 if 'acadia' in detector_version:
     sim_coll.append('VertexEndcapHits')
@@ -235,6 +261,62 @@ trk_b0_reco = TrackerHitReconstruction("trk_b0_reco",
         inputHitCollection = trk_b0_digi.outputHitCollection,
         outputHitCollection="B0TrackerRecHits")
 algorithms.append(trk_b0_reco)
+
+# ZDC ECAL WSciFi
+ffi_zdc_ecal_digi = CalHitDigi('ffi_zdc_ecal_digi',
+        inputHitCollection = 'ZDCEcalHits',
+        outputHitCollection = 'ZDCEcalRawHits')
+algorithms.append(ffi_zdc_ecal_digi)
+
+ffi_zdc_ecal_reco = CalHitReco('ffi_zdc_ecal_reco',
+        inputHitCollection = ffi_zdc_ecal_digi.outputHitCollection,
+        outputHitCollection = 'ZDCEcalRecHits',
+        readoutClass = 'ZDCEcalHits',
+        localDetFields = ['system'])
+algorithms.append(ffi_zdc_ecal_reco)
+
+ffi_zdc_ecal_cl = IslandCluster('ffi_zdc_ecal_cl',
+        inputHitCollection = ffi_zdc_ecal_reco.outputHitCollection,
+        outputProtoClusterCollection = 'ZDCEcalProtoClusters',
+        **ffi_zdc_ecal_cl_kwargs)
+algorithms.append(ffi_zdc_ecal_cl)
+
+ffi_zdc_ecal_clreco = RecoCoG('ffi_zdc_ecal_clreco',
+        inputHitCollection = ffi_zdc_ecal_cl.inputHitCollection,
+        inputProtoClusterCollection = ffi_zdc_ecal_cl.outputProtoClusterCollection,
+        outputClusterCollection = 'ZDCEcalClusters',
+        mcHits = "ZDCEcalHits",
+        logWeightBase = 3.6,
+        samplingFraction = ffi_zdc_ecal_sf)
+algorithms.append(ffi_zdc_ecal_clreco)
+
+# ZDC HCAL PbSciFi
+ffi_zdc_hcal_digi = CalHitDigi('ffi_zdc_hcal_digi',
+        inputHitCollection = 'ZDCHcalHits',
+        outputHitCollection = 'ZDCHcalRawHits')
+algorithms.append(ffi_zdc_hcal_digi)
+
+ffi_zdc_hcal_reco = CalHitReco('ffi_zdc_hcal_reco',
+        inputHitCollection = ffi_zdc_hcal_digi.outputHitCollection,
+        outputHitCollection = 'ZDCHcalRecHits',
+        readoutClass = 'ZDCHcalHits',
+        localDetFields = ['system'])
+algorithms.append(ffi_zdc_hcal_reco)
+
+ffi_zdc_hcal_cl = IslandCluster('ffi_zdc_hcal_cl',
+        inputHitCollection = ffi_zdc_hcal_reco.outputHitCollection,
+        outputProtoClusterCollection = 'ZDCHcalProtoClusters',
+        **ffi_zdc_hcal_cl_kwargs)
+algorithms.append(ffi_zdc_hcal_cl)
+
+ffi_zdc_hcal_clreco = RecoCoG('ffi_zdc_hcal_clreco',
+        inputHitCollection = ffi_zdc_hcal_cl.inputHitCollection,
+        inputProtoClusterCollection = ffi_zdc_hcal_cl.outputProtoClusterCollection,
+        outputClusterCollection = 'ZDCHcalClusters',
+        mcHits = "ZDCHcalHits",
+        logWeightBase = 3.6,
+        samplingFraction = ffi_zdc_hcal_sf)
+algorithms.append(ffi_zdc_hcal_clreco)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = calo_daq['ecal_neg_endcap']
