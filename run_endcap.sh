@@ -103,15 +103,15 @@ ls -lh ${GEN_FILE}
 # Run geant4 simulations
 npsim --runType batch \
       -v WARNING \
-      --part.minimalKineticEnergy "0.5*MeV" \
+      --part.minimalKineticEnergy "0.5*GeV" \
       --physics.list "FTFP_BERT_HP" \
-      --physics.rangecut "None" \
+      --physics.rangecut "0.01*mm" \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --skipNEvents ${SKIP_N_EVENTS} \
       --compactFile ${JUGGLER_COMPACT_PATH} \
       --inputFiles ${GEN_FILE} \
       --outputFile ${JUGGLER_SIM_FILE}
-#-G --gun.particle "${particle}" --gun.energy "${ENERGY}*GeV" --gun.position "2.5025*cm 2.4747*cm -8.5*cm" --gun.direction "0 0.3420201433 0.9396926208" \
+#-G --gun.particle "${particle}" --gun.energy "${ENERGY}*GeV" --gun.position "-2.5025*cm 2.4747*cm 350.*cm" --gun.direction "0 0.17364817766 0.98480775301" \
 
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running npdet"
