@@ -95,7 +95,7 @@ FILE_NAME_TAG="tcs"
 DATA_URL="S3/eictest/ATHENA/EVGEN/EXCLUSIVE/TCS_ABCONV/${EBEAM}x${PBEAM}/hel_minus/TCS_gen_ab_hiAcc_${EBEAM}x${PBEAM}m_${TAG}_novtx.hepmc.gz"
 
 export JUGGLER_MC_FILE="${LOCAL_DATA_PATH}/mc_${FILE_NAME_TAG}.hepmc"
-export JUGGLER_SIM_FILE="${LOCAL_DATA_PATH}/sim_${FILE_NAME_TAG}.root"
+export JUGGLER_SIM_FILE="${LOCAL_DATA_PATH}/sim_${FILE_NAME_TAG}.edm4hep.root"
 export JUGGLER_REC_FILE="${LOCAL_DATA_PATH}/rec_${FILE_NAME_TAG}.root"
 
 echo "FILE_NAME_TAG       = ${FILE_NAME_TAG}"
@@ -121,15 +121,16 @@ fi
 ### Step 2. Run the simulation (geant4)
 if [[ -n "${DO_SIM}" || -n "${DO_ALL}" ]] ; then
   ## run geant4 simulations
-  npsim --runType batch \
+  ddsim --runType batch \
     --part.minimalKineticEnergy 1000*GeV  \
+    --filter.tracker edep0 \
     -v ERROR \
     --numberOfEvents ${JUGGLER_N_EVENTS} \
     --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
     --inputFiles "${JUGGLER_MC_FILE}" \
     --outputFile  ${JUGGLER_SIM_FILE}
   if [ "$?" -ne "0" ] ; then
-    echo "ERROR running npsim"
+    echo "ERROR running ddsim"
     exit 1
   fi
 fi

@@ -83,7 +83,7 @@ int vm_invar(const std::string& config_name)
 
   // Define analysis flow
   auto d_im = d.Define("p_rec_sorted", momenta_sort_rec, {"ReconstructedParticles"})
-                  .Define("p_sim_sorted", momenta_sort_sim, {"mcparticles"})
+                  .Define("p_sim_sorted", momenta_sort_sim, {"MCParticles"})
                   .Define("N", "p_rec_sorted.size()")
                   .Define("invariant_quantities_rec", util::calc_inv_quant, {"p_rec_sorted"})
                   .Define("invariant_quantities_sim", util::calc_inv_quant, {"p_sim_sorted"})

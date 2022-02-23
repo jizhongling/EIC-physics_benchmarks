@@ -35,8 +35,10 @@ void tcs_tests(const char* fname = "rec_tcs.root"){
   ) -> std::vector<float> {
     std::vector<float> theta;
     for (const auto& p: v)
-      if (p.status == status)
-        theta.push_back(1000. * p.direction.theta);
+      if (p.status == status) {
+        const auto& mom = p.p;
+        theta.push_back(1000. * std::atan2(std::hypot(mom.x, mom.y), mom.z));
+      }
     return theta;
   };
 

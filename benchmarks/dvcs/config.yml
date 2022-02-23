@@ -1,12 +1,18 @@
+dvcs:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py dvcs
+
 dvcs:process:
   stage: process
   extends: .phy_benchmark
   tags:
     - phy
-  needs: ["common:detector"]
+  needs: ["common:detector", "dvcs:compile"]
   script:
-    - compile_analyses.py dvcs
-    - bash benchmarks/dvcs/dvcs.sh --all
+    #- bash benchmarks/dvcs/dvcs.sh --all
+    - bash benchmarks/dvcs/dvcs.sh --data-init --sim --rec
 
 dvcs:results:
   stage: collect

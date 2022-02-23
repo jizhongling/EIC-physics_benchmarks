@@ -101,10 +101,10 @@ int rec_analysis_raw(const std::string& config_name)
   auto h_adc_EcalBarrelScFiRawHits = d0.Histo1D({"h_adc_EcalBarrelScFiRawHits", "EcalBarrelScFi; amplitude; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.amplitude");
   auto h_adc_EcalEndcapNRawHits = d0.Histo1D({"h_adc_EcalEndcapNRawHits", "EcalEndcapN; amplitude; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.amplitude");
   // Ecal tdc
-  auto h_tdc_EcalEndcapPRawHits = d0.Histo1D({"h_tdc_EcalEndcapPRawHits", "EcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.time");
-  auto h_tdc_EcalBarrelImagingRawHits = d0.Histo1D({"h_tdc_EcalBarrelImagingRawHits", "EcalBarrelImaging; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelImagingRawHits.time");
-  auto h_tdc_EcalBarrelScFiRawHits = d0.Histo1D({"h_tdc_EcalBarrelScFiRawHits", "EcalBarrelScFi; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.time");
-  auto h_tdc_EcalEndcapNRawHits = d0.Histo1D({"h_tdc_EcalEndcapNRawHits", "EcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.time");
+  auto h_tdc_EcalEndcapPRawHits = d0.Histo1D({"h_tdc_EcalEndcapPRawHits", "EcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapPRawHits.timeStamp");
+  auto h_tdc_EcalBarrelImagingRawHits = d0.Histo1D({"h_tdc_EcalBarrelImagingRawHits", "EcalBarrelImaging; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelImagingRawHits.timeStamp");
+  auto h_tdc_EcalBarrelScFiRawHits = d0.Histo1D({"h_tdc_EcalBarrelScFiRawHits", "EcalBarrelScFi; TDC channel; counts", 1024, 0, 32768}, "EcalBarrelScFiRawHits.timeStamp");
+  auto h_tdc_EcalEndcapNRawHits = d0.Histo1D({"h_tdc_EcalEndcapNRawHits", "EcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "EcalEndcapNRawHits.timeStamp");
   // Hcal hits
   auto h_n_HcalEndcapPRawHits = d0.Histo1D({"h_n_HcalEndcapPRawHits", "HcalEndcapP; hits; counts", 100, 0, 1000}, "n_HcalEndcapPRawHits");
   auto h_n_HcalBarrelRawHits  = d0.Histo1D({"h_n_HcalBarrelRawHits",  "HcalBarrel; hits; counts", 100, 0, 1000}, "n_HcalBarrelRawHits");
@@ -118,9 +118,9 @@ int rec_analysis_raw(const std::string& config_name)
   auto h_adc_HcalBarrelRawHits  = d0.Histo1D({"h_adc_HcalBarrelRawHits",  "HcalBarrel; hits; counts", 1024, 0, 32768}, "HcalBarrelRawHits.amplitude");
   auto h_adc_HcalEndcapNRawHits = d0.Histo1D({"h_adc_HcalEndcapNRawHits", "HcalEndcapN; hits; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.amplitude");
   // Hcal tdc
-  auto h_tdc_HcalEndcapPRawHits = d0.Histo1D({"h_tdc_HcalEndcapPRawHits", "HcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.time");
-  auto h_tdc_HcalBarrelRawHits  = d0.Histo1D({"h_tdc_HcalBarrelRawHits",  "HcalBarrel; TDC channel; counts", 1024, 0, 32768}, "HcalBarrelRawHits.time");
-  auto h_tdc_HcalEndcapNRawHits = d0.Histo1D({"h_tdc_HcalEndcapNRawHits", "HcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.time");
+  auto h_tdc_HcalEndcapPRawHits = d0.Histo1D({"h_tdc_HcalEndcapPRawHits", "HcalEndcapP; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapPRawHits.timeStamp");
+  auto h_tdc_HcalBarrelRawHits  = d0.Histo1D({"h_tdc_HcalBarrelRawHits",  "HcalBarrel; TDC channel; counts", 1024, 0, 32768}, "HcalBarrelRawHits.timeStamp");
+  auto h_tdc_HcalEndcapNRawHits = d0.Histo1D({"h_tdc_HcalEndcapNRawHits", "HcalEndcapN; TDC channel; counts", 1024, 0, 32768}, "HcalEndcapNRawHits.timeStamp");
 
   // other detector stats
   //auto stats_n_B0PreshowerRawHits = d0.Stats("n_B0PreshowerRawHits");

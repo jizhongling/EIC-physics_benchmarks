@@ -61,11 +61,11 @@ from Configurables import Jug__Reco__CalorimeterHitsMerger as CalHitsMerger
 from Configurables import Jug__Reco__CalorimeterIslandCluster as IslandCluster
 from Configurables import Jug__Reco__ClusterRecoCoG as RecoCoG
 from Configurables import Jug__Fast__TruthClustering as TruthClustering
-from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
+#from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
 
 # branches needed from simulation root file
 sim_coll = [
-    "mcparticles",
+    "MCParticles",
     "EcalEndcapNHits",
     "EcalEndcapPHits",
 ]
@@ -111,20 +111,16 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 algorithms.append(ce_ecal_cl)
 
 ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
-        #inputHitCollection=ce_ecal_cl.inputHitCollection,
-        inputHitCollection=ce_ecal_cl.inputHits,
-        #inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
         inputProtoClusterCollection=ce_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapNClusters",
-        mcHits="EcalEndcapNHits",
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
 
-ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
-        inputClusters = ce_ecal_clreco.outputClusterCollection,
-        outputClusters = "EcalEndcapNMergedClusters",
-        outputRelations = "EcalEndcapNMergedClusterRelations")
-algorithms.append(ce_ecal_clmerger)
+#ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
+#        inputClusters = ce_ecal_clreco.outputClusterCollection,
+#        outputClusters = "EcalEndcapNMergedClusters",
+#        outputRelations = "EcalEndcapNMergedClusterRelations")
+#algorithms.append(ce_ecal_clmerger)
 
 # Endcap ScFi Ecal
 ci_ecal_daq = calo_daq['ecal_pos_endcap']
@@ -169,21 +165,17 @@ ci_ecal_cl = TruthClustering("ci_ecal_cl",
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
-        #inputHitCollection=ci_ecal_cl.inputHitCollection,
-        inputHitCollection=ci_ecal_cl.inputHits,
-        #inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
         inputProtoClusterCollection=ci_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapPClusters",
         enableEtaBounds=True,
-        mcHits="EcalEndcapPHits",
         logWeightBase=6.2)
 algorithms.append(ci_ecal_clreco)
 
-ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
-        inputClusters = ci_ecal_clreco.outputClusterCollection,
-        outputClusters = "EcalEndcapPMergedClusters",
-        outputRelations = "EcalEndcapPMergedClusterRelations")
-algorithms.append(ci_ecal_clmerger)
+#ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
+#        inputClusters = ci_ecal_clreco.outputClusterCollection,
+#        outputClusters = "EcalEndcapPMergedClusters",
+#        outputRelations = "EcalEndcapPMergedClusterRelations")
+#algorithms.append(ci_ecal_clmerger)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)

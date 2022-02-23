@@ -13,6 +13,7 @@ default:
       - .local/bin
       - .local/include
       - .local/share
+      - .local/root_build
       - results
       - config
       - juggler.env
@@ -22,6 +23,7 @@ default:
 stages:
   - config
   - initialize
+  - compile
   - generate
   - process
   - collect
@@ -48,6 +50,12 @@ common:detector:
     - mkdir -p results
     - mkdir -p config
     - print_env.sh
+
+.compile_benchmark:
+  needs:
+    - ["common:setup"]
+  before_script:
+    - source .local/bin/env.sh  
 
 .phy_benchmark:
   needs:

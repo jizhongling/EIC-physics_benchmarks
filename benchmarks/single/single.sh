@@ -6,20 +6,21 @@ fi
 
 export JUGGLER_FILE_NAME_TAG="${1:-e-_1GeV_45to135deg}"
 export JUGGLER_GEN_FILE="benchmarks/single/${JUGGLER_FILE_NAME_TAG}.steer"
-export JUGGLER_SIM_FILE="sim_${JUGGLER_FILE_NAME_TAG}.root"
+export JUGGLER_SIM_FILE="sim_${JUGGLER_FILE_NAME_TAG}.edm4hep.root"
 export JUGGLER_REC_FILE="rec_${JUGGLER_FILE_NAME_TAG}.root"
 
 # Simulate
-npsim --runType run \
+ddsim --runType run \
       --printLevel WARNING \
       --enableGun \
       --steeringFile ${JUGGLER_GEN_FILE} \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --part.minimalKineticEnergy 1*TeV  \
+      --filter.tracker edep0 \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --outputFile  ${JUGGLER_SIM_FILE}
 if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running npsim"
+  echo "ERROR running ddsim"
   exit 1
 fi
 

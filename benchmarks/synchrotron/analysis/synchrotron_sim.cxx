@@ -20,7 +20,7 @@ R__LOAD_LIBRARY(libDD4pod.so)
 
 #include "eicd/ReconstructedParticleCollection.h"
 
-void synchrotron_sim(const char* fname = "sim_synchrotron.root"){
+void synchrotron_sim(const char* fname = "sim_synchrotron.edm4hep.root"){
 
   fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green), "Running synchrotron analysis...\n");
 

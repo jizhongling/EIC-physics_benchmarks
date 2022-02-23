@@ -3,7 +3,7 @@
 ## =============================================================================
 ## Run the DIS benchmarks in 5 steps:
 ## 1. Parse the command line and setup environment
-## 2. Detector simulation through npsim
+## 2. Detector simulation through ddsim
 ## 3. Digitization and reconstruction through Juggler
 ## 4. Root-based Physics analyses
 ## 5. Finalize
@@ -48,7 +48,7 @@ source benchmarks/dis/env.sh
 ## Get a unique file names based on the configuration options
 GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${JUGGLER_N_EVENTS}.hepmc
 
-SIM_FILE=${TMP_PATH}/sim-${CONFIG}.root
+SIM_FILE=${TMP_PATH}/sim-${CONFIG}.edm4hep.root
 SIM_LOG=${TMP_PATH}/sim-${CONFIG}.log
 
 
@@ -60,16 +60,19 @@ PLOT_TAG=${CONFIG}
 ## =============================================================================
 ## Step 2: Run the simulation
 echo "Running Geant4 simulation"
-npsim --runType batch \
+if [ ! -f ${SIM_FILE} ] ; then
+ddsim --runType batch \
       --part.minimalKineticEnergy 1000*GeV  \
+      --filter.tracker edep0 \
       -v INFO \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
-  echo "ERROR running npsim"
+  echo "ERROR running ddsim"
   exit 1
+fi
 fi
 
 ## =============================================================================
@@ -110,11 +113,13 @@ cat << EOF > ${CONFIG}
   "test_tag": "${BEAM_TAG}"
 }
 EOF
-root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
-if [[ "$?" -ne "0" ]] ; then
-  echo "ERROR running dis_electron script"
-  exit 1
-fi
+
+#FIXME DIS analysis disabled
+#root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
+#if [[ "$?" -ne "0" ]] ; then
+#  echo "ERROR running dis_electron script"
+#  exit 1
+#fi
 
 CONFIG="${TMP_PATH}/${PLOT_TAG}.raw.json"
 cat << EOF > ${CONFIG}

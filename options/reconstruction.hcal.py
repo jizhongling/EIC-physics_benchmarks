@@ -65,7 +65,7 @@ from Configurables import Jug__Reco__ClusterRecoCoG as RecoCoG
 
 # branches needed from simulation root file
 sim_coll = [
-    "mcparticles",
+    "MCParticles",
     "HcalEndcapPHits",
     "HcalEndcapNHits",
 ]
@@ -111,10 +111,8 @@ ci_hcal_cl = IslandCluster("ci_hcal_cl",
 algorithms.append(ci_hcal_cl)
 
 ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
-        inputHitCollection=ci_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapPClusters",
-        mcHits="HcalEndcapPHits",
         logWeightBase=6.2)
 algorithms.append(ci_hcal_clreco)
 
@@ -152,10 +150,8 @@ ce_hcal_cl = IslandCluster("ce_hcal_cl",
 algorithms.append(ce_hcal_cl)
 
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
-        inputHitCollection=ce_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapNClusters",
-        mcHits="HcalEndcapNHits",
         logWeightBase=6.2)
 algorithms.append(ce_hcal_clreco)
 

@@ -1,12 +1,18 @@
+u_omega:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py u_omega
+
 u_omega:process:
   stage: process
   extends: .phy_benchmark
   tags:
     - phy
-  needs: ["common:detector"]
+  needs: ["common:detector", "u_omega:compile"]
   script:
-    - compile_analyses.py u_omega
-    - bash benchmarks/u_omega/u_omega.sh --all
+    #- bash benchmarks/u_omega/u_omega.sh --all
+    - bash benchmarks/u_omega/u_omega.sh --data-init --sim --rec
 
 u_omega:results:
   stage: collect
