@@ -81,7 +81,7 @@ OUTDIR=${SPIN}/data/eic/${nametag}
 mkdir -p ${OUTDIR}
 SKIP_N_EVENTS=$(( 0 * PROC * JUGGLER_N_EVENTS ))
 export GEN_FILE="${OUTDIR}/gen_${ENERGY}GeV_${ANGLE}deg-${PROC}.hepmc"
-export JUGGLER_SIM_FILE="${OUTDIR}/sim_${ENERGY}GeV_${ANGLE}deg-${PROC}.edm4hep.root"
+export JUGGLER_SIM_FILE="${OUTDIR}/sim_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
 export JUGGLER_REC_FILE="${OUTDIR}/rec_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
