@@ -1,5 +1,11 @@
+dvmp:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py dvmp
+
 dvmp:generate:
-  needs: ["common:detector"]
+  needs: ["common:detector", "dvmp:compile"]
   image: eicweb.phy.anl.gov:4567/monte_carlo/lager/lager:unstable
   extends: .phy_benchmark
   stage: generate
@@ -14,11 +20,9 @@ dvmp:generate:
 dvmp:process:
   stage: process
   extends: .phy_benchmark
-  needs: ["common:detector", "dvmp:generate"]
+  needs: ["dvmp:generate"]
   timeout: 2 hour
   script:
-    - ls -lrth
-    - compile_analyses.py dvmp
     - ls -lrth
     - run_many.py ./benchmarks/dvmp/dvmp.sh 
           -c jpsi_barrel 

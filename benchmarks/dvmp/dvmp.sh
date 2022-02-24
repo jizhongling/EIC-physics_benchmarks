@@ -3,7 +3,7 @@
 ## =============================================================================
 ## Run the DVMP benchmarks in 5 steps:
 ## 1. Parse the command line and setup environment
-## 2. Detector simulation through npsim
+## 2. Detector simulation through ddsim
 ## 3. Digitization and reconstruction through Juggler
 ## 4. Root-based Physics analyses
 ## 5. Finalize
@@ -44,7 +44,7 @@ source benchmarks/dvmp/env.sh
 ## Get a unique file names based on the configuration options
 GEN_FILE=${INPUT_PATH}/gen-${CONFIG}_${DECAY}_${JUGGLER_N_EVENTS}.hepmc
 
-SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.root
+SIM_FILE=${TMP_PATH}/sim-${CONFIG}_${DECAY}.edm4hep.root
 SIM_LOG=${TMP_PATH}/sim-${CONFIG}_${DECAY}.log
 
 
@@ -60,15 +60,16 @@ ls -lrth
 ls -lrth input
 echo ${TMP_PATH}
 ls -lrth ${TMP_PATH}
-npsim --runType batch \
+ddsim --runType batch \
       --part.minimalKineticEnergy 100*GeV  \
+      --filter.tracker edep0 \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
-  echo "ERROR running npsim"
+  echo "ERROR running ddsim"
   exit 1
 fi
 

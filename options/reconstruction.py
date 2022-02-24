@@ -28,6 +28,30 @@ if "PBEAM" in os.environ:
 else:
     ionBeamEnergy = 100
 
+# ZDC reconstruction calibrations
+try:
+    ffi_zdc_calibrations = 'calibrations/ffi_zdc.json'
+    with open(os.path.join(detector_path,ffi_zdc_calibrations)) as f:
+        ffi_zdc_config = json.load(f)
+        def ffi_zdc_cal_parse(ffi_zdc_cal):
+            ffi_zdc_cal_sf = float(ffi_zdc_cal['sampling_fraction'])
+            ffi_zdc_cal_cl_kwargs = {
+                'minClusterCenterEdep': eval(ffi_zdc_cal['minClusterCenterEdep']),
+                'minClusterHitEdep': eval(ffi_zdc_cal['minClusterHitEdep']),
+                'localDistXY': [
+                    eval(ffi_zdc_cal['localDistXY'][0]),
+                    eval(ffi_zdc_cal['localDistXY'][1])
+                ],
+                'splitCluster': bool(ffi_zdc_cal['splitCluster'])
+            }
+            return ffi_zdc_cal_sf, ffi_zdc_cal_cl_kwargs
+        ffi_zdc_ecal_sf, ffi_zdc_ecal_cl_kwargs = ffi_zdc_cal_parse(ffi_zdc_config['ffi_zdc_ecal'])
+        ffi_zdc_hcal_sf, ffi_zdc_hcal_cl_kwargs = ffi_zdc_cal_parse(ffi_zdc_config['ffi_zdc_hcal'])
+except (IOError, OSError):
+    print(f'Using default ffi_zdc calibrations; {ffi_zdc_calibrations} not found.')
+    ffi_zdc_ecal_sf = float(os.environ.get("FFI_ZDC_ECAL_SAMP_FRAC", 1.0))
+    ffi_zdc_hcal_sf = float(os.environ.get("FFI_ZDC_HCAL_SAMP_FRAC", 1.0))
+
 # RICH reconstruction
 qe_data = [(1.0, 0.25), (7.5, 0.25),]
 
@@ -90,20 +114,17 @@ services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNIN
 
 # juggler components
 from Configurables import PodioInput
-from Configurables import Jug__Base__InputCopier_dd4pod__Geant4ParticleCollection_dd4pod__Geant4ParticleCollection_ as MCCopier
-from Configurables import Jug__Base__InputCopier_dd4pod__CalorimeterHitCollection_dd4pod__CalorimeterHitCollection_ as CalCopier
-from Configurables import Jug__Base__InputCopier_dd4pod__TrackerHitCollection_dd4pod__TrackerHitCollection_ as TrkCopier
-from Configurables import Jug__Base__InputCopier_dd4pod__PhotoMultiplierHitCollection_dd4pod__PhotoMultiplierHitCollection_ as PMTCopier
 
 from Configurables import Jug__Fast__MC2SmearedParticle as MC2DummyParticle
 from Configurables import Jug__Fast__ParticlesWithTruthPID as ParticlesWithTruthPID
 from Configurables import Jug__Fast__SmearedFarForwardParticles as FFSmearedParticles
-from Configurables import Jug__Fast__MatchClusters as MatchClusters
-from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
-from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
-from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
+#from Configurables import Jug__Fast__MatchClusters as MatchClusters
+#from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
+#from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
+#from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
 from Configurables import Jug__Fast__TruthClustering as TruthClustering
 
+from Configurables import Jug__Digi__SimTrackerHitsCollector as SimTrackerHitsCollector
 from Configurables import Jug__Digi__PhotoMultiplierDigi as PhotoMultiplierDigi
 from Configurables import Jug__Digi__CalorimeterHitDigi as CalHitDigi
 from Configurables import Jug__Digi__SiliconTrackerDigi as TrackerDigi
@@ -120,9 +141,11 @@ from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVe
 from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
 # from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
-from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
-from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
-from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
+#from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
+#from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
+#from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
+#from Configurables import Jug__Reco__InclusiveKinematicsSigma as InclusiveKinematicsSigma
+#from Configurables import Jug__Reco__InclusiveKinematicseSigma as InclusiveKinematicseSigma
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
 from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
@@ -144,10 +167,8 @@ from Configurables import Jug__Reco__ParticleCollector as ParticleCollector
 
 # branches needed from simulation root file
 sim_coll = [
-    'mcparticles',
+    'MCParticles',
     'B0TrackerHits',
-    'ForwardRomanPotHits',
-    'ForwardOffMTrackerHits',
     'EcalEndcapNHits',
     'EcalEndcapPHits',
     'EcalBarrelHits',
@@ -155,17 +176,57 @@ sim_coll = [
     'HcalBarrelHits',
     'HcalEndcapPHits',
     'HcalEndcapNHits',
-    'TrackerEndcapHits',
-    'TrackerBarrelHits',
-    'GEMTrackerEndcapHits',
-    'VertexBarrelHits',
     'DRICHHits',
+    'ZDCEcalHits',
+    'ZDCHcalHits',
 ]
+
+forward_romanpot_collections = [
+    'ForwardRomanPotHits1',
+    'ForwardRomanPotHits2'
+]
+forward_offmtracker_collections = [
+    'ForwardOffMTrackerHits1',
+    'ForwardOffMTrackerHits2',
+    'ForwardOffMTrackerHits3',
+    'ForwardOffMTrackerHits4'
+]
+sim_coll += forward_romanpot_collections + forward_offmtracker_collections
+
+tracker_endcap_collections = [
+    'TrackerEndcapHits1',
+    'TrackerEndcapHits2',
+    'TrackerEndcapHits3',
+    'TrackerEndcapHits4',
+    'TrackerEndcapHits5',
+    'TrackerEndcapHits6'
+]
+tracker_barrel_collections = [
+    'TrackerBarrelHits'
+]
+vertex_barrel_collections = [
+    'VertexBarrelHits'
+]
+gem_endcap_collections = [
+    'GEMTrackerEndcapHits1',
+    'GEMTrackerEndcapHits2',
+    'GEMTrackerEndcapHits3'
+]
+sim_coll += tracker_endcap_collections + tracker_barrel_collections + vertex_barrel_collections + gem_endcap_collections
+
+vertex_endcap_collections = [
+    'VertexEndcapHits'
+]
+mpgd_barrel_collections = [
+    'MPGDTrackerBarrelHits1',
+    'MPGDTrackerBarrelHits2'
+]
+
 if 'acadia' in detector_version:
-    sim_coll.append('VertexEndcapHits')
+    sim_coll += vertex_endcap_collections
     sim_coll.append('MRICHHits')
 else:
-    sim_coll.append('MPGDTrackerBarrelHits')
+    sim_coll += mpgd_barrel_collections
 
 # list of algorithms
 algorithms = []
@@ -176,21 +237,25 @@ algorithms.append(podin)
 
 # Generated particles
 dummy = MC2DummyParticle("dummy",
-        inputParticles="mcparticles",
+        inputParticles="MCParticles",
         outputParticles="GeneratedParticles",
         smearing=0)
 algorithms.append(dummy)
 
 # Truth level kinematics
-truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
-        inputMCParticles="mcparticles",
-        outputData="InclusiveKinematicsTruth"
-)
-algorithms.append(truth_incl_kin)
+#truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
+#        inputMCParticles="MCParticles",
+#        outputData="InclusiveKinematicsTruth"
+#)
+#algorithms.append(truth_incl_kin)
 
 ## Roman pots
+ffi_romanpot_coll = SimTrackerHitsCollector("ffi_romanpot_coll",
+        inputSimTrackerHits = forward_romanpot_collections,
+        outputSimTrackerHits = "ForwardRomanPotAllHits")
+algorithms.append(ffi_romanpot_coll)
 ffi_romanpot_digi = TrackerDigi("ffi_romanpot_digi",
-        inputHitCollection = "ForwardRomanPotHits",
+        inputHitCollection = ffi_romanpot_coll.outputSimTrackerHits,
         outputHitCollection = "ForwardRomanPotRawHits",
         timeResolution = 8)
 algorithms.append(ffi_romanpot_digi)
@@ -206,8 +271,12 @@ ffi_romanpot_parts = FarForwardParticles("ffi_romanpot_parts",
 algorithms.append(ffi_romanpot_parts)
 
 ## Off momentum tracker
+ffi_offmtracker_coll = SimTrackerHitsCollector("ffi_offmtracker_coll",
+        inputSimTrackerHits = forward_offmtracker_collections,
+        outputSimTrackerHits = "ForwardOffMTrackerAllHits")
+algorithms.append(ffi_offmtracker_coll)
 ffi_offmtracker_digi = TrackerDigi("ffi_offmtracker_digi",
-        inputHitCollection = "ForwardOffMTrackerHits",
+        inputHitCollection = ffi_offmtracker_coll.outputSimTrackerHits,
         outputHitCollection = "ForwardOffMTrackerRawHits",
         timeResolution = 8)
 algorithms.append(ffi_offmtracker_digi)
@@ -233,6 +302,58 @@ trk_b0_reco = TrackerHitReconstruction("trk_b0_reco",
         inputHitCollection = trk_b0_digi.outputHitCollection,
         outputHitCollection="B0TrackerRecHits")
 algorithms.append(trk_b0_reco)
+
+# ZDC ECAL WSciFi
+ffi_zdc_ecal_digi = CalHitDigi('ffi_zdc_ecal_digi',
+        inputHitCollection = 'ZDCEcalHits',
+        outputHitCollection = 'ZDCEcalRawHits')
+algorithms.append(ffi_zdc_ecal_digi)
+
+ffi_zdc_ecal_reco = CalHitReco('ffi_zdc_ecal_reco',
+        inputHitCollection = ffi_zdc_ecal_digi.outputHitCollection,
+        outputHitCollection = 'ZDCEcalRecHits',
+        readoutClass = 'ZDCEcalHits',
+        localDetFields = ['system'])
+algorithms.append(ffi_zdc_ecal_reco)
+
+ffi_zdc_ecal_cl = IslandCluster('ffi_zdc_ecal_cl',
+        inputHitCollection = ffi_zdc_ecal_reco.outputHitCollection,
+        outputProtoClusterCollection = 'ZDCEcalProtoClusters',
+        **ffi_zdc_ecal_cl_kwargs)
+algorithms.append(ffi_zdc_ecal_cl)
+
+ffi_zdc_ecal_clreco = RecoCoG('ffi_zdc_ecal_clreco',
+        inputProtoClusterCollection = ffi_zdc_ecal_cl.outputProtoClusterCollection,
+        outputClusterCollection = 'ZDCEcalClusters',
+        logWeightBase = 3.6,
+        samplingFraction = ffi_zdc_ecal_sf)
+algorithms.append(ffi_zdc_ecal_clreco)
+
+# ZDC HCAL PbSciFi
+ffi_zdc_hcal_digi = CalHitDigi('ffi_zdc_hcal_digi',
+        inputHitCollection = 'ZDCHcalHits',
+        outputHitCollection = 'ZDCHcalRawHits')
+algorithms.append(ffi_zdc_hcal_digi)
+
+ffi_zdc_hcal_reco = CalHitReco('ffi_zdc_hcal_reco',
+        inputHitCollection = ffi_zdc_hcal_digi.outputHitCollection,
+        outputHitCollection = 'ZDCHcalRecHits',
+        readoutClass = 'ZDCHcalHits',
+        localDetFields = ['system'])
+algorithms.append(ffi_zdc_hcal_reco)
+
+ffi_zdc_hcal_cl = IslandCluster('ffi_zdc_hcal_cl',
+        inputHitCollection = ffi_zdc_hcal_reco.outputHitCollection,
+        outputProtoClusterCollection = 'ZDCHcalProtoClusters',
+        **ffi_zdc_hcal_cl_kwargs)
+algorithms.append(ffi_zdc_hcal_cl)
+
+ffi_zdc_hcal_clreco = RecoCoG('ffi_zdc_hcal_clreco',
+        inputProtoClusterCollection = ffi_zdc_hcal_cl.outputProtoClusterCollection,
+        outputClusterCollection = 'ZDCHcalClusters',
+        logWeightBase = 3.6,
+        samplingFraction = ffi_zdc_hcal_sf)
+algorithms.append(ffi_zdc_hcal_clreco)
 
 # Crystal Endcap Ecal
 ce_ecal_daq = calo_daq['ecal_neg_endcap']
@@ -268,20 +389,16 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 algorithms.append(ce_ecal_cl)
 
 ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
-        #inputHitCollection=ce_ecal_cl.inputHitCollection,
-        inputHitCollection=ce_ecal_cl.inputHits,
-        #inputProtoClusterCollection=ce_ecal_cl.outputProtoClusterCollection,
         inputProtoClusterCollection=ce_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapNClusters",
-        mcHits="EcalEndcapNHits",
         logWeightBase=4.6)
 algorithms.append(ce_ecal_clreco)
 
-ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
-        inputClusters = ce_ecal_clreco.outputClusterCollection,
-        outputClusters = "EcalEndcapNMergedClusters",
-        outputRelations = "EcalEndcapNMergedClusterRelations")
-algorithms.append(ce_ecal_clmerger)
+#ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
+#        inputClusters = ce_ecal_clreco.outputClusterCollection,
+#        outputClusters = "EcalEndcapNMergedClusters",
+#        outputRelations = "EcalEndcapNMergedClusterRelations")
+#algorithms.append(ce_ecal_clmerger)
 
 # Endcap ScFi Ecal
 ci_ecal_daq = calo_daq['ecal_pos_endcap']
@@ -326,21 +443,17 @@ ci_ecal_cl = TruthClustering("ci_ecal_cl",
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
-        #inputHitCollection=ci_ecal_cl.inputHitCollection,
-        inputHitCollection=ci_ecal_cl.inputHits,
-        #inputProtoClusterCollection=ci_ecal_cl.outputProtoClusterCollection,
         inputProtoClusterCollection=ci_ecal_cl.outputProtoClusters,
         outputClusterCollection="EcalEndcapPClusters",
         enableEtaBounds=True,
-        mcHits="EcalEndcapPHits",
         logWeightBase=6.2)
 algorithms.append(ci_ecal_clreco)
 
-ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
-        inputClusters = ci_ecal_clreco.outputClusterCollection,
-        outputClusters = "EcalEndcapPMergedClusters",
-        outputRelations = "EcalEndcapPMergedClusterRelations")
-algorithms.append(ci_ecal_clmerger)
+#ci_ecal_clmerger = ClusterMerger("ci_ecal_clmerger",
+#        inputClusters = ci_ecal_clreco.outputClusterCollection,
+#        outputClusters = "EcalEndcapPMergedClusters",
+#        outputRelations = "EcalEndcapPMergedClusterRelations")
+#algorithms.append(ci_ecal_clmerger)
 
 # Central Barrel Ecal (Imaging Cal.)
 img_barrel_daq = calo_daq['ecal_barrel_imaging']
@@ -373,11 +486,10 @@ img_barrel_cl = ImagingCluster("img_barrel_cl",
 algorithms.append(img_barrel_cl)
 
 img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
-        inputHitCollection=img_barrel_cl.inputHitCollection,
-        inputProtoClusterCollection=img_barrel_cl.outputProtoClusterCollection,
-        outputClusterCollection="EcalBarrelImagingClusters",
+        inputProtoClusters=img_barrel_cl.outputProtoClusterCollection,
+        outputClusters="EcalBarrelImagingClusters",
         mcHits="EcalBarrelHits",
-        outputLayerCollection="EcalBarrelImagingLayers")
+        outputLayers="EcalBarrelImagingLayers")
 algorithms.append(img_barrel_clreco)
 
 # Central ECAL SciFi
@@ -419,21 +531,19 @@ scfi_barrel_cl = IslandCluster("scfi_barrel_cl",
 algorithms.append(scfi_barrel_cl)
 
 scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
-         inputHitCollection=scfi_barrel_cl.inputHitCollection,
          inputProtoClusterCollection=scfi_barrel_cl.outputProtoClusterCollection,
          outputClusterCollection="EcalBarrelScFiClusters",
-         mcHits="EcalBarrelScFiHits",
          logWeightBase=6.2)
 algorithms.append(scfi_barrel_clreco)
 
 ## barrel cluster merger
-barrel_clus_merger = EnergyPositionClusterMerger("barrel_clus_merger",
-        inputMCParticles = "mcparticles",
-        inputEnergyClusters = scfi_barrel_clreco.outputClusterCollection,
-        inputPositionClusters = img_barrel_clreco.outputClusterCollection,
-        outputClusters = "EcalBarrelMergedClusters",
-        outputRelations = "EcalBarrelMergedClusterRelations")
-algorithms.append(barrel_clus_merger)
+#barrel_clus_merger = EnergyPositionClusterMerger("barrel_clus_merger",
+#        inputMCParticles = "MCParticles",
+#        inputEnergyClusters = scfi_barrel_clreco.outputClusterCollection,
+#        inputPositionClusters = img_barrel_clreco.outputClusterCollection,
+#        outputClusters = "EcalBarrelMergedClusters",
+#        outputRelations = "EcalBarrelMergedClusterRelations")
+#algorithms.append(barrel_clus_merger)
 
 
 # Central Barrel Hcal
@@ -473,10 +583,8 @@ cb_hcal_cl = IslandCluster("cb_hcal_cl",
 algorithms.append(cb_hcal_cl)
 
 cb_hcal_clreco = RecoCoG("cb_hcal_clreco",
-        inputHitCollection=cb_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=cb_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalBarrelClusters",
-        mcHits="HcalBarrelHits",
         logWeightBase=6.2)
 algorithms.append(cb_hcal_clreco)
 
@@ -514,10 +622,8 @@ ci_hcal_cl = IslandCluster("ci_hcal_cl",
 algorithms.append(ci_hcal_cl)
 
 ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
-        inputHitCollection=ci_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ci_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapPClusters",
-        mcHits="HcalEndcapPHits",
         logWeightBase=6.2)
 algorithms.append(ci_hcal_clreco)
 
@@ -555,48 +661,76 @@ ce_hcal_cl = IslandCluster("ce_hcal_cl",
 algorithms.append(ce_hcal_cl)
 
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
-        inputHitCollection=ce_hcal_cl.inputHitCollection,
         inputProtoClusterCollection=ce_hcal_cl.outputProtoClusterCollection,
         outputClusterCollection="HcalEndcapNClusters",
-        mcHits="HcalEndcapNHits",
         logWeightBase=6.2)
 algorithms.append(ce_hcal_clreco)
 
 # Tracking
+trk_b_coll = SimTrackerHitsCollector("trk_b_coll",
+        inputSimTrackerHits = tracker_barrel_collections,
+        outputSimTrackerHits = "TrackerBarrelAllHits")
+algorithms.append( trk_b_coll )
+
 trk_b_digi = TrackerDigi("trk_b_digi",
-        inputHitCollection="TrackerBarrelHits",
-        outputHitCollection="TrackerBarrelRawHits",
+        inputHitCollection = trk_b_coll.outputSimTrackerHits,
+        outputHitCollection = "TrackerBarrelRawHits",
         timeResolution=8)
 algorithms.append(trk_b_digi)
 
+trk_ec_coll = SimTrackerHitsCollector("trk_ec_coll",
+        inputSimTrackerHits = tracker_endcap_collections,
+        outputSimTrackerHits = "TrackerEndcapAllHits")
+algorithms.append( trk_ec_coll )
+
 trk_ec_digi = TrackerDigi("trk_ec_digi",
-        inputHitCollection="TrackerEndcapHits",
-        outputHitCollection="TrackerEndcapRawHits",
+        inputHitCollection = trk_ec_coll.outputSimTrackerHits,
+        outputHitCollection = "TrackerEndcapRawHits",
         timeResolution=8)
 algorithms.append(trk_ec_digi)
 
+vtx_b_coll = SimTrackerHitsCollector("vtx_b_coll",
+        inputSimTrackerHits = vertex_barrel_collections,
+        outputSimTrackerHits = "VertexBarrelAllHits")
+algorithms.append( vtx_b_coll )
+
 vtx_b_digi = TrackerDigi("vtx_b_digi",
-        inputHitCollection="VertexBarrelHits",
-        outputHitCollection="VertexBarrelRawHits",
+        inputHitCollection = vtx_b_coll.outputSimTrackerHits,
+        outputHitCollection = "VertexBarrelRawHits",
         timeResolution=8)
 algorithms.append(vtx_b_digi)
 
 if 'acadia' in detector_version:
+    vtx_ec_coll = SimTrackerHitsCollector("vtx_ec_coll",
+            inputSimTrackerHits = vertex_endcap_collections,
+            outputSimTrackerHits = "VertexEndcapAllHits")
+    algorithms.append( vtx_ec_coll )
+
     vtx_ec_digi = TrackerDigi("vtx_ec_digi", 
-            inputHitCollection="VertexEndcapHits",
-            outputHitCollection="VertexEndcapRawHits",
+            inputHitCollection = vtx_ec_coll.outputSimTrackerHits,
+            outputHitCollection = "VertexEndcapRawHits",
             timeResolution=8)
     algorithms.append( vtx_ec_digi )
 else:
+    mm_b_coll = SimTrackerHitsCollector("mm_b_coll",
+            inputSimTrackerHits = mpgd_barrel_collections,
+            outputSimTrackerHits = "MPGDTrackerBarrelAllHits")
+    algorithms.append( mm_b_coll )
+
     mm_b_digi = TrackerDigi("mm_b_digi", 
-            inputHitCollection="MPGDTrackerBarrelHits",
-            outputHitCollection="MPGDTrackerBarrelRawHits",
+            inputHitCollection = mm_b_coll.outputSimTrackerHits,
+            outputHitCollection = "MPGDTrackerBarrelRawHits",
             timeResolution=8)
     algorithms.append( mm_b_digi )
 
+gem_ec_coll = SimTrackerHitsCollector("gem_ec_coll",
+        inputSimTrackerHits = gem_endcap_collections,
+        outputSimTrackerHits = "GEMTrackerEndcapAllHits")
+algorithms.append( gem_ec_coll )
+
 gem_ec_digi = TrackerDigi("gem_ec_digi",
-        inputHitCollection="GEMTrackerEndcapHits",
-        outputHitCollection="GEMTrackerEndcapRawHits",
+        inputHitCollection = gem_ec_coll.outputSimTrackerHits,
+        outputHitCollection = "GEMTrackerEndcapRawHits",
         timeResolution=10)
 algorithms.append(gem_ec_digi)
 
@@ -656,7 +790,7 @@ algorithms.append(sourcelinker)
 
 ## Track param init
 truth_trk_init = TrackParamTruthInit("truth_trk_init",
-        inputMCParticles="mcparticles",
+        inputMCParticles="MCParticles",
         outputInitialTrackParameters="InitTrackParams")
 algorithms.append(truth_trk_init)
 
@@ -682,30 +816,31 @@ algorithms.append(parts_from_fit)
 
 # Event building
 parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
-        inputMCParticles = "mcparticles",
+        inputMCParticles = "MCParticles",
         inputTrackParameters = parts_from_fit.outputTrackParameters,
-        outputParticles = "ReconstructedChargedParticles")
+        outputParticles = "ReconstructedParticles")
+#        outputParticles = "ReconstructedChargedParticles")
 algorithms.append(parts_with_truth_pid)
 
-match_clusters = MatchClusters("match_clusters",
-        inputMCParticles = "mcparticles",
-        inputParticles = parts_with_truth_pid.outputParticles,
-        inputEcalClusters = [
-                str(ce_ecal_clmerger.outputClusters),
-                str(barrel_clus_merger.outputClusters),
-                str(ci_ecal_clmerger.outputClusters)
-        ],
-        inputHcalClusters = [
-                str(ce_hcal_clreco.outputClusterCollection),
-                str(cb_hcal_clreco.outputClusterCollection),
-                str(ci_hcal_clreco.outputClusterCollection)
-        ],
-        outputParticles = "ReconstructedParticles")
-algorithms.append(match_clusters)
+#match_clusters = MatchClusters("match_clusters",
+#        inputMCParticles = "MCParticles",
+#        inputParticles = parts_with_truth_pid.outputParticles,
+#        inputEcalClusters = [
+#                str(ce_ecal_clmerger.outputClusters),
+#                str(barrel_clus_merger.outputClusters),
+#                str(ci_ecal_clmerger.outputClusters)
+#        ],
+#        inputHcalClusters = [
+#                str(ce_hcal_clreco.outputClusterCollection),
+#                str(cb_hcal_clreco.outputClusterCollection),
+#                str(ci_hcal_clreco.outputClusterCollection)
+#        ],
+#        outputParticles = "ReconstructedParticles")
+#algorithms.append(match_clusters)
 
 ## Far Forward for now stored separately
 fast_ff = FFSmearedParticles("fast_ff",
-        inputMCParticles = "mcparticles",
+        inputMCParticles = "MCParticles",
         outputParticles  = "ReconstructedFFParticles",
         enableZDC        = True,
         enableB0         = True,
@@ -746,24 +881,36 @@ if 'acadia' in detector_version:
     algorithms.append(mrich_reco)
 
 # Inclusive kinematics
-incl_kin_electron = InclusiveKinematicsElectron("incl_kin_electron",
-        inputMCParticles="mcparticles",
-        inputParticles="ReconstructedParticles",
-        outputData="InclusiveKinematicsElectron"
-)
-algorithms.append(incl_kin_electron)
-incl_kin_jb = InclusiveKinematicsJB("incl_kin_jb",
-        inputMCParticles="mcparticles",
-        inputParticles="ReconstructedParticles",
-        outputData="InclusiveKinematicsJB"
-)
-algorithms.append(incl_kin_jb)
-incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
-        inputMCParticles="mcparticles",
-        inputParticles="ReconstructedParticles",
-        outputData="InclusiveKinematicsDA"
-)
-algorithms.append(incl_kin_da)
+#incl_kin_electron = InclusiveKinematicsElectron("incl_kin_electron",
+#        inputMCParticles="MCParticles",
+#        inputParticles="ReconstructedParticles",
+#        outputData="InclusiveKinematicsElectron"
+#)
+#algorithms.append(incl_kin_electron)
+#incl_kin_jb = InclusiveKinematicsJB("incl_kin_jb",
+#        inputMCParticles="MCParticles",
+#        inputParticles="ReconstructedParticles",
+#        outputData="InclusiveKinematicsJB"
+#)
+#algorithms.append(incl_kin_jb)
+#incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
+#        inputMCParticles="MCParticles",
+#        inputParticles="ReconstructedParticles",
+#        outputData="InclusiveKinematicsDA"
+#)
+#algorithms.append(incl_kin_da)
+#incl_kin_sigma = InclusiveKinematicsSigma("incl_kin_sigma",
+#        inputMCParticles="MCParticles",
+#        inputParticles="ReconstructedParticles",
+#        outputData="InclusiveKinematicsSigma"
+#)
+#algorithms.append(incl_kin_sigma)
+#incl_kin_esigma = InclusiveKinematicseSigma("incl_kin_esigma",
+#        inputMCParticles="MCParticles",
+#        inputParticles="ReconstructedParticles",
+#        outputData="InclusiveKinematicseSigma"
+#)
+#algorithms.append(incl_kin_esigma)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)
@@ -778,7 +925,7 @@ podout.outputCommands = [
         ] + [
         "drop " + c for c in sim_coll
         ] + [
-        "keep mcparticles"
+        "keep MCParticles"
         ]
 algorithms.append(podout)
 

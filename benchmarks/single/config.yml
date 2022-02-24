@@ -1,7 +1,13 @@
+single:compile:
+  extends: .compile_benchmark
+  stage: compile
+  script:
+    - compile_analyses.py single
+
 single:process:
   extends: .phy_benchmark
   timeout: 24 hours
   stage: process
+  needs: ["common:detector", "single:compile"]
   script:
-    - compile_analyses.py single
     - bash benchmarks/single/single.sh e-_1GeV_45to135deg

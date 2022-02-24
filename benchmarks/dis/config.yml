@@ -1,7 +1,13 @@
+dis:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py dis
+
 dis:generate:
   stage: generate
   extends: .phy_benchmark
-  needs: ["common:detector"]
+  needs: ["common:detector", "dis:compile"]
   parallel:
     matrix:
       - EBEAM: 5
@@ -17,7 +23,7 @@ dis:generate:
 dis:process:
   stage: process
   extends: .phy_benchmark
-  needs: ["common:detector", "dis:generate"]
+  needs: ["dis:generate"]
   parallel:
     matrix:
       - EBEAM: 5
@@ -28,7 +34,6 @@ dis:process:
         PBEAM: 275
   timeout: 2 hour
   script:
-    - compile_analyses.py dis
     - bash benchmarks/dis/dis.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
   retry:
     max: 2

@@ -1,11 +1,16 @@
+synchrotron:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py synchrotron
+
 synchrotron:process:
   stage: process
   extends: .phy_benchmark
   tags:
     - s3
-  needs: ["common:detector"]
+  needs: ["common:detector", "synchrotron:compile"]
   script:
-    - compile_analyses.py synchrotron
     - bash benchmarks/synchrotron/synchrotron.sh --all
 
 synchrotron:results:
