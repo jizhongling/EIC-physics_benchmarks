@@ -818,7 +818,8 @@ algorithms.append(parts_from_fit)
 parts_with_truth_pid = ParticlesWithTruthPID("parts_with_truth_pid",
         inputMCParticles = "MCParticles",
         inputTrackParameters = parts_from_fit.outputTrackParameters,
-        outputParticles = "ReconstructedParticles")
+        outputParticles = "ReconstructedParticles",
+        outputAssociations = "ReconstructedParticlesAssoc")
 #        outputParticles = "ReconstructedChargedParticles")
 algorithms.append(parts_with_truth_pid)
 
@@ -842,6 +843,7 @@ algorithms.append(parts_with_truth_pid)
 fast_ff = FFSmearedParticles("fast_ff",
         inputMCParticles = "MCParticles",
         outputParticles  = "ReconstructedFFParticles",
+        outputAssociations = "ReconstructedFFParticlesAssoc",
         enableZDC        = True,
         enableB0         = True,
         enableRP         = True,
