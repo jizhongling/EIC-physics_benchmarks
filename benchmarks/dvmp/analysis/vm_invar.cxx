@@ -73,10 +73,10 @@ int vm_invar(const std::string& config_name)
   // utility lambda functions to bind the vector meson and decay particle
   // types
   
-  auto momenta_sort_sim = [vm_name, decay_name](const std::vector<dd4pod::Geant4ParticleData>& parts){
+  auto momenta_sort_sim = [vm_name, decay_name](const std::vector<edm4hep::MCParticleData>& parts){
     return util::momenta_sort_sim(parts, vm_name, decay_name);
   };
-  auto momenta_sort_rec = [vm_name, decay_name](const std::vector<eic::ReconstructedParticleData>& parts){
+  auto momenta_sort_rec = [vm_name, decay_name](const std::vector<eicd::ReconstructedParticleData>& parts){
     return util::momenta_sort_rec(parts, vm_name, decay_name);
   };
   //====================================================================

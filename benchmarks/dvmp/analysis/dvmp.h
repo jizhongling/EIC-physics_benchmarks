@@ -24,13 +24,13 @@ namespace util {
   };
   //import Geant4 and set the wanted particles in the intended order
   //0:e0  1:p0    2:e1    3:p1    4:recoil system (without p1)    5:l1 from 4 6:l2 from 4
-  inline auto momenta_sort_sim(const std::vector<dd4pod::Geant4ParticleData>& parts, std::string_view mother, std::string_view daughter){//mother and daughter are not used yet; will be useful when generater is different and/or when the mcparticles doesn't follow the same order in all events
+  inline auto momenta_sort_sim(const std::vector<edm4hep::MCParticleData>& parts, std::string_view mother, std::string_view daughter){//mother and daughter are not used yet; will be useful when generater is different and/or when the mcparticles doesn't follow the same order in all events
     std::vector<ROOT::Math::PxPyPzMVector> momenta{7};
     int order_map[7] = {0, 3, 2, 6, 5, 7, 8};
     for(int i = 0 ; i < 7 ; i++){
-      double px = parts[order_map[i]].ps.x;
-      double py = parts[order_map[i]].ps.y;
-      double pz = parts[order_map[i]].ps.z;
+      double px = parts[order_map[i]].momentum.x;
+      double py = parts[order_map[i]].momentum.y;
+      double pz = parts[order_map[i]].momentum.z;
       double mass = parts[order_map[i]].mass;
       double e = sqrt(px*px + py*py + pz*pz + mass*mass);
       momenta[i].SetPxPyPzE(px, py, pz, e);
@@ -43,7 +43,7 @@ namespace util {
   }
   
   //import Reconstructed particles and set the wanted particles in the intended order========================
-  inline auto momenta_sort_rec(const std::vector<eic::ReconstructedParticleData>& parts, std::string_view mother, std::string_view daughter){
+  inline auto momenta_sort_rec(const std::vector<eicd::ReconstructedParticleData>& parts, std::string_view mother, std::string_view daughter){
     std::vector<ROOT::Math::PxPyPzMVector> momenta{7};
     //0:e0  1:p0    2:e1    3:p1    4:recoil system (without p1)    5:l1 from recoil decay  6:l2 from recoil decay
     for(int i = 0 ; i < 7 ; i++) momenta[i].SetPxPyPzE(0., 0., 0., 0.);   //initialize as all 0
@@ -57,12 +57,12 @@ namespace util {
     momenta[1].SetPxPyPzE(0., 0., p0_pz, sqrt(p0_mass*p0_mass + p0_pz*p0_pz));
     
     //FIXME search for recoil proton, add feature to deal with multiple protons in one event
-    for(int i = 0 ; i < parts.size() ; i++){
-      if(parts[i].pid!=2212) continue;
+    for(size_t i = 0 ; i < parts.size() ; i++){
+      if(parts[i].PDG!=2212) continue;
       //px, py, pz, e, mass are not consistent for smeared dummy rc. this is a temp solution, replacing non-smeared energy by the re-calculated energy
-      //double energy_tmp = sqrt(parts[i].p.x*parts[i].p.x + parts[i].p.y*parts[i].p.y + parts[i].p.z*parts[i].p.z + parts[i].mass*parts[i].mass);//tmpsolution
+      //double energy_tmp = sqrt(parts[i].momentum.x*parts[i].momentum.x + parts[i].momentum.y*parts[i].momentum.y + parts[i].momentum.z*parts[i].momentum.z + parts[i].mass*parts[i].mass);//tmpsolution
       double energy_tmp = parts[i].energy;
-      momenta[3].SetPxPyPzE(parts[i].p.x,  parts[i].p.y,  parts[i].p.z,  energy_tmp);
+      momenta[3].SetPxPyPzE(parts[i].momentum.x,  parts[i].momentum.y,  parts[i].momentum.z,  energy_tmp);
     }
     
     //search for di-lepton pair for the decay in recoil
@@ -75,25 +75,25 @@ namespace util {
     int first = -1;
     int second = -1;
     double best_mass = -999.;
-    for (int i = 0 ; i < parts.size() ; ++i) {
-      if( fabs(parts[i].pid)!=daughter_pid) continue;
-      for (int j = i + 1 ; j < parts.size() ; ++j) {
-        if( parts[j].pid!= - parts[i].pid) continue;
+    for (size_t i = 0 ; i < parts.size() ; ++i) {
+      if( fabs(parts[i].PDG)!=daughter_pid) continue;
+      for (size_t j = i + 1 ; j < parts.size() ; ++j) {
+        if( parts[j].PDG!= - parts[i].PDG) continue;
         ROOT::Math::PxPyPzMVector lpt_1(0.,0.,0.,0.);
-        //double energy_tmp1 = sqrt(parts[i].p.x*parts[i].p.x + parts[i].p.y*parts[i].p.y + parts[i].p.z*parts[i].p.z + parts[i].mass*parts[i].mass);//tmpsolution
+        //double energy_tmp1 = sqrt(parts[i].momentum.x*parts[i].momentum.x + parts[i].momentum.y*parts[i].momentum.y + parts[i].momentum.z*parts[i].momentum.z + parts[i].mass*parts[i].mass);//tmpsolution
         double energy_tmp1 = parts[i].energy;
-        lpt_1.SetPxPyPzE(parts[i].p.x, parts[i].p.y, parts[i].p.z, energy_tmp1);
+        lpt_1.SetPxPyPzE(parts[i].momentum.x, parts[i].momentum.y, parts[i].momentum.z, energy_tmp1);
         ROOT::Math::PxPyPzMVector lpt_2(0.,0.,0.,0.);
-        //double energy_tmp2 = sqrt(parts[j].p.x*parts[j].p.x + parts[j].p.y*parts[j].p.y + parts[j].p.z*parts[j].p.z + parts[j].mass*parts[j].mass);//tmpsolution
+        //double energy_tmp2 = sqrt(parts[j].momentum.x*parts[j].momentum.x + parts[j].momentum.y*parts[j].momentum.y + parts[j].momentum.z*parts[j].momentum.z + parts[j].mass*parts[j].mass);//tmpsolution
         double energy_tmp2 = parts[j].energy;
-        lpt_2.SetPxPyPzE(parts[j].p.x, parts[j].p.y, parts[j].p.z, energy_tmp2);        
+        lpt_2.SetPxPyPzE(parts[j].momentum.x, parts[j].momentum.y, parts[j].momentum.z, energy_tmp2);
         const double new_mass{(lpt_1 + lpt_2).mass()};
         if (fabs(new_mass - common_bench::get_pdg_mass(mother)) < fabs(best_mass - common_bench::get_pdg_mass(mother))) {
           first = i;
           second = j;
           best_mass = new_mass;
-          momenta[5].SetPxPyPzE(parts[i].p.x, parts[i].p.y, parts[i].p.z, energy_tmp1);
-          momenta[6].SetPxPyPzE(parts[j].p.x, parts[j].p.y, parts[j].p.z, energy_tmp2);
+          momenta[5].SetPxPyPzE(parts[i].momentum.x, parts[i].momentum.y, parts[i].momentum.z, energy_tmp1);
+          momenta[6].SetPxPyPzE(parts[j].momentum.x, parts[j].momentum.y, parts[j].momentum.z, energy_tmp2);
         }
         
       }
@@ -101,15 +101,15 @@ namespace util {
     
     //FIXME search for scattered electron, need improvement with more complex events
     //float dp = 10.;
-    for(int i = 0 ; i < parts.size(); i++){
-      if(i==first || i==second) continue;   //skip the paired leptons
-      if(parts[i].pid != 11) continue;
-      //float ptmp = sqrt(parts[i].p.x*parts[i].p.x + parts[i].p.y*parts[i].p.y + parts[i].p.z*parts[i].p.z);
+    for(size_t i = 0 ; i < parts.size(); i++){
+      if(int(i)==first || int(i)==second) continue;   //skip the paired leptons
+      if(parts[i].PDG != 11) continue;
+      //float ptmp = sqrt(parts[i].momentum.x*parts[i].momentum.x + parts[i].momentum.y*parts[i].momentum.y + parts[i].momentum.z*parts[i].momentum.z);
       //if( (k_prime.px()) * (pair_4p.px()) + (k_prime.py()) * (pair_4p.py()) + (k_prime.pz()) * (pair_4p.pz()) > 0. || ptmp >= 10.) continue; //angle between jpsi and scattered electron < pi/2, 3-momentum mag < 10. 
       //if(dp > 10.- ptmp){     //if there are more than one candidate of scattered electron, choose the one with highest 3-momentum mag
-        //double energy_tmp = sqrt(parts[i].p.x*parts[i].p.x + parts[i].p.y*parts[i].p.y + parts[i].p.z*parts[i].p.z + parts[i].mass*parts[i].mass);//tmpsolution
+        //double energy_tmp = sqrt(parts[i].momentum.x*parts[i].momentum.x + parts[i].momentum.y*parts[i].momentum.y + parts[i].momentum.z*parts[i].momentum.z + parts[i].mass*parts[i].mass);//tmpsolution
         double energy_tmp  = parts[i].energy;
-        momenta[2].SetPxPyPzE(parts[i].p.x, parts[i].p.y, parts[i].p.z, energy_tmp);
+        momenta[2].SetPxPyPzE(parts[i].momentum.x, parts[i].momentum.y, parts[i].momentum.z, energy_tmp);
       //  dp = 10. - ptmp;
       //}
     }
