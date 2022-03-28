@@ -114,12 +114,11 @@ cat << EOF > ${CONFIG}
 }
 EOF
 
-#FIXME DIS analysis disabled
-#root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running dis_electron script"
-#  exit 1
-#fi
+root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running dis_electron script"
+  exit 1
+fi
 
 CONFIG="${TMP_PATH}/${PLOT_TAG}.raw.json"
 cat << EOF > ${CONFIG}

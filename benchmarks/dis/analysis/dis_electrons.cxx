@@ -150,6 +150,32 @@ int dis_electrons(const std::string& config_name)
   TFitResultPtr f_x_esigma_res = h_x_esigma_res->Fit("gaus", "S");
   if (f_x_esigma_res == 0) f_x_esigma_res->Print("V");
 
+  // Print summary
+  fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
+             "Inclusive kinematics summary:\n");
+  fmt::print("Q2 resolution:\n");
+  fmt::print(" - electron: {} +/- {}\n",
+    f_Q2_el_res->Parameter(1), f_Q2_el_res->Error(1));
+  fmt::print(" - sigma:    {} +/- {}\n",
+    f_Q2_sigma_res->Parameter(1), f_Q2_sigma_res->Error(1));
+  fmt::print(" - esigma:   {} +/- {}\n",
+    f_Q2_esigma_res->Parameter(1), f_Q2_esigma_res->Error(1));
+  fmt::print(" - JB:       {} +/- {}\n",
+    f_Q2_jb_res->Parameter(1), f_Q2_jb_res->Error(1));
+  fmt::print(" - DA:       {} +/- {}\n",
+    f_Q2_da_res->Parameter(1), f_Q2_da_res->Error(1));
+  fmt::print("x resolution:\n");
+  fmt::print(" - electron: {} +/- {}\n",
+    f_x_el_res->Parameter(1), f_x_el_res->Error(1));
+  fmt::print(" - sigma:    {} +/- {}\n",
+    f_x_sigma_res->Parameter(1), f_x_sigma_res->Error(1));
+  fmt::print(" - esigma:   {} +/- {}\n",
+    f_x_esigma_res->Parameter(1), f_x_esigma_res->Error(1));
+  fmt::print(" - JB:       {} +/- {}\n",
+    f_x_jb_res->Parameter(1), f_x_jb_res->Error(1));
+  fmt::print(" - DA:       {} +/- {}\n",
+    f_x_da_res->Parameter(1), f_x_da_res->Error(1));
+
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.
