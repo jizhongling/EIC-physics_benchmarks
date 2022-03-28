@@ -92,11 +92,11 @@ for rec in options/*.py ; do
   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
   JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
     gaudirun.py ${rec}
+  if [ "$?" -ne "0" ] ; then
+    echo "ERROR running juggler"
+    exit 1
+  fi
 done
-if [ "$?" -ne "0" ] ; then
-  echo "ERROR running juggler"
-  exit 1
-fi
 
 ## =============================================================================
 ## Step 4: Analysis

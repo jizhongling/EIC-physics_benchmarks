@@ -121,11 +121,11 @@ if [[ -n "${DO_REC}" || -n "${DO_ALL}" ]] ; then
     [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
     JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
       gaudirun.py ${rec}
+    if [[ "$?" -ne "0" ]] ; then
+      echo "ERROR running juggler"
+      exit 1
+    fi
   done
-  if [[ "$?" -ne "0" ]] ; then
-    echo "ERROR running juggler"
-    exit 1
-  fi
 
   root_filesize=$(stat --format=%s "${JUGGLER_REC_FILE}")
   if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 

@@ -121,7 +121,7 @@ from Configurables import Jug__Fast__SmearedFarForwardParticles as FFSmearedPart
 #from Configurables import Jug__Fast__MatchClusters as MatchClusters
 #from Configurables import Jug__Fast__ClusterMerger as ClusterMerger
 #from Configurables import Jug__Fast__TruthEnergyPositionClusterMerger as EnergyPositionClusterMerger
-#from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
+from Configurables import Jug__Fast__InclusiveKinematicsTruth as InclusiveKinematicsTruth
 from Configurables import Jug__Fast__TruthClustering as TruthClustering
 
 from Configurables import Jug__Digi__SimTrackerHitsCollector as SimTrackerHitsCollector
@@ -141,11 +141,11 @@ from Configurables import Jug__Reco__TrackParamVertexClusterInit as TrackParamVe
 from Configurables import Jug__Reco__CKFTracking as CKFTracking
 from Configurables import Jug__Reco__ParticlesFromTrackFit as ParticlesFromTrackFit
 # from Configurables import Jug__Reco__TrajectoryFromTrackFit as TrajectoryFromTrackFit
-#from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
-#from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
-#from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
-#from Configurables import Jug__Reco__InclusiveKinematicsSigma as InclusiveKinematicsSigma
-#from Configurables import Jug__Reco__InclusiveKinematicseSigma as InclusiveKinematicseSigma
+from Configurables import Jug__Reco__InclusiveKinematicsElectron as InclusiveKinematicsElectron
+from Configurables import Jug__Reco__InclusiveKinematicsDA as InclusiveKinematicsDA
+from Configurables import Jug__Reco__InclusiveKinematicsJB as InclusiveKinematicsJB
+from Configurables import Jug__Reco__InclusiveKinematicsSigma as InclusiveKinematicsSigma
+from Configurables import Jug__Reco__InclusiveKinematicseSigma as InclusiveKinematicseSigma
 
 from Configurables import Jug__Reco__FarForwardParticles as FFRecoRP
 from Configurables import Jug__Reco__FarForwardParticlesOMD as FFRecoOMD
@@ -243,11 +243,11 @@ dummy = MC2DummyParticle("dummy",
 algorithms.append(dummy)
 
 # Truth level kinematics
-#truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
-#        inputMCParticles="MCParticles",
-#        outputData="InclusiveKinematicsTruth"
-#)
-#algorithms.append(truth_incl_kin)
+truth_incl_kin = InclusiveKinematicsTruth("truth_incl_kin",
+        inputMCParticles = "MCParticles",
+        outputInclusiveKinematics = "InclusiveKinematicsTruth"
+)
+algorithms.append(truth_incl_kin)
 
 ## Roman pots
 ffi_romanpot_coll = SimTrackerHitsCollector("ffi_romanpot_coll",
@@ -358,26 +358,26 @@ algorithms.append(ffi_zdc_hcal_clreco)
 # Crystal Endcap Ecal
 ce_ecal_daq = calo_daq['ecal_neg_endcap']
 ce_ecal_digi = CalHitDigi("ce_ecal_digi",
-        inputHitCollection="EcalEndcapNHits",
-        outputHitCollection="EcalEndcapNRawHits",
-        energyResolutions=[0., 0.02, 0.],
+        inputHitCollection = "EcalEndcapNHits",
+        outputHitCollection = "EcalEndcapNRawHits",
+        energyResolutions = [0., 0.02, 0.],
         **ce_ecal_daq)
 algorithms.append(ce_ecal_digi)
 
 ce_ecal_reco = CalHitReco("ce_ecal_reco",
-        inputHitCollection=ce_ecal_digi.outputHitCollection,
-        outputHitCollection="EcalEndcapNRecHits",
-        thresholdFactor=4,          # 4 sigma cut on pedestal sigma
-        samplingFraction=0.998,      # this accounts for a small fraction of leakage
-        readoutClass="EcalEndcapNHits",
-        sectorField="sector",
+        inputHitCollection = ce_ecal_digi.outputHitCollection,
+        outputHitCollection = "EcalEndcapNRecHits",
+        thresholdFactor = 4,          # 4 sigma cut on pedestal sigma
+        samplingFraction = 0.998,      # this accounts for a small fraction of leakage
+        readoutClass = "EcalEndcapNHits",
+        sectorField = "sector",
         **ce_ecal_daq)
 algorithms.append(ce_ecal_reco)
 
 ce_ecal_cl = TruthClustering("ce_ecal_cl",
-        inputHits=ce_ecal_reco.outputHitCollection,
-        mcHits="EcalEndcapNHits",
-        outputProtoClusters="EcalEndcapNProtoClusters")
+        inputHits = ce_ecal_reco.outputHitCollection,
+        mcHits = "EcalEndcapNHits",
+        outputProtoClusters = "EcalEndcapNProtoClusters")
 #ce_ecal_cl = IslandCluster("ce_ecal_cl",
 #        inputHitCollection=ce_ecal_reco.outputHitCollection,
 #        outputProtoClusterCollection="EcalEndcapNProtoClusters",
@@ -389,9 +389,9 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 algorithms.append(ce_ecal_cl)
 
 ce_ecal_clreco = RecoCoG("ce_ecal_clreco",
-        inputProtoClusterCollection=ce_ecal_cl.outputProtoClusters,
-        outputClusterCollection="EcalEndcapNClusters",
-        logWeightBase=4.6)
+        inputProtoClusterCollection = ce_ecal_cl.outputProtoClusters,
+        outputClusterCollection = "EcalEndcapNClusters",
+        logWeightBase = 4.6)
 algorithms.append(ce_ecal_clreco)
 
 #ce_ecal_clmerger = ClusterMerger("ce_ecal_clmerger",
@@ -867,7 +867,7 @@ algorithms.append(drich_reco)
 # FIXME
 #drich_cluster = PhotoRingClusters("drich_cluster",
 #        inputHitCollection=pmtreco.outputHitCollection,
-#        #inputTrackCollection="ReconstructedParticles",
+#        #inputTrackCollection=parts_with_truth_pid.outputParticles,
 #        outputClusterCollection="ForwardRICHClusters")
 
 # MRICH
@@ -883,36 +883,41 @@ if 'acadia' in detector_version:
     algorithms.append(mrich_reco)
 
 # Inclusive kinematics
-#incl_kin_electron = InclusiveKinematicsElectron("incl_kin_electron",
-#        inputMCParticles="MCParticles",
-#        inputParticles="ReconstructedParticles",
-#        outputData="InclusiveKinematicsElectron"
-#)
-#algorithms.append(incl_kin_electron)
-#incl_kin_jb = InclusiveKinematicsJB("incl_kin_jb",
-#        inputMCParticles="MCParticles",
-#        inputParticles="ReconstructedParticles",
-#        outputData="InclusiveKinematicsJB"
-#)
-#algorithms.append(incl_kin_jb)
-#incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
-#        inputMCParticles="MCParticles",
-#        inputParticles="ReconstructedParticles",
-#        outputData="InclusiveKinematicsDA"
-#)
-#algorithms.append(incl_kin_da)
-#incl_kin_sigma = InclusiveKinematicsSigma("incl_kin_sigma",
-#        inputMCParticles="MCParticles",
-#        inputParticles="ReconstructedParticles",
-#        outputData="InclusiveKinematicsSigma"
-#)
-#algorithms.append(incl_kin_sigma)
-#incl_kin_esigma = InclusiveKinematicseSigma("incl_kin_esigma",
-#        inputMCParticles="MCParticles",
-#        inputParticles="ReconstructedParticles",
-#        outputData="InclusiveKinematicseSigma"
-#)
-#algorithms.append(incl_kin_esigma)
+incl_kin_electron = InclusiveKinematicsElectron("incl_kin_electron",
+        inputMCParticles = "MCParticles",
+        inputReconstructedParticles = parts_with_truth_pid.outputParticles,
+        inputParticleAssociations = parts_with_truth_pid.outputAssociations,
+        outputInclusiveKinematics = "InclusiveKinematicsElectron"
+)
+algorithms.append(incl_kin_electron)
+incl_kin_jb = InclusiveKinematicsJB("incl_kin_jb",
+        inputMCParticles = "MCParticles",
+        inputReconstructedParticles = parts_with_truth_pid.outputParticles,
+        inputParticleAssociations = parts_with_truth_pid.outputAssociations,
+        outputInclusiveKinematics = "InclusiveKinematicsJB"
+)
+algorithms.append(incl_kin_jb)
+incl_kin_da = InclusiveKinematicsDA("incl_kin_da",
+        inputMCParticles = "MCParticles",
+        inputReconstructedParticles = parts_with_truth_pid.outputParticles,
+        inputParticleAssociations = parts_with_truth_pid.outputAssociations,
+        outputInclusiveKinematics = "InclusiveKinematicsDA"
+)
+algorithms.append(incl_kin_da)
+incl_kin_sigma = InclusiveKinematicsSigma("incl_kin_sigma",
+        inputMCParticles = "MCParticles",
+        inputReconstructedParticles = parts_with_truth_pid.outputParticles,
+        inputParticleAssociations = parts_with_truth_pid.outputAssociations,
+        outputInclusiveKinematics = "InclusiveKinematicsSigma"
+)
+algorithms.append(incl_kin_sigma)
+incl_kin_esigma = InclusiveKinematicseSigma("incl_kin_esigma",
+        inputMCParticles = "MCParticles",
+        inputReconstructedParticles = parts_with_truth_pid.outputParticles,
+        inputParticleAssociations = parts_with_truth_pid.outputAssociations,
+        outputInclusiveKinematics = "InclusiveKinematicseSigma"
+)
+algorithms.append(incl_kin_esigma)
 
 # Output
 podout = PodioOutput("out", filename=output_rec)
