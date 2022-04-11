@@ -47,6 +47,7 @@ common:detector:
   script:
     - source .local/bin/env.sh && build_detector.sh
     - mkdir_local_data_link sim_output
+    - mkdir_local_data_link datasets
     - mkdir -p results
     - mkdir -p config
     - print_env.sh
@@ -66,7 +67,6 @@ common:detector:
     - ln -s "${LOCAL_DATA_PATH}/sim_output" sim_output
     - ln -s "${LOCAL_DATA_PATH}/datasets/data" data
     - ls -lrtha
-    - bash bin/get_calibrations
   retry:
     max: 2
     when:

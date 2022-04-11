@@ -63,14 +63,14 @@ ci_hcal_sf = float(os.environ.get("CI_HCAL_SAMP_FRAC", 0.025))
 ce_hcal_sf = float(os.environ.get("CE_HCAL_SAMP_FRAC", 0.025))
 
 # input arguments from calibration file
-with open('config/emcal_barrel_calibration.json') as f:
+with open(f'{detector_path}/calibrations/emcal_barrel_calibration.json') as f:
     calib_data = json.load(f)['electron']
 
 print(calib_data)
 
 # input calorimeter DAQ info
 calo_daq = {}
-with open('{}/calibrations/calo_digi_{}.json'.format(detector_path, detector_version)) as f:
+with open(f'{detector_path}/calibrations/calo_digi_{detector_version}.json') as f:
     calo_config = json.load(f)
     ## add proper ADC capacity based on bit depth
     for sys in calo_config:
@@ -96,8 +96,6 @@ services = []
 # auditor service
 services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAuditor']))
 # geometry service
-## only have material maps for acadia right now
-
 ## note: old version of material map is called material-maps.XXX, new version is materials-map.XXX
 ##       these names are somewhat inconsistent, and should probably all be renamed to 'material-map.XXX'
 ##       FIXME
