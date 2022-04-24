@@ -17,8 +17,8 @@ dvmp:generate:
           --decay muon --decay electron
           --nproc 5
 
-dvmp:process:
-  stage: process
+dvmp:simulate:
+  stage: simulate
   extends: .phy_benchmark
   needs: ["dvmp:generate"]
   timeout: 2 hour
@@ -37,6 +37,6 @@ dvmp:process:
 
 dvmp:results:
   stage: collect
-  needs: ["dvmp:process"]
+  needs: ["dvmp:simulate"]
   script:
     - collect_tests.py dvmp

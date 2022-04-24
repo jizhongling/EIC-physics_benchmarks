@@ -25,7 +25,9 @@ stages:
   - initialize
   - compile
   - generate
-  - process
+  - simulate
+  - reconstruct
+  - analyze
   - collect
   - finish
 

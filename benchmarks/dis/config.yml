@@ -20,8 +20,8 @@ dis:generate:
   script:
     - bash benchmarks/dis/get.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
 
-dis:process:
-  stage: process
+dis:simulate:
+  stage: simulate
   extends: .phy_benchmark
   needs: ["dis:generate"]
   parallel:
@@ -42,6 +42,6 @@ dis:process:
 
 dis:results:
   stage: collect
-  needs: ["dis:process"]
+  needs: ["dis:simulate"]
   script:
     - collect_tests.py dis

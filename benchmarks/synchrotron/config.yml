@@ -4,8 +4,8 @@ synchrotron:compile:
   script:
     - compile_analyses.py synchrotron
 
-synchrotron:process:
-  stage: process
+synchrotron:simulate:
+  stage: simulate
   extends: .phy_benchmark
   tags:
     - s3
@@ -15,6 +15,6 @@ synchrotron:process:
 
 synchrotron:results:
   stage: collect
-  needs: ["synchrotron:process"]
+  needs: ["synchrotron:simulate"]
   script:
     - ls -lrth
