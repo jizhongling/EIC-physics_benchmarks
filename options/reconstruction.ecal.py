@@ -66,8 +66,14 @@ from Configurables import Jug__Fast__TruthClustering as TruthClustering
 # branches needed from simulation root file
 sim_coll = [
     "MCParticles",
-    "EcalEndcapNHits",
-    "EcalEndcapPHits",
+    'EcalEndcapNHits',
+    'EcalEndcapNHitsContributions',
+    'EcalEndcapPHits',
+    'EcalEndcapPHitsContributions',
+    'EcalBarrelHits',
+    'EcalBarrelHitsContributions',
+    'EcalBarrelScFiHits',
+    'EcalBarrelScFiHitsContributions',
 ]
 
 # list of algorithms

@@ -66,8 +66,12 @@ from Configurables import Jug__Reco__ClusterRecoCoG as RecoCoG
 # branches needed from simulation root file
 sim_coll = [
     "MCParticles",
-    "HcalEndcapPHits",
-    "HcalEndcapNHits",
+    'HcalBarrelHits',
+    'HcalBarrelHitsContributions',
+    'HcalEndcapPHits',
+    'HcalEndcapPHitsContributions',
+    'HcalEndcapNHits',
+    'HcalEndcapNHitsContributions',
 ]
 
 # list of algorithms
