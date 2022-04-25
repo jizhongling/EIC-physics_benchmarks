@@ -3,6 +3,7 @@
 source $(dirname $0)/common.sh $*
 
 # Simulate
+/usr/bin/time -v \
 ddsim --runType run \
       --printLevel WARNING \
       --enableGun \
