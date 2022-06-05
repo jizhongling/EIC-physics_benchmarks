@@ -173,8 +173,6 @@ sim_coll = [
     'EcalEndcapPHitsContributions',
     'EcalBarrelHits',
     'EcalBarrelHitsContributions',
-    'EcalBarrelScFiHits',
-    'EcalBarrelScFiHitsContributions',
     'HcalBarrelHits',
     'HcalBarrelHitsContributions',
     'HcalEndcapPHits',
@@ -187,6 +185,13 @@ sim_coll = [
     'ZDCHcalHits',
     'ZDCHcalHitsContributions',
 ]
+
+ecal_barrel_scfi_collections = [
+    'EcalBarrelScFiHits',
+    'EcalBarrelScFiHitsContributions'
+]
+if 'athena' in detector_name:
+    sim_coll += ecal_barrel_scfi_collections
 
 forward_romanpot_collections = [
     'ForwardRomanPotHits1',
@@ -462,17 +467,19 @@ algorithms.append(ci_ecal_clreco)
 #        outputRelations = "EcalEndcapPMergedClusterRelations")
 #algorithms.append(ci_ecal_clmerger)
 
-# Central Barrel Ecal (Imaging Cal.)
-img_barrel_daq = calo_daq['ecal_barrel_imaging']
+# Central Barrel Ecal
+if 'athena' in detector_name:
+    # Central ECAL Imaging Calorimeter
+    img_barrel_daq = calo_daq['ecal_barrel_imaging']
 
-img_barrel_digi = CalHitDigi("img_barrel_digi",
+    img_barrel_digi = CalHitDigi("img_barrel_digi",
         inputHitCollection="EcalBarrelHits",
         outputHitCollection="EcalBarrelImagingRawHits",
         energyResolutions=[0., 0.02, 0.],   # 2% flat resolution
         **img_barrel_daq)
-algorithms.append(img_barrel_digi)
+    algorithms.append(img_barrel_digi)
 
-img_barrel_reco = ImCalPixelReco("img_barrel_reco",
+    img_barrel_reco = ImCalPixelReco("img_barrel_reco",
         inputHitCollection=img_barrel_digi.outputHitCollection,
         outputHitCollection="EcalBarrelImagingRecHits",
         thresholdFactor=3,  # about 20 keV
@@ -481,34 +488,34 @@ img_barrel_reco = ImCalPixelReco("img_barrel_reco",
         layerField="layer",             # field to get layer id
         sectorField="module",           # field to get sector id
         **img_barrel_daq)
-algorithms.append(img_barrel_reco)
+    algorithms.append(img_barrel_reco)
 
-img_barrel_cl = ImagingCluster("img_barrel_cl",
+    img_barrel_cl = ImagingCluster("img_barrel_cl",
         inputHitCollection=img_barrel_reco.outputHitCollection,
         outputProtoClusterCollection="EcalBarrelImagingProtoClusters",
         localDistXY=[2.*units.mm, 2*units.mm],  # same layer
         layerDistEtaPhi=[10*units.mrad, 10*units.mrad],     # adjacent layer
         neighbourLayersRange=2,                 # id diff for adjacent layer
         sectorDist=3.*units.cm)                       # different sector
-algorithms.append(img_barrel_cl)
+    algorithms.append(img_barrel_cl)
 
-img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
+    img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
         inputProtoClusters=img_barrel_cl.outputProtoClusterCollection,
         outputClusters="EcalBarrelImagingClusters",
         mcHits="EcalBarrelHits",
         outputLayers="EcalBarrelImagingLayers")
-algorithms.append(img_barrel_clreco)
+    algorithms.append(img_barrel_clreco)
 
-# Central ECAL SciFi
-scfi_barrel_daq = calo_daq['ecal_barrel_scfi']
+    # Central ECAL SciFi
+    scfi_barrel_daq = calo_daq['ecal_barrel_scfi']
 
-scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
+    scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
         inputHitCollection="EcalBarrelScFiHits",
         outputHitCollection="EcalBarrelScFiRawHits",
         **scfi_barrel_daq)
-algorithms.append(scfi_barrel_digi)
+    algorithms.append(scfi_barrel_digi)
 
-scfi_barrel_reco = CalHitReco("scfi_barrel_reco",
+    scfi_barrel_reco = CalHitReco("scfi_barrel_reco",
         inputHitCollection=scfi_barrel_digi.outputHitCollection,
         outputHitCollection="EcalBarrelScFiRecHits",
         thresholdFactor=5.0,
@@ -518,40 +525,80 @@ scfi_barrel_reco = CalHitReco("scfi_barrel_reco",
         sectorField="module",
         localDetFields=["system", "module"], # use local coordinates in each module (stave)
         **scfi_barrel_daq)
-algorithms.append(scfi_barrel_reco)
+    algorithms.append(scfi_barrel_reco)
 
-# merge hits in different layer (projection to local x-y plane)
-scfi_barrel_merger = CalHitsMerger("scfi_barrel_merger",
+    # merge hits in different layer (projection to local x-y plane)
+    scfi_barrel_merger = CalHitsMerger("scfi_barrel_merger",
          inputHitCollection=scfi_barrel_reco.outputHitCollection,
          outputHitCollection="EcalBarrelScFiMergedHits",
          fields=["fiber"],
          fieldRefNumbers=[1],
          readoutClass="EcalBarrelScFiHits")
-algorithms.append(scfi_barrel_merger)
+    algorithms.append(scfi_barrel_merger)
 
-scfi_barrel_cl = IslandCluster("scfi_barrel_cl",
+    scfi_barrel_cl = IslandCluster("scfi_barrel_cl",
          inputHitCollection=scfi_barrel_merger.outputHitCollection,
          outputProtoClusterCollection="EcalBarrelScFiProtoClusters",
          splitCluster=False,
          minClusterCenterEdep=10.*MeV,
          localDistXZ=[30*mm, 30*mm])
-algorithms.append(scfi_barrel_cl)
+    algorithms.append(scfi_barrel_cl)
 
-scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
+    scfi_barrel_clreco = RecoCoG("scfi_barrel_clreco",
          inputProtoClusterCollection=scfi_barrel_cl.outputProtoClusterCollection,
          outputClusterCollection="EcalBarrelScFiClusters",
          logWeightBase=6.2)
-algorithms.append(scfi_barrel_clreco)
+    algorithms.append(scfi_barrel_clreco)
 
-## barrel cluster merger
-#barrel_clus_merger = EnergyPositionClusterMerger("barrel_clus_merger",
-#        inputMCParticles = "MCParticles",
-#        inputEnergyClusters = scfi_barrel_clreco.outputClusterCollection,
-#        inputPositionClusters = img_barrel_clreco.outputClusterCollection,
-#        outputClusters = "EcalBarrelMergedClusters",
-#        outputRelations = "EcalBarrelMergedClusterRelations")
-#algorithms.append(barrel_clus_merger)
+    ## barrel cluster merger
+    #barrel_clus_merger = EnergyPositionClusterMerger("barrel_clus_merger",
+    #    inputMCParticles = "MCParticles",
+    #    inputEnergyClusters = scfi_barrel_clreco.outputClusterCollection,
+    #    inputPositionClusters = img_barrel_clreco.outputClusterCollection,
+    #    outputClusters = "EcalBarrelMergedClusters",
+    #    outputRelations = "EcalBarrelMergedClusterRelations")
+    #algorithms.append(barrel_clus_merger)
 
+else:
+    # SciGlass calorimeter
+    sciglass_ecal_daq = dict(
+        dynamicRangeADC=5.*GeV,
+        capacityADC=32768,
+        pedestalMean=400,
+        pedestalSigma=3)
+
+    sciglass_ecal_digi = CalHitDigi("sciglass_ecal_digi",
+        inputHitCollection="EcalBarrelHits",
+        outputHitCollection="EcalBarrelHitsDigi",
+        energyResolutions=[0., 0.02, 0.],   # 2% flat resolution
+        **sciglass_ecal_daq)
+    algorithms.append(sciglass_ecal_digi)
+
+    sciglass_ecal_reco = CalHitReco("sciglass_ecal_reco",
+        inputHitCollection=sciglass_ecal_digi.outputHitCollection,
+        outputHitCollection="EcalBarrelHitsReco",
+        thresholdFactor=3,  # about 20 keV
+        readoutClass="EcalBarrelHits",  # readout class
+        sectorField="sector",           # field to get sector id
+        samplingFraction=0.998,         # this accounts for a small fraction of leakage
+        **sciglass_ecal_daq)
+    algorithms.append(sciglass_ecal_reco)
+
+    sciglass_ecal_cl = IslandCluster("sciglass_ecal_cl",
+        inputHitCollection=sciglass_ecal_reco.outputHitCollection,
+        outputProtoClusterCollection="EcalBarrelProtoClusters",
+        splitCluster=False,
+        minClusterHitEdep=1.0*MeV,  # discard low energy hits
+        minClusterCenterEdep=30*MeV,
+        sectorDist=5.0*cm)
+    algorithms.append(sciglass_ecal_cl)
+
+    sciglass_ecal_clreco = ImagingClusterReco("sciglass_ecal_clreco",
+        inputProtoClusters=sciglass_ecal_cl.outputProtoClusterCollection,
+        mcHits="EcalBarrelHits",
+        outputClusters="EcalBarrelClusters",
+        outputLayers="EcalBarrelLayers")
+    algorithms.append(sciglass_ecal_clreco)
 
 # Central Barrel Hcal
 cb_hcal_daq = calo_daq['hcal_barrel']

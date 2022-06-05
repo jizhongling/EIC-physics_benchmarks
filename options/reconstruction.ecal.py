@@ -70,10 +70,6 @@ sim_coll = [
     'EcalEndcapNHitsContributions',
     'EcalEndcapPHits',
     'EcalEndcapPHitsContributions',
-    'EcalBarrelHits',
-    'EcalBarrelHitsContributions',
-    'EcalBarrelScFiHits',
-    'EcalBarrelScFiHitsContributions',
 ]
 
 # list of algorithms

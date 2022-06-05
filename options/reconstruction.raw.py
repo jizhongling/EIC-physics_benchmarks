@@ -72,8 +72,6 @@ sim_coll = [
     'EcalEndcapPHitsContributions',
     'EcalBarrelHits',
     'EcalBarrelHitsContributions',
-    'EcalBarrelScFiHits',
-    'EcalBarrelScFiHitsContributions',
     'HcalBarrelHits',
     'HcalBarrelHitsContributions',
     'HcalEndcapPHits',
@@ -82,6 +80,13 @@ sim_coll = [
     'HcalEndcapNHitsContributions',
     'DRICHHits',
 ]
+
+ecal_barrel_scfi_collections = [
+    'EcalBarrelScFiHits',
+    'EcalBarrelScFiHitsContributions'
+]
+if 'athena' in detector_name:
+    sim_coll += ecal_barrel_scfi_collections
 
 forward_romanpot_collections = [
     'ForwardRomanPotHits1',
@@ -186,24 +191,36 @@ ci_ecal_digi = CalHitDigi("ci_ecal_digi",
         **ci_ecal_daq)
 algorithms.append(ci_ecal_digi)
 
-# Central Barrel Ecal (Imaging Cal.)
-img_barrel_daq = calo_daq['ecal_barrel_imaging']
+# Central Barrel Ecal
+if 'athena' in detector_name:
+    # Central ECAL Imaging Calorimeter
+    img_barrel_daq = calo_daq['ecal_barrel_imaging']
 
-img_barrel_digi = CalHitDigi("img_barrel_digi",
+    img_barrel_digi = CalHitDigi("img_barrel_digi",
         inputHitCollection="EcalBarrelHits",
         outputHitCollection="EcalBarrelImagingRawHits",
         energyResolutions=[0., 0.02, 0.],   # 2% flat resolution
         **img_barrel_daq)
-algorithms.append(img_barrel_digi)
+    algorithms.append(img_barrel_digi)
 
-# Central ECAL SciFi
-scfi_barrel_daq = calo_daq['ecal_barrel_scfi']
+    # Central ECAL SciFi
+    scfi_barrel_daq = calo_daq['ecal_barrel_scfi']
 
-scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
+    scfi_barrel_digi = CalHitDigi("scfi_barrel_digi",
         inputHitCollection="EcalBarrelScFiHits",
         outputHitCollection="EcalBarrelScFiRawHits",
         **scfi_barrel_daq)
-algorithms.append(scfi_barrel_digi)
+    algorithms.append(scfi_barrel_digi)
+else:
+    # SciGlass calorimeter
+    sciglass_ecal_daq = calo_daq['ecal_barrel_sciglass']
+
+    sciglass_ecal_digi = CalHitDigi("sciglass_ecal_digi",
+        inputHitCollection="EcalBarrelHits",
+        outputHitCollection="EcalBarrelHitsDigi",
+        energyResolutions=[0., 0.02, 0.],   # 2% flat resolution
+        **sciglass_ecal_daq)
+    algorithms.append(sciglass_ecal_digi)
 
 # Central Barrel Hcal
 cb_hcal_daq = calo_daq['hcal_barrel']
