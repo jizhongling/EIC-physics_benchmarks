@@ -12,13 +12,16 @@ dis:generate:
     matrix:
       - EBEAM: 5
         PBEAM: 41
+        MINQ2: 1
       - EBEAM: 10
         PBEAM: 100
+        MINQ2: 1
       - EBEAM: 18
         PBEAM: 275
+        MINQ2: 1
   timeout: 1 hours
   script:
-    - bash benchmarks/dis/get.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
+    - bash benchmarks/dis/get.sh --config dis_${EBEAM}x${PBEAM}_minQ2=${MINQ2} --ebeam ${EBEAM} --pbeam ${PBEAM} --minq2 ${MINQ2}
 
 dis:simulate:
   stage: simulate
@@ -28,13 +31,16 @@ dis:simulate:
     matrix:
       - EBEAM: 5
         PBEAM: 41
+        MINQ2: 1
       - EBEAM: 10
         PBEAM: 100
+        MINQ2: 1
       - EBEAM: 18
         PBEAM: 275
+        MINQ2: 1
   timeout: 2 hour
   script:
-    - bash benchmarks/dis/dis.sh --config dis_${EBEAM}x${PBEAM} --ebeam ${EBEAM} --pbeam ${PBEAM}
+    - bash benchmarks/dis/dis.sh --config dis_${EBEAM}x${PBEAM}_minQ2=${MINQ2} --ebeam ${EBEAM} --pbeam ${PBEAM} --minq2 ${MINQ2}
   retry:
     max: 2
     when:

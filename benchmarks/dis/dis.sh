@@ -23,6 +23,7 @@ echo "Running the DIS benchmarks"
 ## - CONFIG:   The specific generator configuration
 ## - EBEAM:    The electron beam energy
 ## - PBEAM:    The ion beam energy
+export REQUIRE_MINQ2=true
 source ${LOCAL_PREFIX}/bin/parse_cmd.sh $@
 
 ## To run the reconstruction, we need the following global variables:
@@ -110,6 +111,7 @@ cat << EOF > ${CONFIG}
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -117,6 +119,12 @@ EOF
 root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running dis_electron script"
+  exit 1
+fi
+
+python benchmarks/dis/analysis/kinematics_correlations.py --rec_file ${REC_FILE} --ebeam ${EBEAM} --pbeam ${PBEAM} --minq2 ${MINQ2}
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running kinematics_correlations script"
   exit 1
 fi
 
@@ -128,6 +136,7 @@ cat << EOF > ${CONFIG}
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -145,6 +154,7 @@ cat << EOF > ${CONFIG}
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -162,6 +172,7 @@ cat << EOF > ${CONFIG}
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
