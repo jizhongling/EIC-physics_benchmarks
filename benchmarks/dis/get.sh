@@ -56,7 +56,7 @@ fi
 
 ## =============================================================================
 ## Step 3: Copy the file (about 180 lines per event in DIS NC files)
-nlines=$((180*${JUGGLER_N_EVENTS}))
+nlines=$((190*${JUGGLER_N_EVENTS}))
 DATA_URL=S3/eictest/ATHENA/EVGEN/DIS/NC/${EBEAM}x${PBEAM}/minQ2=${MINQ2}/pythia8NCDIS_${EBEAM}x${PBEAM}_minQ2=${MINQ2}_beamEffects_xAngle=-0.025_hiDiv_vtxfix_1.hepmc
 mc config host add S3 https://dtn01.sdcc.bnl.gov:9000 ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
 mc head -n ${nlines} ${DATA_URL} | sanitize_hepmc3 > ${TMP_PATH}/${GEN_TAG}.hepmc

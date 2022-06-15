@@ -30,7 +30,7 @@ if [[ ! -d "input" ]] ; then
   mkdir_local_data_link  input
 fi
 ## Data path for input data (generator-level hepmc file)
-INPUT_PATH="input/${BENCHMARK_TAG}/${BEAM_TAG}"
+INPUT_PATH="input/${BENCHMARK_TAG}/${BEAM_TAG}/minQ2=${MINQ2}"
 mkdir_local_data_link input
 #export INPUT_PATH=`realpath ${INPUT_PATH}`
 mkdir -p "${INPUT_PATH}"
@@ -45,7 +45,7 @@ echo "TMP_PATH:               ${TMP_PATH}"
 
 ## Data path for benchmark output (plots and reconstructed files
 ## if not too big).
-RESULTS_PATH="results/${BENCHMARK_TAG}/${BEAM_TAG}"
+RESULTS_PATH="results/${BENCHMARK_TAG}/${BEAM_TAG}/minQ2=${MINQ2}"
 mkdir -p ${RESULTS_PATH}
 export RESULTS_PATH=`realpath ${RESULTS_PATH}`
 echo "RESULTS_PATH:           ${RESULTS_PATH}"

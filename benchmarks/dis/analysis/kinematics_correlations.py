@@ -35,12 +35,12 @@ x_bins = [4.09385E-05,6.47862E-05,0.000102535,0.000162619,0.000258118,0.00040911
 
 
 #function to construct Q2 correlation plots
-def Q2correlation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 'E','DA', or 'JB'
+def Q2correlation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 'e','DA', or 'JB'
 
     Q2values_Y = method_Q2values_dict['{}'.format(method)]  #Q2 values of the given method, that are mapped onto the y axis 
     
-    Q2_List_T = Q2values_T['{}'.format(minq2)] #Truth Q2 values for given minq2, mapped along x axis
-    Q2_List_Y = Q2values_Y['{}'.format(minq2)] #method (E/DA/JB) Q2 values for given minq2, mapped along y axis
+    Q2_List_T = Q2values_T #Truth Q2 values, mapped along x axis
+    Q2_List_Y = Q2values_Y #method (E/DA/JB) Q2 values, mapped along y axis
 
     T_len = ak.count(Q2_List_T,axis=0) #total number of events in Truth
     Y_len = ak.count(Q2_List_Y,axis=0) #total number of events in method
@@ -55,7 +55,7 @@ def Q2correlation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 
         Q2_List_Y_F = Q2_List_Y[T_boolean] #filtered method Q2 values
     
     T_Q2s = np.array(ak.flatten(Q2_List_T_F)) #Truth Q2 values, mapped along x axis
-    Y_Q2s = np.array(ak.flatten(Q2_List_Y_F)) #methos Q2 values, mapped along y axis
+    Y_Q2s = np.array(ak.flatten(Q2_List_Y_F)) #method Q2 values, mapped along y axis
     
     #2-dimensional histogram, h
     h, xedges, yedges = np.histogram2d(x=T_Q2s,y=Y_Q2s, bins=[Q2_bins,Q2_bins]) 
@@ -77,7 +77,7 @@ def Q2correlation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 
         norm_h_text.append(norm_c_text)
     
     fig = plt.figure()
-    mplhep.hist2dplot(H=norm_h,norm=mpl.colors.LogNorm(),labels=norm_h_text,xbins=Q2_bins,ybins=Q2_bins,cmax=1,cmin=1e-5)
+    mplhep.hist2dplot(H=norm_h,norm=mpl.colors.LogNorm(vmin= 1e-4, vmax= 1),labels=norm_h_text,xbins=Q2_bins,ybins=Q2_bins)
     plt.yscale('log')
     plt.xscale('log')
     fig.set_figwidth(11)
@@ -86,17 +86,17 @@ def Q2correlation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 
     plt.ylabel('$Q^2$ [$GeV^2$] {}'.format(method_dict['{}'.format(method)]))
     plt.title('{}   $Q^2$ correlation   {}x{}   $minQ^2=${}$GeV^2$'.format(method_dict['{}'.format(method)],k,p,minq2))
     plt.show()
-    plt.savefig(os.path.join(args.outdir, '%gon%g/Q2_correlation_%s_%gx%g_minQ2=%g.png' %(k,p,method,k,p,minq2)))
+    plt.savefig(os.path.join(args.outdir, '%gon%g/minQ2=%g/Q2_correlation_%s_%gx%g_minQ2=%g.png' %(k,p,minq2,method,k,p,minq2)))
 
 
 
 #function to construct Bjorken-x correlation plots
-def Xcorrelation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 'E','DA', or 'JB'
+def Xcorrelation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be 'e','DA', or 'JB'
 
     Xvalues_Y = method_Xvalues_dict['{}'.format(method)] #x values of the given method, that are mapped onto the y axis 
         
-    X_List_T = Xvalues_T['{}'.format(minq2)] #Truth x values for given minq2, mapped along x axis
-    X_List_Y = Xvalues_Y['{}'.format(minq2)] #method (E/DA/JB) x values for given minq2, mapped along y axis
+    X_List_T = Xvalues_T #Truth x values, mapped along x axis
+    X_List_Y = Xvalues_Y #method (E/DA/JB) x values, mapped along y axis
 
     T_len = ak.count(X_List_T,axis=0) #total number of events in Truth
     Y_len = ak.count(X_List_Y,axis=0) #total number of events in method
@@ -134,7 +134,7 @@ def Xcorrelation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be '
         norm_h_text.append(norm_c_text)
 
     fig = plt.figure()
-    mplhep.hist2dplot(H=norm_h,norm=mpl.colors.LogNorm(),labels=norm_h_text,xbins=x_bins,ybins=x_bins,cmax=1,cmin=1e-5)
+    mplhep.hist2dplot(H=norm_h,norm=mpl.colors.LogNorm(vmin= 1e-4, vmax= 1),labels=norm_h_text,xbins=x_bins,ybins=x_bins)
     plt.yscale('log')
     plt.xscale('log')
     fig.set_figwidth(11)
@@ -143,27 +143,27 @@ def Xcorrelation(minq2,method): #minq2 can be 1,10,100, or 1000; method can be '
     plt.ylabel('$x$   {}'.format(method_dict['{}'.format(method)]))
     plt.title('{}   $x$ correlation   {}x{}   $minQ^2=${}$GeV^2$'.format(method_dict['{}'.format(method)],k,p,minq2))
     plt.show()
-    plt.savefig(os.path.join(args.outdir, '%gon%g/x_correlation_%s_%gx%g_minQ2=%g.png' %(k,p,method,k,p,minq2)))    
+    plt.savefig(os.path.join(args.outdir, '%gon%g/minQ2=%g/x_correlation_%s_%gx%g_minQ2=%g.png' %(k,p,minq2,method,k,p,minq2)))
 
 
 
 keys = ur.concatenate(rec_file + ':events/' + 'InclusiveKinematicsTruth')
-minq2_1_T =   [keys['InclusiveKinematicsTruth.Q2'],keys['InclusiveKinematicsTruth.x']]
+Truth =   [keys['InclusiveKinematicsTruth.Q2'],keys['InclusiveKinematicsTruth.x']]
 keys = ur.concatenate(rec_file + ':events/' + 'InclusiveKinematicsElectron')
-minq2_1_E =   [keys['InclusiveKinematicsElectron.Q2'], keys['InclusiveKinematicsElectron.x']]
+Electron =   [keys['InclusiveKinematicsElectron.Q2'], keys['InclusiveKinematicsElectron.x']]
 keys = ur.concatenate(rec_file + ':events/' + 'InclusiveKinematicsDA')
-minq2_1_DA =  [keys['InclusiveKinematicsDA.Q2'], keys['InclusiveKinematicsDA.x']]
+DoubleAngle =  [keys['InclusiveKinematicsDA.Q2'], keys['InclusiveKinematicsDA.x']]
 keys = ur.concatenate(rec_file + ':events/' + 'InclusiveKinematicsJB')
-minq2_1_JB =  [keys['InclusiveKinematicsJB.Q2'], keys['InclusiveKinematicsJB.x']]
+JacquetBlondel =  [keys['InclusiveKinematicsJB.Q2'], keys['InclusiveKinematicsJB.x']]
 
-Q2values_T = {'1':minq2_1_T[0]}
-Q2values_E = {'1':minq2_1_E[0]}
-Q2values_DA = {'1':minq2_1_DA[0]}
-Q2values_JB = {'1':minq2_1_JB[0]}
-Xvalues_T = {'1':minq2_1_T[1]}
-Xvalues_E = {'1':minq2_1_E[1]}
-Xvalues_DA = {'1':minq2_1_DA[1]}
-Xvalues_JB = {'1':minq2_1_JB[1]}
+Q2values_T = Truth[0]
+Q2values_E = Electron[0]
+Q2values_DA = DoubleAngle[0]
+Q2values_JB = JacquetBlondel[0]
+Xvalues_T = Truth[1]
+Xvalues_E = Electron[1]
+Xvalues_DA = DoubleAngle[1]
+Xvalues_JB = JacquetBlondel[1]
 
 method_dict = {'e':'Electron','DA':'Double-Angle','JB':'Jacquet-Blondel'}
 method_Q2values_dict = {'e':Q2values_E,'DA':Q2values_DA,'JB':Q2values_JB}
