@@ -62,7 +62,7 @@ echo "Running Geant4 simulation"
 #      --filter.tracker edep0 \
 #      -v WARNING \
 #      --numberOfEvents ${JUGGLER_N_EVENTS} \
-#      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+#      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
 #      --inputFiles ${GEN_FILE} \
 #      --outputFile ${SIM_FILE}
 #if [ "$?" -ne "0" ] ; then

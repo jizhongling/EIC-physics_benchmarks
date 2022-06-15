@@ -105,7 +105,7 @@ if [[ -n "${DO_SIM}" || -n "${DO_ALL}" ]] ; then
     --filter.tracker edep0 \
     -v ERROR \
     --numberOfEvents ${JUGGLER_N_EVENTS} \
-    --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+    --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
     --inputFiles ${JUGGLER_MC_FILE} \
     --outputFile ${JUGGLER_SIM_FILE}
   if [[ "$?" -ne "0" ]] ; then

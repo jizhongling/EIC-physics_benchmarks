@@ -7,8 +7,8 @@ from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
 import json
 
 detector_name = "athena"
-if "JUGGLER_DETECTOR" in os.environ :
-    detector_name = str(os.environ["JUGGLER_DETECTOR"])
+if "JUGGLER_DETECTOR_CONFIG" in os.environ :
+    detector_name = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
 
 detector_path = ""
 if "DETECTOR_PATH" in os.environ :

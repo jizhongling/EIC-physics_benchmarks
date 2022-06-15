@@ -65,7 +65,7 @@ ddsim --runType batch \
       --filter.tracker edep0 \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
@@ -106,7 +106,7 @@ cat << EOF > ${CONFIG}
   "rec_file": "${REC_FILE}",
   "vm_name": "${LEADING}",
   "decay": "${DECAY}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${JUGGLER_DETECTOR_CONFIG}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "test_tag": "${LEADING}_${DECAY}_${BEAM_TAG}"
 }
