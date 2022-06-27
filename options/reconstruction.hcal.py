@@ -1,8 +1,8 @@
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
-from GaudiKernel import SystemOfUnits as units
-from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
+
+from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 
@@ -110,8 +110,8 @@ ci_hcal_cl = IslandCluster("ci_hcal_cl",
         inputHitCollection=ci_hcal_merger.outputHitCollection,
         outputProtoClusterCollection="HcalEndcapPProtoClusters",
         splitCluster=False,
-        minClusterCenterEdep=30.*units.MeV,
-        localDistXY=[15.*units.cm, 15.*units.cm])
+        minClusterCenterEdep=30.*MeV,
+        localDistXY=[15.*cm, 15.*cm])
 algorithms.append(ci_hcal_cl)
 
 ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
@@ -149,8 +149,8 @@ ce_hcal_cl = IslandCluster("ce_hcal_cl",
         inputHitCollection=ce_hcal_merger.outputHitCollection,
         outputProtoClusterCollection="HcalEndcapNProtoClusters",
         splitCluster=False,
-        minClusterCenterEdep=30.*units.MeV,
-        localDistXY=[15.*units.cm, 15.*units.cm])
+        minClusterCenterEdep=30.*MeV,
+        localDistXY=[15.*cm, 15.*cm])
 algorithms.append(ce_hcal_cl)
 
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",

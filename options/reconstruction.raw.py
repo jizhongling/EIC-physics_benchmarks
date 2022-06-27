@@ -1,8 +1,8 @@
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
-from GaudiKernel import SystemOfUnits as units
-from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
+
+from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 
@@ -321,7 +321,7 @@ algorithms.append( gem_ec_digi )
 drich_digi = PhotoMultiplierDigi("drich_digi",
         inputHitCollection="DRICHHits",
         outputHitCollection="DRICHRawHits",
-        quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
+        quantumEfficiency=[(a*eV, b) for a, b in qe_data])
 algorithms.append(drich_digi)
 
 # MRICH
@@ -329,7 +329,7 @@ if 'acadia' in detector_version:
     mrich_digi = PhotoMultiplierDigi("mrich_digi",
             inputHitCollection="MRICHHits",
             outputHitCollection="MRICHRawHits",
-            quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
+            quantumEfficiency=[(a*eV, b) for a, b in qe_data])
     algorithms.append(mrich_digi)
 
 # Output

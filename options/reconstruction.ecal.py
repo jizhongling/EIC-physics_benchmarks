@@ -1,8 +1,8 @@
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
-from GaudiKernel import SystemOfUnits as units
-from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
+
+from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 
@@ -106,9 +106,9 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 #        inputHitCollection=ce_ecal_reco.outputHitCollection,
 #        outputProtoClusterCollection="EcalEndcapNProtoClusters",
 #        splitCluster=False,
-#        minClusterHitEdep=1.0*units.MeV,  # discard low energy hits
-#        minClusterCenterEdep=30*units.MeV,
-#        sectorDist=5.0*units.cm,
+#        minClusterHitEdep=1.0*MeV,  # discard low energy hits
+#        minClusterCenterEdep=30*MeV,
+#        sectorDist=5.0*cm,
 #        dimScaledLocalDistXY=[1.8, 1.8]) # dimension scaled dist is good for hybrid sectors with different module size
 algorithms.append(ce_ecal_cl)
 
@@ -162,8 +162,8 @@ ci_ecal_cl = TruthClustering("ci_ecal_cl",
         #inputHitCollection=ci_ecal_merger.outputHitCollection,
         #outputProtoClusterCollection="EcalEndcapPProtoClusters",
         #splitCluster=False,
-        #minClusterCenterEdep=10.*units.MeV,
-        #localDistXY=[10*units.mm, 10*units.mm])
+        #minClusterCenterEdep=10.*MeV,
+        #localDistXY=[10*mm, 10*mm])
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",

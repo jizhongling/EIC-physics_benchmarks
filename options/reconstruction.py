@@ -1,8 +1,8 @@
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
-from GaudiKernel import SystemOfUnits as units
-from GaudiKernel.SystemOfUnits import MeV, GeV, mm, cm, mrad
+
+from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 from math import sqrt
@@ -394,9 +394,9 @@ ce_ecal_cl = TruthClustering("ce_ecal_cl",
 #        inputHitCollection=ce_ecal_reco.outputHitCollection,
 #        outputProtoClusterCollection="EcalEndcapNProtoClusters",
 #        splitCluster=False,
-#        minClusterHitEdep=1.0*units.MeV,  # discard low energy hits
-#        minClusterCenterEdep=30*units.MeV,
-#        sectorDist=5.0*units.cm,
+#        minClusterHitEdep=1.0*MeV,  # discard low energy hits
+#        minClusterCenterEdep=30*MeV,
+#        sectorDist=5.0*cm,
 #        dimScaledLocalDistXY=[1.8, 1.8]) # dimension scaled dist is good for hybrid sectors with different module size
 algorithms.append(ce_ecal_cl)
 
@@ -450,8 +450,8 @@ ci_ecal_cl = TruthClustering("ci_ecal_cl",
         #inputHitCollection=ci_ecal_merger.outputHitCollection,
         #outputProtoClusterCollection="EcalEndcapPProtoClusters",
         #splitCluster=False,
-        #minClusterCenterEdep=10.*units.MeV,
-        #localDistXY=[10*units.mm, 10*units.mm])
+        #minClusterCenterEdep=10.*MeV,
+        #localDistXY=[10*mm, 10*mm])
 algorithms.append(ci_ecal_cl)
 
 ci_ecal_clreco = RecoCoG("ci_ecal_clreco",
@@ -493,10 +493,10 @@ if 'athena' in detector_name:
     img_barrel_cl = ImagingCluster("img_barrel_cl",
         inputHitCollection=img_barrel_reco.outputHitCollection,
         outputProtoClusterCollection="EcalBarrelImagingProtoClusters",
-        localDistXY=[2.*units.mm, 2*units.mm],  # same layer
-        layerDistEtaPhi=[10*units.mrad, 10*units.mrad],     # adjacent layer
+        localDistXY=[2.*mm, 2*mm],  # same layer
+        layerDistEtaPhi=[10*mrad, 10*mrad],     # adjacent layer
         neighbourLayersRange=2,                 # id diff for adjacent layer
-        sectorDist=3.*units.cm)                       # different sector
+        sectorDist=3.*cm)                       # different sector
     algorithms.append(img_barrel_cl)
 
     img_barrel_clreco = ImagingClusterReco("img_barrel_clreco",
@@ -632,8 +632,8 @@ cb_hcal_cl = IslandCluster("cb_hcal_cl",
         inputHitCollection=cb_hcal_merger.outputHitCollection,
         outputProtoClusterCollection="HcalBarrelProtoClusters",
         splitCluster=False,
-        minClusterCenterEdep=30.*units.MeV,
-        localDistXY=[15.*units.cm, 15.*units.cm])
+        minClusterCenterEdep=30.*MeV,
+        localDistXY=[15.*cm, 15.*cm])
 algorithms.append(cb_hcal_cl)
 
 cb_hcal_clreco = RecoCoG("cb_hcal_clreco",
@@ -671,8 +671,8 @@ ci_hcal_cl = IslandCluster("ci_hcal_cl",
         inputHitCollection=ci_hcal_merger.outputHitCollection,
         outputProtoClusterCollection="HcalEndcapPProtoClusters",
         splitCluster=False,
-        minClusterCenterEdep=30.*units.MeV,
-        localDistXY=[15.*units.cm, 15.*units.cm])
+        minClusterCenterEdep=30.*MeV,
+        localDistXY=[15.*cm, 15.*cm])
 algorithms.append(ci_hcal_cl)
 
 ci_hcal_clreco = RecoCoG("ci_hcal_clreco",
@@ -710,8 +710,8 @@ ce_hcal_cl = IslandCluster("ce_hcal_cl",
         inputHitCollection=ce_hcal_merger.outputHitCollection,
         outputProtoClusterCollection="HcalEndcapNProtoClusters",
         splitCluster=False,
-        minClusterCenterEdep=30.*units.MeV,
-        localDistXY=[15.*units.cm, 15.*units.cm])
+        minClusterCenterEdep=30.*MeV,
+        localDistXY=[15.*cm, 15.*cm])
 algorithms.append(ce_hcal_cl)
 
 ce_hcal_clreco = RecoCoG("ce_hcal_clreco",
@@ -910,7 +910,7 @@ algorithms.append(fast_ff)
 drich_digi = PhotoMultiplierDigi("drich_digi",
         inputHitCollection="DRICHHits",
         outputHitCollection="DRICHRawHits",
-        quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
+        quantumEfficiency=[(a*eV, b) for a, b in qe_data])
 algorithms.append(drich_digi)
 
 drich_reco = PhotoMultiplierReco("drich_reco",
@@ -929,7 +929,7 @@ if 'acadia' in detector_version:
     mrich_digi = PhotoMultiplierDigi("mrich_digi",
             inputHitCollection="MRICHHits",
             outputHitCollection="MRICHRawHits",
-            quantumEfficiency=[(a*units.eV, b) for a, b in qe_data])
+            quantumEfficiency=[(a*eV, b) for a, b in qe_data])
     algorithms.append(mrich_digi)
     mrich_reco = PhotoMultiplierReco("mrich_reco",
             inputHitCollection=mrich_digi.outputHitCollection,
