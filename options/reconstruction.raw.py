@@ -7,8 +7,12 @@ from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 import json
 
 detector_name = "athena"
+if "JUGGLER_DETECTOR" in os.environ :
+    detector_name = str(os.environ["JUGGLER_DETECTOR"])
+
+detector_config = detector_name
 if "JUGGLER_DETECTOR_CONFIG" in os.environ :
-    detector_name = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
+    detector_config = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
 
 detector_path = ""
 if "DETECTOR_PATH" in os.environ :
@@ -20,7 +24,12 @@ if "JUGGLER_DETECTOR_VERSION" in os.environ:
     if 'acadia' in env_version:
         detector_version = 'acadia'
 
-compact_path = os.path.join(detector_path, detector_name)
+# Detector features that affect reconstruction
+has_ecal_barrel_scfi = False
+if 'athena' in detector_name:
+    has_ecal_barrel_scfi = True
+if 'ecce' in detector_name and 'imaging' in detector_config:
+    has_ecal_barrel_scfi = True
 
 # RICH reconstruction
 qe_data = [(1.0, 0.25), (7.5, 0.25),]
@@ -50,7 +59,7 @@ services = []
 # auditor service
 services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAuditor']))
 # geometry service
-services.append(GeoSvc("GeoSvc", detectors=["{}.xml".format(compact_path)], OutputLevel=WARNING))
+services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_config)], OutputLevel=WARNING))
 # data service
 services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING))
 
@@ -80,12 +89,11 @@ sim_coll = [
     'HcalEndcapNHitsContributions',
     'DRICHHits',
 ]
-
 ecal_barrel_scfi_collections = [
     'EcalBarrelScFiHits',
     'EcalBarrelScFiHitsContributions'
 ]
-if 'athena' in detector_name:
+if has_ecal_barrel_scfi:
     sim_coll += ecal_barrel_scfi_collections
 
 forward_romanpot_collections = [
@@ -192,7 +200,7 @@ ci_ecal_digi = CalHitDigi("ci_ecal_digi",
 algorithms.append(ci_ecal_digi)
 
 # Central Barrel Ecal
-if 'athena' in detector_name:
+if has_ecal_barrel_scfi:
     # Central ECAL Imaging Calorimeter
     img_barrel_daq = calo_daq['ecal_barrel_imaging']
 
@@ -217,7 +225,7 @@ else:
 
     sciglass_ecal_digi = CalHitDigi("sciglass_ecal_digi",
         inputHitCollection="EcalBarrelHits",
-        outputHitCollection="EcalBarrelHitsDigi",
+        outputHitCollection="EcalBarrelRawHits",
         energyResolutions=[0., 0.02, 0.],   # 2% flat resolution
         **sciglass_ecal_daq)
     algorithms.append(sciglass_ecal_digi)

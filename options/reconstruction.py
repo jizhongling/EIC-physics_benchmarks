@@ -5,11 +5,14 @@ from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, G
 from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
-from math import sqrt
 
 detector_name = "athena"
+if "JUGGLER_DETECTOR" in os.environ :
+    detector_name = str(os.environ["JUGGLER_DETECTOR"])
+
+detector_config = detector_name
 if "JUGGLER_DETECTOR_CONFIG" in os.environ :
-    detector_name = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
+    detector_config = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
 
 detector_path = ""
 if "DETECTOR_PATH" in os.environ :
@@ -21,7 +24,12 @@ if "JUGGLER_DETECTOR_VERSION" in os.environ:
     if 'acadia' in env_version:
         detector_version = 'acadia'
 
-compact_path = os.path.join(detector_path, detector_name)
+# Detector features that affect reconstruction
+has_ecal_barrel_scfi = False
+if 'athena' in detector_name:
+    has_ecal_barrel_scfi = True
+if 'ecce' in detector_name and 'imaging' in detector_config:
+    has_ecal_barrel_scfi = True
 
 if "PBEAM" in os.environ:
     ionBeamEnergy = str(os.environ["PBEAM"])
@@ -100,11 +108,11 @@ services.append(AuditorSvc("AuditorSvc", Auditors=['ChronoAuditor', 'MemStatAudi
 ##       these names are somewhat inconsistent, and should probably all be renamed to 'material-map.XXX'
 ##       FIXME
 if detector_version == 'acadia':
-    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
+    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_config)],
                                      materials="config/material-maps.json",
                                      OutputLevel=WARNING))
 else:
-    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_name)],
+    services.append(GeoSvc("GeoSvc", detectors=["{}/{}.xml".format(detector_path,detector_config)],
                                     materials="calibrations/materials-map.cbor",
                                     OutputLevel=WARNING))
 # data service
@@ -185,12 +193,11 @@ sim_coll = [
     'ZDCHcalHits',
     'ZDCHcalHitsContributions',
 ]
-
 ecal_barrel_scfi_collections = [
     'EcalBarrelScFiHits',
     'EcalBarrelScFiHitsContributions'
 ]
-if 'athena' in detector_name:
+if has_ecal_barrel_scfi:
     sim_coll += ecal_barrel_scfi_collections
 
 forward_romanpot_collections = [
@@ -468,7 +475,7 @@ algorithms.append(ci_ecal_clreco)
 #algorithms.append(ci_ecal_clmerger)
 
 # Central Barrel Ecal
-if 'athena' in detector_name:
+if has_ecal_barrel_scfi:
     # Central ECAL Imaging Calorimeter
     img_barrel_daq = calo_daq['ecal_barrel_imaging']
 
