@@ -81,13 +81,17 @@ include:
   - local: 'benchmarks/tcs/config.yml'
   - local: 'benchmarks/u_omega/config.yml'
   - local: 'benchmarks/single/config.yml'
-  - local: 'benchmarks/synchrotron/config.yml'
+  - local: 'benchmarks/backgrounds/config.yml'
 
 summary:
   stage: finish
-  #needs: ["dis:results", "dvcs:results", "dvmp:results"]
   needs:
+    - "dis:results"
     - "dvcs:results"
+    - "tcs:results"
+    - "u_omega:results"
+    - "single:results"
+    - "backgrounds:results"
   script:
     - collect_benchmarks.py
   artifacts:
