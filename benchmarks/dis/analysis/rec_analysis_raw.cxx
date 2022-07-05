@@ -601,24 +601,24 @@ int rec_analysis_raw(const std::string& config_name)
   }
 
   if (
-    stats_n_EcalEndcapPRawHits->GetMean() < 0.8 ||
+    stats_n_EcalEndcapPRawHits->GetMean() < 0.1 ||
     (
       d0.HasColumn("EcalBarrelScFiRawHits") && 
       (
-        stats_n_EcalBarrelImagingRawHits->GetMean() < 0.8 ||
-        stats_n_EcalBarrelScFiRawHits->GetMean() < 0.8
+        stats_n_EcalBarrelImagingRawHits->GetMean() < 0.1 ||
+        stats_n_EcalBarrelScFiRawHits->GetMean() < 0.1
       )
     ) ||
     (
       ! d0.HasColumn("EcalBarrelScFiRawHits") && 
       (
-        stats_n_EcalBarrelRawHits->GetMean() < 0.8
+        stats_n_EcalBarrelRawHits->GetMean() < 0.1
       )
     ) ||
-    stats_n_EcalEndcapNRawHits->GetMean() < 0.8 ||
-    stats_n_HcalEndcapPRawHits->GetMean() < 0.8 ||
-    stats_n_HcalBarrelRawHits->GetMean() < 0.8 ||
-    stats_n_HcalEndcapNRawHits->GetMean() < 0.8
+    stats_n_EcalEndcapNRawHits->GetMean() < 0.1 ||
+    stats_n_HcalEndcapPRawHits->GetMean() < 0.1 ||
+    stats_n_HcalBarrelRawHits->GetMean() < 0.1 ||
+    stats_n_HcalEndcapNRawHits->GetMean() < 0.1
    ) {
     std::cout << "Error: too few raw hits per events " << std::endl;
     return -1;
