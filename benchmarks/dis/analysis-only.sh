@@ -27,7 +27,7 @@ source parse_cmd.sh $@
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
-## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
+## - DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 ##
 
@@ -62,7 +62,7 @@ echo "Running Geant4 simulation"
 #      --filter.tracker edep0 \
 #      -v WARNING \
 #      --numberOfEvents ${JUGGLER_N_EVENTS} \
-#      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
+#      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
 #      --inputFiles ${GEN_FILE} \
 #      --outputFile ${SIM_FILE}
 #if [ "$?" -ne "0" ] ; then
@@ -79,7 +79,7 @@ echo "Running Geant4 simulation"
 ## - JUGGLER_SIM_FILE:    input detector simulation
 ## - JUGGLER_REC_FILE:    output reconstructed data
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
-## - JUGGLER_DETECTOR:    detector package (part of global environment)
+## - DETECTOR:    detector package (part of global environment)
 #export JUGGLER_SIM_FILE=${SIM_FILE}
 #export JUGGLER_REC_FILE=${REC_FILE}
 #gaudirun.py options/tracker_reconstruction.py 
@@ -103,7 +103,7 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "test_tag": "${BEAM_TAG}"
 }

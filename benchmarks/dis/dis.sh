@@ -28,7 +28,7 @@ source ${LOCAL_PREFIX}/bin/parse_cmd.sh $@
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
-## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
+## - DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 ##
 ## defined in common_bench repo
@@ -67,7 +67,7 @@ ddsim --runType batch \
       --filter.tracker edep0 \
       -v INFO \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
+      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
@@ -85,7 +85,7 @@ echo "Running the digitization and reconstruction"
 ## - JUGGLER_SIM_FILE:    input detector simulation
 ## - JUGGLER_REC_FILE:    output reconstructed data
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
-## - JUGGLER_DETECTOR:    detector package (part of global environment)
+## - DETECTOR:    detector package (part of global environment)
 export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 for rec in options/*.py ; do
@@ -107,7 +107,7 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
@@ -132,7 +132,7 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.raw.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.raw.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
@@ -150,7 +150,7 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.ecal.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.ecal.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
@@ -168,7 +168,7 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.hcal.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.hcal.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},

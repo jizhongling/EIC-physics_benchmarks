@@ -65,7 +65,7 @@ ddsim --runType batch \
       --filter.tracker edep0 \
       -v WARNING \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
+      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
@@ -82,7 +82,7 @@ echo "Running the digitization and reconstruction"
 ## - JUGGLER_SIM_FILE:    input detector simulation
 ## - JUGGLER_REC_FILE:    output reconstructed data
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
-## - JUGGLER_DETECTOR:    detector package (part of global environment)
+## - DETECTOR:    detector package (part of global environment)
 export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 for rec in options/*.py ; do
@@ -106,7 +106,7 @@ cat << EOF > ${CONFIG}
   "rec_file": "${REC_FILE}",
   "vm_name": "${LEADING}",
   "decay": "${DECAY}",
-  "detector": "${JUGGLER_DETECTOR_CONFIG}",
+  "detector": "${DETECTOR_CONFIG}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "test_tag": "${LEADING}_${DECAY}_${BEAM_TAG}"
 }

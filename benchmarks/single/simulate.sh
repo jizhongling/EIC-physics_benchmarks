@@ -11,7 +11,7 @@ ddsim --runType run \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
       --part.minimalKineticEnergy 1*TeV  \
       --filter.tracker edep0 \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR_CONFIG}.xml \
+      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
       --outputFile  ${JUGGLER_SIM_FILE}
 if [[ "$?" -ne "0" ]] ; then
   echo "ERROR running ddsim"

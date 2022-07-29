@@ -7,20 +7,20 @@ from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 import json
 
 detector_name = "athena"
-if "JUGGLER_DETECTOR" in os.environ:
-    detector_name = str(os.environ["JUGGLER_DETECTOR"])
+if "DETECTOR" in os.environ:
+    detector_name = str(os.environ["DETECTOR"])
 
 detector_config = detector_name
-if "JUGGLER_DETECTOR_CONFIG" in os.environ:
-    detector_config = str(os.environ["JUGGLER_DETECTOR_CONFIG"])
+if "DETECTOR_CONFIG" in os.environ:
+    detector_config = str(os.environ["DETECTOR_CONFIG"])
 
 detector_path = ""
 if "DETECTOR_PATH" in os.environ:
     detector_path = str(os.environ["DETECTOR_PATH"])
 
 detector_version = "default"
-if "JUGGLER_DETECTOR_VERSION" in os.environ:
-    env_version = str(os.environ["JUGGLER_DETECTOR_VERSION"])
+if "DETECTOR_VERSION" in os.environ:
+    env_version = str(os.environ["DETECTOR_VERSION"])
     if "acadia" in env_version:
         detector_version = "acadia"
 
