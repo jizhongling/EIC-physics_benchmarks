@@ -724,14 +724,22 @@ else:
     )
     algorithms.append(sciglass_ecal_cl)
 
-    sciglass_ecal_clreco = ImagingClusterReco(
+    sciglass_ecal_clreco = RecoCoG(
         "sciglass_ecal_clreco",
-        inputProtoClusters=sciglass_ecal_cl.outputProtoClusterCollection,
-        mcHits="EcalBarrelHits",
-        outputClusters="EcalBarrelClusters",
-        outputLayers="EcalBarrelLayers",
+        inputProtoClusterCollection=sciglass_ecal_cl.outputProtoClusterCollection,
+        outputClusterCollection="EcalBarrelClusters",
+        logWeightBase=4.6,
     )
     algorithms.append(sciglass_ecal_clreco)
+
+    ## barrel cluster merger
+    # barrel_clus_merger = ClusterMerger(
+    #     "barrel_clus_merger",
+    #     inputClusters=sciglass_ecal_clreco.outputClusterCollection,
+    #     outputClusters="EcalBarrelMergedClusters",
+    #     outputRelations="EcalBarrelMergedClusterRelations"
+    # )
+    # algorithms.append(barrel_clus_merger)
 
 # Central Barrel Hcal
 cb_hcal_daq = calo_daq["hcal_barrel"]
