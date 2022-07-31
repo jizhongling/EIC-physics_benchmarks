@@ -1,7 +1,9 @@
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, AuditorSvc, EICDataSvc, PodioOutput, GeoSvc
-
+from Configurables import Gaudi__Monitoring__MessageSvcSink as MessageSvcSink
+from Configurables import Gaudi__Histograming__Sink__Root as RootHistoSink
+from GaudiKernel import SystemOfUnits as units
 from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
@@ -140,6 +142,14 @@ else:
     )
 # data service
 services.append(EICDataSvc("EventDataSvc", inputs=input_sims, OutputLevel=WARNING))
+
+# message service
+MessageSvc().OutputLevel = INFO
+services.append(MessageSvcSink())
+
+# ROOT histogram service
+RootHistSvc("RootHistSvc").OutputFile = "histo.root"
+services.append(RootHistoSink())
 
 # juggler components
 from Configurables import PodioInput
@@ -1287,4 +1297,5 @@ ApplicationMgr(
     ExtSvc=services,
     OutputLevel=WARNING,
     AuditAlgorithms=True,
+    HistogramPersistency='ROOT',
 )
