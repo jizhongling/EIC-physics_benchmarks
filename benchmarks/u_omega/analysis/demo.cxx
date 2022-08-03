@@ -21,7 +21,6 @@ R__LOAD_LIBRARY(libDD4pod.so)
 #include "eicd/TrackParametersCollection.h"
 #include "eicd/ClusterCollection.h"
 #include "eicd/ReconstructedParticleCollection.h"
-#include "eicd/BasicParticleCollection.h"
 #include "eicd/InclusiveKinematicsCollection.h"
 
 using ROOT::RDataFrame;
