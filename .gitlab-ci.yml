@@ -21,6 +21,7 @@ default:
       dotenv: juggler.env
 
 stages:
+  - status-pending
   - config
   - initialize
   - compile
@@ -30,6 +31,32 @@ stages:
   - analyze
   - collect
   - finish
+  - status-report
+
+.status:
+  before_script: []
+  script:
+    - |
+      if [ -n "${GITHUB_SHA}" ] ; then
+        curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token ${GITHUB_REPO_STATUS_TOKEN}" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+          -d '{"state":"'"${STATE}"'",
+               "target_url":"'"${CI_PIPELINE_URL}"'",
+               "description":"'"${DESCRIPTION}"'",
+               "context":"eicweb/physics_benchmarks"
+              }' ;
+      fi
+
+benchmarks:physics:pending:
+  stage: status-pending
+  extends: .status
+  variables:
+    STATE: "pending"
+    DESCRIPTION: "The physics benchmarks are running..."
+  when: always
 
 common:setup:
   stage: config
@@ -99,3 +126,23 @@ summary:
       - results/*
 #    reports:
 #      junit: ["results/dvcs/report2.xml"]
+
+benchmarks:physics:success:
+  stage: status-report
+  needs:
+    - ["summary"]
+  extends: .status
+  variables:
+    STATE: "success"
+    DESCRIPTION: "The physics benchmarks succeeded!"
+  when: on_success
+
+benchmarks:physics:failure:
+  stage: status-report
+  needs:
+    - ["summary"]
+  extends: .status
+  variables:
+    STATE: "failure"
+    DESCRIPTION: "The physics benchmarks failed!"
+  when: on_failure
