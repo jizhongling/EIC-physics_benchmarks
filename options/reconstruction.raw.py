@@ -6,23 +6,10 @@ from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 
-detector_name = "athena"
-if "DETECTOR" in os.environ:
-    detector_name = str(os.environ["DETECTOR"])
-
-detector_config = detector_name
-if "DETECTOR_CONFIG" in os.environ:
-    detector_config = str(os.environ["DETECTOR_CONFIG"])
-
-detector_path = ""
-if "DETECTOR_PATH" in os.environ:
-    detector_path = str(os.environ["DETECTOR_PATH"])
-
-detector_version = "default"
-if "DETECTOR_VERSION" in os.environ:
-    env_version = str(os.environ["DETECTOR_VERSION"])
-    if "acadia" in env_version:
-        detector_version = "acadia"
+detector_path = str(os.environ.get("DETECTOR_PATH", "."))
+detector_name = str(os.environ.get("DETECTOR_CONFIG", "epic"))
+detector_config = str(os.environ.get("DETECTOR_CONFIG", detector_name))
+detector_version = str(os.environ.get("DETECTOR_VERSION", "main"))
 
 # Detector features that affect reconstruction
 has_ecal_barrel_scfi = False
@@ -42,7 +29,7 @@ qe_data = [
 # input calorimeter DAQ info
 calo_daq = {}
 with open(
-    "{}/calibrations/calo_digi_{}.json".format(detector_path, detector_version)
+    "{}/calibrations/calo_digi_default.json".format(detector_path)
 ) as f:
     calo_config = json.load(f)
     ## add proper ADC capacity based on bit depth
@@ -124,45 +111,32 @@ forward_offmtracker_collections = [
 sim_coll += forward_romanpot_collections + forward_offmtracker_collections
 
 tracker_endcap_collections = [
-    "TrackerEndcapHits1",
-    "TrackerEndcapHits2",
-    "TrackerEndcapHits3",
-    "TrackerEndcapHits4",
-    "TrackerEndcapHits5",
-    "TrackerEndcapHits6",
+    "InnerTrackerEndcapPHits",
+    "InnerTrackerEndcapNHits",
+    "MiddleTrackerEndcapPHits",
+    "MiddleTrackerEndcapNHits",
+    "OuterTrackerEndcapPHits",
+    "OuterTrackerEndcapNHits",
 ]
 tracker_barrel_collections = [
-    "TrackerBarrelHits",
+    "SagittaSiBarrelHits",
+    "OuterSiBarrelHits",
 ]
 vertex_barrel_collections = [
     "VertexBarrelHits",
 ]
-gem_endcap_collections = [
-    "GEMTrackerEndcapHits1",
-    "GEMTrackerEndcapHits2",
-    "GEMTrackerEndcapHits3",
+mpgd_barrel_collections = [
+    "InnerMPGDBarrelHits",
+    "OuterMPGDBarrelHits",
 ]
 sim_coll += (
     tracker_endcap_collections
     + tracker_barrel_collections
     + vertex_barrel_collections
-    + gem_endcap_collections
+    + mpgd_barrel_collections
 )
 
-
-vertex_endcap_collections = [
-    "VertexEndcapHits",
-]
-mpgd_barrel_collections = [
-    "MPGDTrackerBarrelHits1",
-    "MPGDTrackerBarrelHits2",
-]
-
-if "acadia" in detector_version:
-    sim_coll += vertex_endcap_collections
-    sim_coll.append("MRICHHits")
-else:
-    sim_coll += mpgd_barrel_collections
+sim_coll.append("MRICHHits")
 
 # list of algorithms
 algorithms = []
@@ -349,51 +323,20 @@ vtx_b_digi = TrackerDigi(
 )
 algorithms.append(vtx_b_digi)
 
-if "acadia" in detector_version:
-    vtx_ec_coll = SimTrackerHitsCollector(
-        "vtx_ec_coll",
-        inputSimTrackerHits=vertex_endcap_collections,
-        outputSimTrackerHits="VertexEndcapAllHits",
-    )
-    algorithms.append(vtx_ec_coll)
-
-    vtx_ec_digi = TrackerDigi(
-        "vtx_ec_digi",
-        inputHitCollection=vtx_ec_coll.outputSimTrackerHits,
-        outputHitCollection="VertexEndcapRawHits",
-        timeResolution=8,
-    )
-    algorithms.append(vtx_ec_digi)
-else:
-    mm_b_coll = SimTrackerHitsCollector(
-        "mm_b_coll",
-        inputSimTrackerHits=mpgd_barrel_collections,
-        outputSimTrackerHits="MPGDTrackerBarrelAllHits",
-    )
-    algorithms.append(mm_b_coll)
-
-    mm_b_digi = TrackerDigi(
-        "mm_b_digi",
-        inputHitCollection=mm_b_coll.outputSimTrackerHits,
-        outputHitCollection="MPGDTrackerBarrelRawHits",
-        timeResolution=8,
-    )
-    algorithms.append(mm_b_digi)
-
-gem_ec_coll = SimTrackerHitsCollector(
-    "gem_ec_coll",
-    inputSimTrackerHits=gem_endcap_collections,
-    outputSimTrackerHits="GEMTrackerEndcapAllHits",
+mpgd_b_coll = SimTrackerHitsCollector(
+    "mpgd_b_coll",
+    inputSimTrackerHits=mpgd_barrel_collections,
+    outputSimTrackerHits="MPGDTrackerBarrelAllHits",
 )
-algorithms.append(gem_ec_coll)
+algorithms.append(mpgd_b_coll)
 
-gem_ec_digi = TrackerDigi(
-    "gem_ec_digi",
-    inputHitCollection=gem_ec_coll.outputSimTrackerHits,
-    outputHitCollection="GEMTrackerEndcapRawHits",
-    timeResolution=10,
+mpgd_b_digi = TrackerDigi(
+    "mpgd_b_digi",
+    inputHitCollection=mpgd_b_coll.outputSimTrackerHits,
+    outputHitCollection="MPGDTrackerBarrelRawHits",
+    timeResolution=8,
 )
-algorithms.append(gem_ec_digi)
+algorithms.append(mpgd_b_digi)
 
 # DRICH
 drich_digi = PhotoMultiplierDigi(

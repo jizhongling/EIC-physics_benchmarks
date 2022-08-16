@@ -6,30 +6,13 @@ from GaudiKernel.SystemOfUnits import eV, MeV, GeV, mm, cm, mrad
 
 import json
 
-detector_name = "athena"
-if "DETECTOR" in os.environ:
-    detector_name = str(os.environ["DETECTOR"])
-
-detector_config = detector_name
-if "DETECTOR_CONFIG" in os.environ:
-    detector_config = str(os.environ["DETECTOR_CONFIG"])
-
-detector_path = ""
-if "DETECTOR_PATH" in os.environ:
-    detector_path = str(os.environ["DETECTOR_PATH"])
-
-detector_version = "default"
-if "DETECTOR_VERSION" in os.environ:
-    env_version = str(os.environ["DETECTOR_VERSION"])
-    if "acadia" in env_version:
-        detector_version = "acadia"
+detector_path = str(os.environ.get("DETECTOR_PATH", "."))
+detector_name = str(os.environ.get("DETECTOR_CONFIG", "epic"))
+detector_config = str(os.environ.get("DETECTOR_CONFIG", detector_name))
+detector_version = str(os.environ.get("DETECTOR_VERSION", "main"))
 
 # Detector features that affect reconstruction
 has_ecal_barrel_scfi = False
-if "athena" in detector_name:
-    has_ecal_barrel_scfi = True
-if "ecce" in detector_name and "imaging" in detector_config:
-    has_ecal_barrel_scfi = True
 if "epic" in detector_name and "imaging" in detector_config:
     has_ecal_barrel_scfi = True
 
@@ -42,7 +25,7 @@ ce_hcal_sf = float(os.environ.get("CE_HCAL_SAMP_FRAC", 0.025))
 # input calorimeter DAQ info
 calo_daq = {}
 with open(
-    "{}/calibrations/calo_digi_{}.json".format(detector_path, detector_version)
+    "{}/calibrations/calo_digi_default.json".format(detector_path)
 ) as f:
     calo_config = json.load(f)
     ## add proper ADC capacity based on bit depth
