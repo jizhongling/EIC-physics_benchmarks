@@ -21,13 +21,12 @@ R__LOAD_LIBRARY(libDD4pod.so)
 #include "eicd/TrackParametersCollection.h"
 #include "eicd/ClusterCollection.h"
 #include "eicd/ReconstructedParticleCollection.h"
-#include "eicd/BasicParticleCollection.h"
 #include "eicd/InclusiveKinematicsCollection.h"
 
 using ROOT::RDataFrame;
 using namespace ROOT::VecOps;
 
-auto p_track = [](std::vector<eic::TrackParametersData> const& in) {
+auto p_track = [](std::vector<eicd::TrackParametersData> const& in) {
   std::vector<double> result;
   for (size_t i = 0; i < in.size(); ++i) {
     result.push_back(std::abs(1.0/(in[i].qOverP)));
@@ -67,11 +66,11 @@ auto fourvec = [](ROOT::VecOps::RVec<dd4pod::Geant4ParticleData> const& in) {
   }
   return result;
 };
-auto recfourvec = [](ROOT::VecOps::RVec<eic::ReconstructedParticleData> const& in) {
+auto recfourvec = [](ROOT::VecOps::RVec<eicd::ReconstructedParticleData> const& in) {
   std::vector<ROOT::Math::PxPyPzMVector> result;
   ROOT::Math::PxPyPzMVector lv;
   for (size_t i = 0; i < in.size(); ++i) {
-    lv.SetCoordinates(in[i].p.x, in[i].p.y, in[i].p.z, in[i].mass);
+    lv.SetCoordinates(in[i].momentum.x, in[i].momentum.y, in[i].momentum.z, in[i].mass);
     result.push_back(lv);
   }
   return result;

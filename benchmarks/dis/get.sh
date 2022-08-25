@@ -21,6 +21,7 @@ pushd ${PROJECT_ROOT}
 ## - CONFIG:   The specific generator configuration --> not currenlty used FIXME
 ## - EBEAM:    The electron beam energy --> not currently used FIXME
 ## - PBEAM:    The ion beam energy --> not currently used FIXME
+export REQUIRE_MINQ2=true
 source parse_cmd.sh $@
 
 ## To run the generator, we need the following global variables:
@@ -55,8 +56,8 @@ fi
 
 ## =============================================================================
 ## Step 3: Copy the file (about 180 lines per event in DIS NC files)
-nlines=$((180*${JUGGLER_N_EVENTS}))
-DATA_URL=S3/eictest/ATHENA/EVGEN/DIS/NC/${EBEAM}x${PBEAM}/minQ2=1/pythia8NCDIS_${EBEAM}x${PBEAM}_minQ2=1_beamEffects_xAngle=-0.025_hiDiv_vtxfix_1.hepmc
+nlines=$((190*${JUGGLER_N_EVENTS}))
+DATA_URL=S3/eictest/ATHENA/EVGEN/DIS/NC/${EBEAM}x${PBEAM}/minQ2=${MINQ2}/pythia8NCDIS_${EBEAM}x${PBEAM}_minQ2=${MINQ2}_beamEffects_xAngle=-0.025_hiDiv_vtxfix_1.hepmc
 mc config host add S3 https://dtn01.sdcc.bnl.gov:9000 ${S3_ACCESS_KEY} ${S3_SECRET_KEY}
 mc head -n ${nlines} ${DATA_URL} | sanitize_hepmc3 > ${TMP_PATH}/${GEN_TAG}.hepmc
 if [[ "$?" -ne "0" ]] ; then
@@ -67,7 +68,7 @@ fi
 ## =============================================================================
 ## Step 4: Finally, move relevant output into the artifacts directory and clean up
 ## =============================================================================
-echo "Moving generator output into ${INPUT_PATH}"
+echo "Moving generator output to ${INPUT_PATH}/${GEN_TAG}.hepmc"
 mv ${TMP_PATH}/${GEN_TAG}.hepmc ${INPUT_PATH}/${GEN_TAG}.hepmc
 ## this step only matters for local execution
 echo "Cleaning up"

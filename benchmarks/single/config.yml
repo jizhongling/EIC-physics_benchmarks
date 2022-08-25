@@ -4,10 +4,32 @@ single:compile:
   script:
     - compile_analyses.py single
 
-single:process:
+single:simulate:
   extends: .phy_benchmark
-  timeout: 24 hours
-  stage: process
-  needs: ["common:detector", "single:compile"]
+  timeout: 2 hours
+  stage: simulate
+  needs: ["common:detector"]
   script:
-    - bash benchmarks/single/single.sh e-_1GeV_45to135deg
+    - bash benchmarks/single/simulate.sh e-_1GeV_45to135deg
+
+single:reconstruct:
+  extends: .phy_benchmark
+  timeout: 2 hours
+  stage: reconstruct
+  needs: ["single:simulate"]
+  script:
+    - bash benchmarks/single/reconstruct.sh e-_1GeV_45to135deg
+
+single:analyze:
+  extends: .phy_benchmark
+  timeout: 2 hours
+  stage: analyze
+  needs: ["single:reconstruct", "single:compile"]
+  script:
+    - bash benchmarks/single/analyze.sh e-_1GeV_45to135deg
+
+single:results:
+  stage: collect
+  needs: ["single:analyze"]
+  script:
+    - ls -al

@@ -30,9 +30,9 @@ void synchrotron_sim(const char* fname = "sim_synchrotron.edm4hep.root"){
 
   // Detector version
   std::string detector_version("default");
-  const char* juggler_detector_version = gSystem->Getenv("JUGGLER_DETECTOR_VERSION");
-  if (juggler_detector_version) {
-    detector_version = juggler_detector_version;
+  const char* getenv_detector_version = gSystem->Getenv("DETECTOR_VERSION");
+  if (getenv_detector_version) {
+    detector_version = getenv_detector_version;
   }
 
   if (detector_version == "acadia") {

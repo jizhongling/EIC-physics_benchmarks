@@ -17,7 +17,7 @@ int analyze(std::string file)
     return -1;
   }
 
-  auto n_tracks = [](const std::vector<eic::ReconstructedParticleData> &p) { return (int) p.size(); };
+  auto n_tracks = [](const std::vector<eicd::ReconstructedParticleData> &p) { return (int) p.size(); };
 
   auto d = df
   .Define("n_tracks_gen", n_tracks, {"GeneratedParticles"})

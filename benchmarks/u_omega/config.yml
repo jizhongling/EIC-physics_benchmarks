@@ -4,8 +4,8 @@ u_omega:compile:
   script:
     - compile_analyses.py u_omega
 
-u_omega:process:
-  stage: process
+u_omega:simulate:
+  stage: simulate
   extends: .phy_benchmark
   tags:
     - phy
@@ -16,6 +16,6 @@ u_omega:process:
 
 u_omega:results:
   stage: collect
-  needs: ["u_omega:process"]
+  needs: ["u_omega:simulate"]
   script:
     - ls -lrth

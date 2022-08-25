@@ -1,0 +1,20 @@
+backgrounds:compile:
+  stage: compile
+  extends: .compile_benchmark
+  script:
+    - compile_analyses.py backgrounds
+
+backgrounds:synchrotron:simulate:
+  stage: simulate
+  extends: .phy_benchmark
+  tags:
+    - s3
+  needs: ["common:detector", "backgrounds:compile"]
+  script:
+    - bash benchmarks/backgrounds/synchrotron.sh --all
+
+backgrounds:results:
+  stage: collect
+  needs: ["backgrounds:synchrotron:simulate"]
+  script:
+    - ls -lrth

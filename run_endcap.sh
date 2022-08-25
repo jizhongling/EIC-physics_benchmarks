@@ -63,8 +63,8 @@ do
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
-export PYTHONPATH=${ATHENA_PREFIX}/python:${PYTHONPATH}
-export DETECTOR_PATH=${ATHENA_PREFIX}/../athena
+export PYTHONPATH=${EIC_SHELL_PREFIX}/python:${PYTHONPATH}
+export DETECTOR_PATH=${EIC_SHELL_PREFIX}/../athena
 export JUGGLER_DETECTOR=athena
 export JUGGLER_DETECTOR_VERSION=default
 export JUGGLER_COMPACT_PATH=${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml
@@ -82,7 +82,7 @@ mkdir -p ${OUTDIR}
 SKIP_N_EVENTS=$(( 0 * PROC * JUGGLER_N_EVENTS ))
 export GEN_FILE="${OUTDIR}/gen_${ENERGY}GeV_${ANGLE}deg-${PROC}.hepmc"
 export JUGGLER_SIM_FILE="${OUTDIR}/sim_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
-export JUGGLER_REC_FILE="${OUTDIR}/rec_${ENERGY}GeV_${ANGLE}deg-${PROC}.root"
+export JUGGLER_REC_FILE="${OUTDIR}/rec_${ENERGY}GeV_${ANGLE}deg-${PROC}.edm4hep.root"
 
 echo "Number of events: ${JUGGLER_N_EVENTS}"
 echo "Skip number of events: ${SKIP_N_EVENTS}"

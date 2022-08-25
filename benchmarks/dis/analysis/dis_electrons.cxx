@@ -150,6 +150,82 @@ int dis_electrons(const std::string& config_name)
   TFitResultPtr f_x_esigma_res = h_x_esigma_res->Fit("gaus", "S");
   if (f_x_esigma_res == 0) f_x_esigma_res->Print("V");
 
+  // Print summary
+  fmt::print(fmt::emphasis::bold | fg(fmt::color::forest_green),
+             "Inclusive kinematics summary:\n");
+  fmt::print("Q2 resolution:\n");
+  if (f_Q2_el_res == 0) {
+    fmt::print(" - electron: {} +/- {}\n",
+      f_Q2_el_res->Parameter(1), f_Q2_el_res->Error(1));
+  } else {
+    fmt::print("Q2 electron fit failed\n");
+    return 1;
+  }
+  if (f_Q2_sigma_res == 0) {
+    fmt::print(" - sigma:    {} +/- {}\n",
+      f_Q2_sigma_res->Parameter(1), f_Q2_sigma_res->Error(1));
+  } else {
+    fmt::print("Q2 sigma fit failed\n");
+    return 1;
+  }
+  if (f_Q2_esigma_res == 0) {
+    fmt::print(" - esigma:   {} +/- {}\n",
+      f_Q2_esigma_res->Parameter(1), f_Q2_esigma_res->Error(1));
+  } else {
+    fmt::print("Q2 esigma fit failed\n");
+    return 1;
+  }
+  if (f_Q2_jb_res == 0) {
+    fmt::print(" - JB:       {} +/- {}\n",
+      f_Q2_jb_res->Parameter(1), f_Q2_jb_res->Error(1));
+  } else {
+    fmt::print("Q2 JB fit failed (FIXME: allowed to fail)\n");
+    //return 1;
+  }
+  if (f_Q2_da_res == 0) {
+    fmt::print(" - DA:       {} +/- {}\n",
+      f_Q2_da_res->Parameter(1), f_Q2_da_res->Error(1));
+  } else {
+    fmt::print("Q2 DA fit failed\n");
+    return 1;
+  }
+  fmt::print("x resolution:\n");
+  if (f_x_el_res == 0) {
+    fmt::print(" - electron: {} +/- {}\n",
+      f_x_el_res->Parameter(1), f_x_el_res->Error(1));
+  } else {
+    fmt::print("x electron fit failed\n");
+    return 1;
+  }
+  if (f_x_sigma_res == 0) {
+    fmt::print(" - sigma:    {} +/- {}\n",
+      f_x_sigma_res->Parameter(1), f_x_sigma_res->Error(1));
+  } else {
+    fmt::print("x sigma fit failed\n");
+    return 1;
+  }
+  if (f_x_esigma_res == 0) {
+    fmt::print(" - esigma:   {} +/- {}\n",
+      f_x_esigma_res->Parameter(1), f_x_esigma_res->Error(1));
+  } else {
+    fmt::print("x esigma fit failed\n");
+    return 1;
+  }
+  if (f_x_jb_res == 0) {
+    fmt::print(" - JB:       {} +/- {}\n",
+      f_x_jb_res->Parameter(1), f_x_jb_res->Error(1));
+  } else {
+    fmt::print("x JB fit failed (FIXME: allowed to fail)\n");
+    //return 1;
+  }
+  if (f_x_da_res == 0) {
+    fmt::print(" - DA:       {} +/- {}\n",
+      f_x_da_res->Parameter(1), f_x_da_res->Error(1));
+  } else {
+    fmt::print("x DA fit failed\n");
+    return 1;
+  }
+
   // Plot our histograms.
   // TODO: to start I'm explicitly plotting the histograms, but want to
   // factorize out the plotting code moving forward.

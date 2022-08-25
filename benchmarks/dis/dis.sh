@@ -23,11 +23,12 @@ echo "Running the DIS benchmarks"
 ## - CONFIG:   The specific generator configuration
 ## - EBEAM:    The electron beam energy
 ## - PBEAM:    The ion beam energy
+export REQUIRE_MINQ2=true
 source ${LOCAL_PREFIX}/bin/parse_cmd.sh $@
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
-## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
+## - DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 ##
 ## defined in common_bench repo
@@ -66,7 +67,7 @@ ddsim --runType batch \
       --filter.tracker edep0 \
       -v INFO \
       --numberOfEvents ${JUGGLER_N_EVENTS} \
-      --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+      --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
       --inputFiles ${GEN_FILE} \
       --outputFile ${SIM_FILE}
 if [ "$?" -ne "0" ] ; then
@@ -84,7 +85,7 @@ echo "Running the digitization and reconstruction"
 ## - JUGGLER_SIM_FILE:    input detector simulation
 ## - JUGGLER_REC_FILE:    output reconstructed data
 ## - JUGGLER_N_EVENTS:    number of events to process (part of global environment)
-## - JUGGLER_DETECTOR:    detector package (part of global environment)
+## - DETECTOR:    detector package (part of global environment)
 export JUGGLER_SIM_FILE=${SIM_FILE}
 export JUGGLER_REC_FILE=${REC_FILE}
 for rec in options/*.py ; do
@@ -92,11 +93,11 @@ for rec in options/*.py ; do
   [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
   JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
     gaudirun.py ${rec}
+  if [ "$?" -ne "0" ] ; then
+    echo "ERROR running juggler"
+    exit 1
+  fi
 done
-if [ "$?" -ne "0" ] ; then
-  echo "ERROR running juggler"
-  exit 1
-fi
 
 ## =============================================================================
 ## Step 4: Analysis
@@ -106,29 +107,36 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
 
-#FIXME DIS analysis disabled
-#root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
-#if [[ "$?" -ne "0" ]] ; then
-#  echo "ERROR running dis_electron script"
-#  exit 1
-#fi
+root -b -q "benchmarks/dis/analysis/dis_electrons.cxx+(\"${CONFIG}\")"
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running dis_electron script"
+  exit 1
+fi
+
+python benchmarks/dis/analysis/kinematics_correlations.py --rec_file ${REC_FILE} --ebeam ${EBEAM} --pbeam ${PBEAM} --minq2 ${MINQ2}
+if [[ "$?" -ne "0" ]] ; then
+  echo "ERROR running kinematics_correlations script"
+  exit 1
+fi
 
 CONFIG="${TMP_PATH}/${PLOT_TAG}.raw.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.raw.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -142,10 +150,11 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.ecal.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.ecal.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF
@@ -159,10 +168,11 @@ CONFIG="${TMP_PATH}/${PLOT_TAG}.hcal.json"
 cat << EOF > ${CONFIG}
 {
   "rec_file": "${REC_FILE/.root/.hcal.root}",
-  "detector": "${JUGGLER_DETECTOR}",
+  "detector": "${DETECTOR}",
   "output_prefix": "${RESULTS_PATH}/${PLOT_TAG}",
   "ebeam": ${EBEAM},
   "pbeam": ${PBEAM},
+  "minq2": ${MINQ2},
   "test_tag": "${BEAM_TAG}"
 }
 EOF

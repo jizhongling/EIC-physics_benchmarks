@@ -21,13 +21,42 @@ default:
       dotenv: juggler.env
 
 stages:
+  - status-pending
   - config
   - initialize
   - compile
   - generate
-  - process
+  - simulate
+  - reconstruct
+  - analyze
   - collect
   - finish
+  - status-report
+
+.status:
+  before_script: []
+  script:
+    - |
+      if [ -n "${GITHUB_SHA}" ] ; then
+        curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token ${GITHUB_REPO_STATUS_TOKEN}" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+          -d '{"state":"'"${STATE}"'",
+               "target_url":"'"${CI_PIPELINE_URL}"'",
+               "description":"'"${DESCRIPTION}"'",
+               "context":"eicweb/physics_benchmarks"
+              }' ;
+      fi
+
+benchmarks:physics:pending:
+  stage: status-pending
+  extends: .status
+  variables:
+    STATE: "pending"
+    DESCRIPTION: "The physics benchmarks are running..."
+  when: always
 
 common:setup:
   stage: config
@@ -47,6 +76,7 @@ common:detector:
   script:
     - source .local/bin/env.sh && build_detector.sh
     - mkdir_local_data_link sim_output
+    - mkdir_local_data_link datasets
     - mkdir -p results
     - mkdir -p config
     - print_env.sh
@@ -66,7 +96,6 @@ common:detector:
     - ln -s "${LOCAL_DATA_PATH}/sim_output" sim_output
     - ln -s "${LOCAL_DATA_PATH}/datasets/data" data
     - ls -lrtha
-    - bash bin/get_calibrations
   retry:
     max: 2
     when:
@@ -79,13 +108,17 @@ include:
   - local: 'benchmarks/tcs/config.yml'
   - local: 'benchmarks/u_omega/config.yml'
   - local: 'benchmarks/single/config.yml'
-  - local: 'benchmarks/synchrotron/config.yml'
+  - local: 'benchmarks/backgrounds/config.yml'
 
 summary:
   stage: finish
-  #needs: ["dis:results", "dvcs:results", "dvmp:results"]
   needs:
+    - "dis:results"
     - "dvcs:results"
+    - "tcs:results"
+    - "u_omega:results"
+    - "single:results"
+    - "backgrounds:results"
   script:
     - collect_benchmarks.py
   artifacts:
@@ -93,3 +126,23 @@ summary:
       - results/*
 #    reports:
 #      junit: ["results/dvcs/report2.xml"]
+
+benchmarks:physics:success:
+  stage: status-report
+  needs:
+    - ["summary"]
+  extends: .status
+  variables:
+    STATE: "success"
+    DESCRIPTION: "The physics benchmarks succeeded!"
+  when: on_success
+
+benchmarks:physics:failure:
+  stage: status-report
+  needs:
+    - ["summary"]
+  extends: .status
+  variables:
+    STATE: "failure"
+    DESCRIPTION: "The physics benchmarks failed!"
+  when: on_failure

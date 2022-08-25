@@ -79,12 +79,12 @@ export JUGGLER_REC_FILE="${LOCAL_DATA_PATH}/rec_${FILE_NAME_TAG}.root"
 
 echo "FILE_NAME_TAG       = ${FILE_NAME_TAG}"
 echo "JUGGLER_N_EVENTS    = ${JUGGLER_N_EVENTS}"
-echo "JUGGLER_DETECTOR    = ${JUGGLER_DETECTOR}"
+echo "DETECTOR    = ${DETECTOR}"
 
 
 ## To run the reconstruction, we need the following global variables:
 ## - JUGGLER_INSTALL_PREFIX: Install prefix for Juggler (simu/recon)
-## - JUGGLER_DETECTOR:       the detector package we want to use for this benchmark
+## - DETECTOR:       the detector package we want to use for this benchmark
 ## - DETECTOR_PATH:          full path to the detector definitions
 
 ## Step 1. Get the data
@@ -105,7 +105,7 @@ if [[ -n "${DO_SIM}" || -n "${DO_ALL}" ]] ; then
     --filter.tracker edep0 \
     -v ERROR \
     --numberOfEvents ${JUGGLER_N_EVENTS} \
-    --compactFile ${DETECTOR_PATH}/${JUGGLER_DETECTOR}.xml \
+    --compactFile ${DETECTOR_PATH}/${DETECTOR_CONFIG}.xml \
     --inputFiles "${JUGGLER_MC_FILE}" \
     --outputFile  ${JUGGLER_SIM_FILE}
   if [[ "$?" -ne "0" ]] ; then
@@ -121,11 +121,11 @@ if [[ -n "${DO_REC}" || -n "${DO_ALL}" ]] ; then
     [[ $(basename ${rec} .py) =~ (.*)\.(.*) ]] && tag=".${BASH_REMATCH[2]}"
     JUGGLER_REC_FILE=${JUGGLER_REC_FILE/.root/${tag:-}.root} \
       gaudirun.py ${rec}
+    if [[ "$?" -ne "0" ]] ; then
+      echo "ERROR running juggler"
+      exit 1
+    fi
   done
-  if [[ "$?" -ne "0" ]] ; then
-    echo "ERROR running juggler"
-    exit 1
-  fi
 
   root_filesize=$(stat --format=%s "${JUGGLER_REC_FILE}")
   if [[ "${JUGGLER_N_EVENTS}" -lt "500" ]] ; then 

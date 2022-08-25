@@ -4,8 +4,8 @@ dvcs:compile:
   script:
     - compile_analyses.py dvcs
 
-dvcs:process:
-  stage: process
+dvcs:simulate:
+  stage: simulate
   extends: .phy_benchmark
   tags:
     - phy
@@ -16,7 +16,7 @@ dvcs:process:
 
 dvcs:results:
   stage: collect
-  needs: ["dvcs:process"]
+  needs: ["dvcs:simulate"]
   script:
     - ls -lrth
       #pip install junitparser

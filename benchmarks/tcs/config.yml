@@ -4,8 +4,8 @@ tcs:compile:
   script:
     - compile_analyses.py tcs
 
-tcs:process:
-  stage: process
+tcs:simulate:
+  stage: simulate
   extends: .phy_benchmark
   tags:
     - phy
@@ -27,6 +27,6 @@ tcs:process:
 
 tcs:results:
   stage: collect
-  needs: ["tcs:process"]
+  needs: ["tcs:simulate"]
   script:
     - ls -lrth
